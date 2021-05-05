@@ -1,0 +1,35 @@
+version: "3"
+services:
+  api:
+    container_name: backend-container
+    build: ./backend
+    image: backend-api
+    command: bash -c "npm install --only=prod && npm start"
+    restart: always
+    environment: 
+      - MONGO_URL=mongodb://mymongo:27017/procap
+      - NODE_ENV=production
+    volumes:
+      - ./backend/dist:/usr/src/procap/backend/dist
+      - ./backend/logs:/usr/src/procap/backend/logs
+    ports:
+      - "3000:3000"
+    networks:
+      - network
+  image-server:
+    container_name: backend-image-server
+    build: ./image-service
+    image: backend-image-service
+    command: bash -c "npm install && npm start"
+    restart: always
+    environment: 
+      - PORT=3015
+    volumes:
+      - ./image-service:/usr/src/procap/image-service
+    ports:
+      - "3015:3015"
+    networks:
+      - network
+networks:
+  network:
+    external: true
