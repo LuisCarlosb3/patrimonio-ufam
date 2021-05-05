@@ -1,33 +1,41 @@
-### Project Architeture
+### Arquitetura do Projeto
 
-Based on Clean-Architeture, this project was divided on follow layers:
+Baseado no conceito de Clean Architeture, a estrutura deste projeto se apresenta da seguinte maneira:
 
  - **Data:**
- Layer where use cases are implemente
+Camada onde são implementados os casos de uso do usuário
  - **Domain:**
- Layer where domain models and use cases are defined
+Camada onde os modelos de dominio são especificados
  - **Infra:**
- Layer where database, sockets and mqtt connections are treated
+Camada de alto desacoplamento, repositoórios com banco de dados, serviços de email e outras bibliotecas são utilizadas nessa camada
  - **Main:**
- Layer where frameworks are used, on application is builded
+Camada de alto nivel, onde os modulos são ligados, responsável por gerenciar a execução dos serviços
  - **Presentation**
- Layer where data came from frameworks are treated
+Camada de entrada onde os dados são tratados, gerenciando as chamadas e as informações solicitadas
 
-This architeture was define by [Clean Architeture - Uncle Bob](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+A arquitetura é definida com base no livro [Clean Architeture - Uncle Bob](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 ***
-### Project Dev Dependences:
+
+### Exemplificação da estrutura
+
+ - Na estrutura deste projeto, a camada **Main** executa a aplicação e recebe as requisições nas rotas, cada rota é tratada por um controler ajustado na camada **Presentaion**, realizando as validações de dados necessárias, consultas que impliquem em especificações relacionadas as regras de negócio ou casos de uso especificos são implementados na camada **Data**, que pode ou não realizar chamadas à camada **Infra**, para possiveis consultas a bancos de dados, envio de emails, etc.
+ 
+ - As pastas com nome de **protocols** especificam interfaces a serem utilizadas por implementações. Por exemplo o protocol **http-controller** especifica a interface que deve sem implementada por controllers utilizados para receber requisições HTTP
+
+
+### Dependências de desenvolvedor:
 
  - [**eslit**](https://eslint.org/)
- this package was selected to enforce code style based on Stardard definitions
+ Pacote utilizado para estilizar o código fonte
  - [**typescript**](https://www.typescriptlang.org/)
- typerscript was selected for help during project, types can help on best comunication
+ Typescript foi selecionado para ajudar durante o projeto, garantindo a tipagem das estruturas
  - [**jest**](https://jestjs.io/)
- for build tests, jest was selected because this library have a simple sintax and great documentation
+ Utlizado para construir testes
  - [**husky**](https://www.npmjs.com/package/husky)
- husky is like a hook that will run before each git-commit and git-push to enforce code quality and prevent crashed features on repository
+ Husky é um hook que valida se não há erros no código e evita que erros sejam enviados para o repositório
  - [**lint-staged**](https://github.com/okonet/lint-staged)
- lint-staged help with code style, before each commit, lint will fix code style problems
+ Lint-staged verifica e corrige problemas com erros no estilo do código antes de realizar um commit, utilizando junto ao husky
  - [**git-commit-msg-linter**](https://www.npmjs.com/package/git-commit-msg-linter)
- to organize repository please use "small commits methodology", commits out of pattern will be reject, (please see [conventional commits](https://www.conventionalcommits.org/pt-br/v1.0.0-beta.4/))
+ Utilizando para padronizar as mensagens dos commits com base na metodologia "small commits", commits fora do padrão serão rejeitados, (verificar [conventional commits](https://www.conventionalcommits.org/pt-br/v1.0.0-beta.4/))
 
 ***
