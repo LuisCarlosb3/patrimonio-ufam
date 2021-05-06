@@ -10,7 +10,7 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   roots: [
-    '<rootDir>/tests'
+    '<rootDir>/test'
   ],
   testEnvironment: 'node',
   transform: {
