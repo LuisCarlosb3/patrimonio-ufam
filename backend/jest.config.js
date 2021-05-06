@@ -10,13 +10,14 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   roots: [
-    '<rootDir>/src'
+    '<rootDir>/tests'
   ],
   testEnvironment: 'node',
   transform: {
     '.+\\.ts$': 'ts-jest'
   },
   moduleNameMapper: {
+    '@/test/(.*)': '<rootDir>/test/$1',
     '@/(.*)': '<rootDir>/src/$1'
   }
 }
