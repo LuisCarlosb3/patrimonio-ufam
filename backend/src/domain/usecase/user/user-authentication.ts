@@ -1,4 +1,3 @@
-import { User } from '@/domain/model/user'
 
 export interface AuthenticationModel {
   registration: string
@@ -6,5 +5,5 @@ export interface AuthenticationModel {
 }
 
 export interface UserAuthentication {
-  auth(auth: AuthenticationModel): Promise<{token: string, userAccount: Omit<User, 'id' | 'password'> }>
+  auth(auth: AuthenticationModel): Promise<string>
 }
