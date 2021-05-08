@@ -3,7 +3,7 @@ import { DbLoadAccountByRegistration } from '@/data/protocols/db/db-load-account
 import { HashComparer } from '@/data/protocols/criptography/hash-compare'
 import Encrypter from '@/data/protocols/criptography/encrypter'
 
-export class DbAuthentication implements UserAuthentication {
+export class AuthenticationData implements UserAuthentication {
   constructor (
     private readonly dbLoadAccountByRegistration: DbLoadAccountByRegistration,
     private readonly hashComparer: HashComparer,

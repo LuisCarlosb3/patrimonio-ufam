@@ -1,6 +1,6 @@
 import { HashComparer } from '@/data/protocols/criptography/hash-compare'
 import { DbLoadAccountByRegistration } from '@/data/protocols/db/db-load-account-by-registration'
-import { DbAuthentication } from '@/data/usecases/authentication/auth-authentication'
+import { AuthenticationData } from '@/data/usecases/authentication/auth-authentication'
 import { User, UserPermission } from '@/domain/model/user'
 import { AuthenticationModel } from '@/domain/usecase/user/user-authentication'
 import Encrypter from '@/data/protocols/criptography/encrypter'
@@ -47,7 +47,7 @@ const makeEncrypter = (): Encrypter => {
 }
 
 interface SutTypes {
-  sut: DbAuthentication
+  sut: AuthenticationData
   dbLoadAccountByRegistration: DbLoadAccountByRegistration
   hashComparerStub: HashComparer
   encrypterStub: Encrypter
@@ -57,7 +57,7 @@ const makeSut = (): SutTypes => {
   const dbLoadAccountByRegistration = makeDbLoadAccountByRegistration()
   const hashComparerStub = makeHashCompareStub()
   const encrypterStub = makeEncrypter()
-  const sut = new DbAuthentication(dbLoadAccountByRegistration, hashComparerStub, encrypterStub)
+  const sut = new AuthenticationData(dbLoadAccountByRegistration, hashComparerStub, encrypterStub)
   return {
     sut,
     dbLoadAccountByRegistration,
