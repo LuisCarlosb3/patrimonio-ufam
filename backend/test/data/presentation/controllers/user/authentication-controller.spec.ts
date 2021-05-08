@@ -1,7 +1,9 @@
 import { AuthenticationModel, UserAuthentication } from '@/domain/usecase/user/user-authentication'
 import { AuthenticationController } from '@/presentation/controllers/user/authentication-controller'
-import { responseSuccess, serverError } from '@/presentation/protocols/helpers/http-helpers'
+import { badRequest, responseSuccess, serverError } from '@/presentation/protocols/helpers/http-helpers'
+import { Validation } from '@/presentation/protocols/validation'
 import { HttpRequest } from '@/presentation/protocols/http'
+import { MissingParamError } from '@/presentation/protocols/helpers/errors'
 const makeFakeHttpRequest = (): HttpRequest => {
   return {
     body: {
@@ -18,15 +20,25 @@ const makeFakeUserAuth = (): UserAuthentication => {
   }
   return new UserAuthenticationStub()
 }
+const makeFakeValidator = (): Validation => {
+  class ValidationStub implements Validation {
+    validate (input: object): Error {
+      return null
+    }
+  }
+  return new ValidationStub()
+}
 
 interface SutType {
   sut: AuthenticationController
   userAuth: UserAuthentication
+  validator: Validation
 }
 const makeSut = (): SutType => {
   const userAuth = makeFakeUserAuth()
-  const sut = new AuthenticationController(userAuth)
-  return { sut, userAuth }
+  const validator = makeFakeValidator()
+  const sut = new AuthenticationController(userAuth, validator)
+  return { sut, userAuth, validator }
 }
 
 describe('AuthenticationController', () => {
@@ -51,5 +63,19 @@ describe('AuthenticationController', () => {
     expect(response).toEqual(responseSuccess({
       token: 'any_token'
     }))
+  })
+  test('Ensure AuthenticationController calls AuthValidator with body params', async () => {
+    const { sut, validator } = makeSut()
+    const validatorSpy = jest.spyOn(validator, 'validate')
+    const request = makeFakeHttpRequest()
+    await sut.handle(request)
+    expect(validatorSpy).toHaveBeenCalledWith(request.body)
+  })
+  test('Ensure AuthenticationController returns error if validator returns error', async () => {
+    const { sut, validator } = makeSut()
+    jest.spyOn(validator, 'validate').mockReturnValueOnce(new MissingParamError('registration'))
+    const request = makeFakeHttpRequest()
+    const response = await sut.handle(request)
+    expect(response).toEqual(badRequest(new MissingParamError('registration')))
   })
 })
