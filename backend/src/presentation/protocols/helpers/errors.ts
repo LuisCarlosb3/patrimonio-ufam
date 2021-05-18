@@ -19,8 +19,9 @@ export class MissingParamError extends Error {
   }
 }
 export class InvalidParamError extends Error {
-  constructor (param: string) {
-    super(`Invalid param: ${param}`)
+  constructor (param: string[]) {
+    const message = param.length > 1 ? param.reduce((total, partial) => `${total}, ${partial}`) : param[0]
+    super(`Invalid param: ${message}`)
     this.name = 'InvalidParamError'
   }
 }
