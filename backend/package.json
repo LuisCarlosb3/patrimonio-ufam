@@ -7,7 +7,7 @@
     "start": "node dist/main/server.js",
     "start-dev": "ts-node src/main/server.ts",
     "buld": "rimraf dist && tsc -p tsconfig-build.json",
-    "test": "jest --passWithNoTests --silent --noStackTrace --runInBand --no-cache",
+    "test": "jest --passWithNoTests --silent --noStackTrace --detectOpenHandles --runInBand --no-cache",
     "test:verbose": "jest --passWithNoTests --runInBand",
     "test:unit": "npm test -- --watch -c jest-unit-config.js",
     "test:integration": "npm test -- --watch -c jest-integration-config.js",
