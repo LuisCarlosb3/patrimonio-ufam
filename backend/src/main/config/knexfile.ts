@@ -8,9 +8,10 @@ const knexConfig: KnexConfig = {
   development: {
     client: 'postgresql',
     connection: {
-      database: 'my_db',
-      user: 'username',
-      password: 'password'
+      host: '127.0.0.1',
+      database: 'patrimonio-dev',
+      user: 'postgres',
+      password: 'root'
     },
     pool: {
       min: 2,
@@ -18,16 +19,17 @@ const knexConfig: KnexConfig = {
     },
     migrations: {
       tableName: 'knex_migrations',
-      directory: '../../infra/db/helper/migrations'
+      directory: './src/infra/db/helper/migrations'
     }
   },
 
   test: {
     client: 'postgresql',
     connection: {
-      database: 'my_db',
-      user: 'username',
-      password: 'password'
+      host: '127.0.0.1',
+      database: 'patrimonio-dev',
+      user: 'postgres',
+      password: 'root'
     },
     pool: {
       min: 2,
@@ -35,7 +37,7 @@ const knexConfig: KnexConfig = {
     },
     migrations: {
       tableName: 'knex_migrations',
-      directory: '../../infra/db/helper/migrations'
+      directory: './src/infra/db/helper/migrations'
     }
   },
 
