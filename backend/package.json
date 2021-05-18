@@ -11,9 +11,11 @@
     "test:verbose": "jest --passWithNoTests --runInBand",
     "test:unit": "npm test -- --watch -c jest-unit-config.js",
     "test:integration": "npm test -- --watch -c jest-integration-config.js",
-    "test:staged": "npm test -- --findRelatedTests",
-    "test:ci": "npm test -- --coverage",
-    "knex:migrate:make":"npx knex --knexfile src/main/config/knexfile.ts migrate:make -x ts"
+    "test:staged": "npm test --findRelatedTests",
+    "test:ci": "npm test --coverage",
+    "knex:migrate:make":"npx knex --knexfile src/main/config/knexfile.ts migrate:make -x ts",
+    "knex:migrate:latest": "npx knex --knexfile src/main/config/knexfile.ts migrate:latest",
+    "knex:migrate:down": "npx knex --knexfile src/main/config/knexfile.ts migrate:down"
   },
   "repository": {
     "type": "git",
