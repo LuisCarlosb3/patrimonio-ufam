@@ -1,7 +1,12 @@
+import path from 'path'
 interface KnexConfig {
   development: object
   test: object
   production: object
+}
+const migrationsData = {
+  tableName: 'knex_migrations',
+  directory: path.join(__dirname, '../../infra/db/helper/migrations')
 }
 const knexConfig: KnexConfig = {
 
@@ -13,14 +18,7 @@ const knexConfig: KnexConfig = {
       user: 'postgres',
       password: 'root'
     },
-    pool: {
-      min: 2,
-      max: 10
-    },
-    migrations: {
-      tableName: 'knex_migrations',
-      directory: './src/infra/db/helper/migrations'
-    }
+    migrations: migrationsData
   },
 
   test: {
@@ -31,14 +29,7 @@ const knexConfig: KnexConfig = {
       user: 'postgres',
       password: 'root'
     },
-    pool: {
-      min: 2,
-      max: 10
-    },
-    migrations: {
-      tableName: 'knex_migrations',
-      directory: './src/infra/db/helper/migrations'
-    }
+    migrations: migrationsData
   },
 
   production: {
