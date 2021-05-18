@@ -12,7 +12,7 @@ const makeFakeUser = (): User => {
     registration: 'any_registration',
     email: 'any@email.com',
     password: 'hash_password',
-    permission: UserPermission.DEFAULT
+    permission: UserPermission.INVENTORIOUS
   }
 }
 const makeFakeAuthenticationModel = (): AuthenticationModel => {

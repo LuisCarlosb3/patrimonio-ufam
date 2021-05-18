@@ -8,7 +8,6 @@ export interface User {
 }
 
 export enum UserPermission {
-  DEFAULT = 0,
   INVENTORIOUS = 1, // inventariante
   ADMINISTRATOR = 2
 }
