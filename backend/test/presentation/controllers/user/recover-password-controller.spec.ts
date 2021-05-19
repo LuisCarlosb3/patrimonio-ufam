@@ -2,7 +2,8 @@ import { RecoverPasswordController } from '@/presentation/controllers/user/recov
 import { GenerateRecoverPasswordLink } from '@/presentation/protocols/generate-link-service'
 import { UserRecoverPassword } from '@/domain/usecase/user/user-recover-password'
 import { HttpRequest } from '@/presentation/protocols/http'
-import { noContent, serverError, unauthorizedRequest } from '@/presentation/protocols/helpers/http-helpers'
+import { badRequest, noContent, serverError, unauthorizedRequest } from '@/presentation/protocols/helpers/http-helpers'
+import { Validation } from '@/presentation/protocols/validation'
 const makeFakeHttpRequest = (): HttpRequest => {
   return {
     body: {
@@ -26,17 +27,26 @@ const makeFakeGenerateLinkService = (): GenerateRecoverPasswordLink => {
   }
   return new GeneratePasswordLinkStub()
 }
-
+const makeFakeValidator = (): Validation => {
+  class ValidationStub implements Validation {
+    validate (input: object): Error {
+      return null
+    }
+  }
+  return new ValidationStub()
+}
 interface SutType {
   sut: RecoverPasswordController
   generateLinkService: GenerateRecoverPasswordLink
   userRecover: UserRecoverPassword
+  validator: Validation
 }
 const makeSut = (): SutType => {
   const userRecover = makeFakeUserRecover()
   const generateLinkService = makeFakeGenerateLinkService()
-  const sut = new RecoverPasswordController(generateLinkService, userRecover)
-  return { sut, userRecover, generateLinkService }
+  const validator = makeFakeValidator()
+  const sut = new RecoverPasswordController(generateLinkService, userRecover, validator)
+  return { sut, userRecover, generateLinkService, validator }
 }
 
 describe('AuthenticationController', () => {
@@ -73,5 +83,18 @@ describe('AuthenticationController', () => {
     const request = makeFakeHttpRequest()
     const response = await sut.handle(request)
     expect(response).toEqual(noContent())
+  })
+  test('Ensure AuthenticationController calls validation with body request', async () => {
+    const { sut, validator } = makeSut()
+    const validateSpy = jest.spyOn(validator, 'validate')
+    const request = makeFakeHttpRequest()
+    await sut.handle(request)
+    expect(validateSpy).toHaveBeenCalledWith(request.body)
+  })
+  test('Ensure AuthenticationController returns badRequest on validation returns an error', async () => {
+    const { sut, validator } = makeSut()
+    jest.spyOn(validator, 'validate').mockReturnValueOnce(new Error())
+    const response = await sut.handle({ body: {} })
+    expect(response).toEqual(badRequest(new Error()))
   })
 })
