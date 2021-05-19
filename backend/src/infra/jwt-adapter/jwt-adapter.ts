@@ -4,12 +4,12 @@ import jwt from 'jsonwebtoken'
 export default class JwtAdapter implements Encrypter, Decrypter {
   constructor (private readonly secret: string) { }
   async decrypt (token: string): Promise<{ id: string, permission: number }> {
-    const payload = jwt.verify(token, this.secret)
+    const payload = await jwt.verify(token, this.secret)
     return { id: payload?.['id'], permission: payload?.['permission'] }
   }
 
   async encrypt (value: { id: string, permission: number }): Promise<string> {
-    const token = jwt.sign(value, this.secret)
+    const token = await jwt.sign(value, this.secret)
     return token
   }
 }
