@@ -18,9 +18,9 @@ export class AuthenticationController implements HttpController {
       if (validationError) {
         return badRequest(validationError)
       }
-      const token = await this.userAuth.auth({ registration, password })
-      if (token) {
-        return responseSuccess({ token })
+      const authRespnse = await this.userAuth.auth({ registration, password })
+      if (authRespnse) {
+        return responseSuccess({ ...authRespnse })
       } else {
         return forbidden(new UnauthorizedError())
       }

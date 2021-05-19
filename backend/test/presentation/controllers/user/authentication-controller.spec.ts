@@ -4,6 +4,7 @@ import { badRequest, forbidden, responseSuccess, serverError } from '@/presentat
 import { Validation } from '@/presentation/protocols/validation'
 import { HttpRequest } from '@/presentation/protocols/http'
 import { MissingParamError, UnauthorizedError } from '@/presentation/protocols/helpers/errors'
+import { User, UserPermission } from '@/domain/model/user'
 const makeFakeHttpRequest = (): HttpRequest => {
   return {
     body: {
@@ -12,10 +13,18 @@ const makeFakeHttpRequest = (): HttpRequest => {
     }
   }
 }
+const makeFakeUserData = (): Omit<User, 'id' | 'password'> => {
+  return {
+    name: 'any_name',
+    registration: 'any_registration',
+    email: 'any@email.com',
+    permission: UserPermission.INVENTORIOUS
+  }
+}
 const makeFakeUserAuth = (): UserAuthentication => {
   class UserAuthenticationStub implements UserAuthentication {
-    async auth (auth: AuthenticationModel): Promise<string> {
-      return await Promise.resolve('any_token')
+    async auth (auth: AuthenticationModel): Promise<{token: string, userData: Omit<User, 'id' | 'password'>}> {
+      return await Promise.resolve({ token: 'any_token', userData: makeFakeUserData() })
     }
   }
   return new UserAuthenticationStub()
@@ -68,7 +77,8 @@ describe('AuthenticationController', () => {
     const request = makeFakeHttpRequest()
     const response = await sut.handle(request)
     expect(response).toEqual(responseSuccess({
-      token: 'any_token'
+      token: 'any_token',
+      userData: makeFakeUserData()
     }))
   })
   test('Ensure AuthenticationController calls AuthValidator with body params', async () => {
