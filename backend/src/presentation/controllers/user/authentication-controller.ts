@@ -1,5 +1,6 @@
 import { UserAuthentication } from '@/domain/usecase/user/user-authentication'
-import { badRequest, responseSuccess, serverError } from '@/presentation/protocols/helpers/http-helpers'
+import { UnauthorizedError } from '@/presentation/protocols/helpers/errors'
+import { badRequest, forbidden, responseSuccess, serverError } from '@/presentation/protocols/helpers/http-helpers'
 import { HttpRequest, HttpResponse } from '@/presentation/protocols/http'
 import { HttpController } from '@/presentation/protocols/http-controller'
 import { Validation } from '@/presentation/protocols/validation'
@@ -18,7 +19,11 @@ export class AuthenticationController implements HttpController {
         return badRequest(validationError)
       }
       const token = await this.userAuth.auth({ registration, password })
-      return responseSuccess({ token })
+      if (token) {
+        return responseSuccess({ token })
+      } else {
+        return forbidden(new UnauthorizedError())
+      }
     } catch (error) {
       return serverError(error)
     }

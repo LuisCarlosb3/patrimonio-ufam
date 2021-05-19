@@ -1,9 +1,9 @@
 import { AuthenticationModel, UserAuthentication } from '@/domain/usecase/user/user-authentication'
 import { AuthenticationController } from '@/presentation/controllers/user/authentication-controller'
-import { badRequest, responseSuccess, serverError } from '@/presentation/protocols/helpers/http-helpers'
+import { badRequest, forbidden, responseSuccess, serverError } from '@/presentation/protocols/helpers/http-helpers'
 import { Validation } from '@/presentation/protocols/validation'
 import { HttpRequest } from '@/presentation/protocols/http'
-import { MissingParamError } from '@/presentation/protocols/helpers/errors'
+import { MissingParamError, UnauthorizedError } from '@/presentation/protocols/helpers/errors'
 const makeFakeHttpRequest = (): HttpRequest => {
   return {
     body: {
@@ -55,6 +55,13 @@ describe('AuthenticationController', () => {
     const request = makeFakeHttpRequest()
     const response = await sut.handle(request)
     expect(response).toEqual(serverError(new Error()))
+  })
+  test('Ensure AuthenticationController return unauthorizedRequest if DbAuthentication returns null', async () => {
+    const { sut, userAuth } = makeSut()
+    jest.spyOn(userAuth, 'auth').mockResolvedValueOnce(null)
+    const request = makeFakeHttpRequest()
+    const response = await sut.handle(request)
+    expect(response).toEqual(forbidden(new UnauthorizedError()))
   })
   test('Ensure AuthenticationController returns token returned by DbAuthentication', async () => {
     const { sut } = makeSut()
