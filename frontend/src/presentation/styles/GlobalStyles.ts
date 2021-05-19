@@ -7,6 +7,7 @@ export default createGlobalStyle`
     box-sizing: border-box;
     outline: 0;
   }
+
   body {
     background: #fff;
     color: #33303E;
@@ -23,10 +24,9 @@ export default createGlobalStyle`
   body, input, button, select {
     font-family: 'Poppins', sans-serif;
     font-size: 1.6rem;
-  }
 
-  button {
-    cursor: pointer;
+    border: 0;
+    outline: none;
   }
 
   body,
