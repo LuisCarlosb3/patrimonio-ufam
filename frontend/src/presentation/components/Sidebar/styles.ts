@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components';
 import { Link as LinkRouter } from 'react-router-dom';
 
 interface Links {
-  activeRoute: boolean;
+  active: number;
 }
 
 export const Container = styled.div`
@@ -12,7 +12,17 @@ export const Container = styled.div`
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+`;
+
+export const Logo = styled.div`
+  align-self: center;
+  margin-bottom: 6.5rem;
+
+  img {
+    width: 100%;
+    max-width: 120px;
+    cursor: pointer;
+  }
 `;
 
 export const Content = styled.div`
@@ -21,7 +31,7 @@ export const Content = styled.div`
 
   a {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     margin-bottom: 2rem;
 
     text-decoration: none;
@@ -29,10 +39,10 @@ export const Content = styled.div`
     position: relative;
 
     padding-left: 2rem;
-  }
 
-  svg {
-    margin-right: 1.4rem;
+    svg {
+      margin-right: 1.4rem;
+    }
   }
 `;
 
@@ -49,8 +59,8 @@ const activeSide = css`
 `;
 
 export const Link = styled(LinkRouter)<Links>`
-  color: ${({ activeRoute }) => (activeRoute ? '#000' : '#A0A3BD')};
-  font-weight: ${({ activeRoute }) => (activeRoute ? 500 : 400)};
+  color: ${({ active }) => (active ? '#000' : '#A0A3BD')};
+  font-weight: ${({ active }) => (active ? 500 : 400)};
 
-  ${({ activeRoute }) => activeRoute && activeSide};
+  ${({ active }) => active && activeSide};
 `;

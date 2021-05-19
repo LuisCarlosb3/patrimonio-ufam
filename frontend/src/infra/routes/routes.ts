@@ -6,9 +6,11 @@ import Report from '../../presentation/pages/Report';
 interface IPage {
   id: number;
   icon: 'home' | 'search' | 'report';
-  path: string;
-  name: string;
+  path: string; // route
+  name: string; // name in sidebar
   component: React.FC;
+  isPrivate?: boolean; // show only authorized users
+  nav: boolean; // show in Sidebar
 }
 
 export const pages: IPage[] = [
@@ -18,6 +20,8 @@ export const pages: IPage[] = [
     path: '/',
     name: 'Home',
     component: Home,
+    isPrivate: false,
+    nav: true,
   },
   {
     id: 1,
@@ -25,6 +29,8 @@ export const pages: IPage[] = [
     path: '/search',
     name: 'Busca Avançada',
     component: Search,
+    isPrivate: false,
+    nav: true,
   },
   {
     id: 2,
@@ -32,5 +38,7 @@ export const pages: IPage[] = [
     path: '/report',
     name: 'Relatórios',
     component: Report,
+    isPrivate: false,
+    nav: false,
   },
 ];

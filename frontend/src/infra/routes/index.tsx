@@ -10,9 +10,17 @@ const Routes: React.FC = () => (
     <Sidebar />
     <Main>
       <Switch>
-        {pages.map((page) => (
-          <Route path={page.path} exact component={page.component} />
-        ))}
+        {pages.map(
+          (page) =>
+            !page.isPrivate && (
+              <Route
+                key={page.id}
+                path={page.path}
+                exact
+                component={page.component}
+              />
+            ),
+        )}
       </Switch>
     </Main>
   </Wrapper>
