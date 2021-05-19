@@ -2,7 +2,7 @@ import { RecoverPasswordController } from '@/presentation/controllers/user/recov
 import { GenerateRecoverPasswordLink } from '@/presentation/protocols/generate-link-service'
 import { UserRecoverPassword } from '@/domain/usecase/user/user-recover-password'
 import { HttpRequest } from '@/presentation/protocols/http'
-import { serverError } from '@/presentation/protocols/helpers/http-helpers'
+import { noContent, serverError, unauthorizedRequest } from '@/presentation/protocols/helpers/http-helpers'
 const makeFakeHttpRequest = (): HttpRequest => {
   return {
     body: {
@@ -60,5 +60,18 @@ describe('AuthenticationController', () => {
     const request = makeFakeHttpRequest()
     const response = await sut.handle(request)
     expect(response).toEqual(serverError(new Error()))
+  })
+  test('Ensure AuthenticationController returns noAuthorized if DbAuthentication returns false', async () => {
+    const { sut, userRecover } = makeSut()
+    jest.spyOn(userRecover, 'recover').mockResolvedValueOnce(false)
+    const request = makeFakeHttpRequest()
+    const response = await sut.handle(request)
+    expect(response).toEqual(unauthorizedRequest())
+  })
+  test('Ensure AuthenticationController returns noContent if DbAuthentication returns true', async () => {
+    const { sut } = makeSut()
+    const request = makeFakeHttpRequest()
+    const response = await sut.handle(request)
+    expect(response).toEqual(noContent())
   })
 })
