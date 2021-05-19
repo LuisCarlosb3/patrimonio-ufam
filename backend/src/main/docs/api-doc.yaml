@@ -11,7 +11,7 @@ paths:
     post:
       tags:
         - Authentication
-      description: Route used to authentication
+      description: Route used to user authentication
       requestBody:
         required: true
         content:
@@ -28,7 +28,9 @@ paths:
         "400":
           description: Bad Request
         "401":
-          description: User not authorized
+          description: Forbidden Request
+        "500":
+          description: Server Error
   
   
 components:
@@ -36,24 +38,24 @@ components:
     loginRequest:
       type: object
       properties:
-        matricula:
+        registration:
           type: string
         password:
           type: string
     loginResponse:
       type: object
       properties:
-        accessToken:
+        token:
           type: string
-        operatorAccount:
+        userData:
           type: object
           properties:
             name:
               type: string
             email:
               type: string
-            line:
-              type: array
+            registration:
+              type: string
             permission:
               type: string
     
