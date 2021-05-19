@@ -6,7 +6,7 @@ const defaultStyles = { display: 'inline-block', verticalAlign: 'middle' };
 interface IconProps {
   size?: number;
   color?: string;
-  icon: 'home' | 'search' | 'report';
+  icon: 'home' | 'search' | 'report' | 'arrowRight' | 'arrowDown';
   className?: string;
   viewBox?: string;
   stroke?: number;
