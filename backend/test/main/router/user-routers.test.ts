@@ -36,4 +36,15 @@ describe('Authentication Routes', () => {
       password: '123456'
     }).expect(200)
   })
+  test('Should return 401 on login with invalid password', async () => {
+    await insertPayload()
+    await request(server).post('/login').send({
+      registration: 'myregistration',
+      password: '654321'
+    }).expect(403)
+  })
+  test('Should return 400 on login without password', async () => {
+    await insertPayload()
+    await request(server).post('/login').send({}).expect(400, { error: 'Invalid param: registration, password' })
+  })
 })
