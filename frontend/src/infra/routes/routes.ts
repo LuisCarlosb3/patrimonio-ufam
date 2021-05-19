@@ -5,7 +5,7 @@ import Report from '../../presentation/pages/Report';
 
 interface IPage {
   id: number;
-  icon: 'home' | 'search' | 'report';
+  icon?: 'home' | 'search' | 'report';
   path: string; // route
   name: string; // name in sidebar
   component: React.FC;
