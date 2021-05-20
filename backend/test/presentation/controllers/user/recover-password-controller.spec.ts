@@ -1,5 +1,4 @@
 import { RecoverPasswordController } from '@/presentation/controllers/user/recover-password-controller'
-import { GenerateRecoverPasswordLink } from '@/presentation/protocols/generate-link-service'
 import { UserRecoverPassword } from '@/domain/usecase/user/user-recover-password'
 import { HttpRequest } from '@/presentation/protocols/http'
 import { badRequest, noContent, serverError, unauthorizedRequest } from '@/presentation/protocols/helpers/http-helpers'
@@ -13,19 +12,11 @@ const makeFakeHttpRequest = (): HttpRequest => {
 }
 const makeFakeUserRecover = (): UserRecoverPassword => {
   class RecoverPasswordStub implements UserRecoverPassword {
-    async recover (password: string): Promise<boolean> {
+    async recover (registration: string): Promise<boolean> {
       return await Promise.resolve(true)
     }
   }
   return new RecoverPasswordStub()
-}
-const makeFakeGenerateLinkService = (): GenerateRecoverPasswordLink => {
-  class GeneratePasswordLinkStub implements GenerateRecoverPasswordLink {
-    async generate (userRegistration: string): Promise<string> {
-      return await Promise.resolve('hash_link')
-    }
-  }
-  return new GeneratePasswordLinkStub()
 }
 const makeFakeValidator = (): Validation => {
   class ValidationStub implements Validation {
@@ -37,32 +28,23 @@ const makeFakeValidator = (): Validation => {
 }
 interface SutType {
   sut: RecoverPasswordController
-  generateLinkService: GenerateRecoverPasswordLink
   userRecover: UserRecoverPassword
   validator: Validation
 }
 const makeSut = (): SutType => {
   const userRecover = makeFakeUserRecover()
-  const generateLinkService = makeFakeGenerateLinkService()
   const validator = makeFakeValidator()
-  const sut = new RecoverPasswordController(generateLinkService, userRecover, validator)
-  return { sut, userRecover, generateLinkService, validator }
+  const sut = new RecoverPasswordController(userRecover, validator)
+  return { sut, userRecover, validator }
 }
 
 describe('AuthenticationController', () => {
-  test('Ensure AuthenticationController calls generateLinkService with user authentication', async () => {
-    const { sut, generateLinkService } = makeSut()
-    const generateSpy = jest.spyOn(generateLinkService, 'generate')
-    const request = makeFakeHttpRequest()
-    await sut.handle(request)
-    expect(generateSpy).toHaveBeenCalledWith(request.body.registration)
-  })
   test('Ensure AuthenticationController calls DbAuthentication with user registration and link recover', async () => {
     const { sut, userRecover } = makeSut()
     const authSpy = jest.spyOn(userRecover, 'recover')
     const request = makeFakeHttpRequest()
     await sut.handle(request)
-    expect(authSpy).toHaveBeenCalledWith(request.body.registration, 'hash_link')
+    expect(authSpy).toHaveBeenCalledWith(request.body.registration)
   })
   test('Ensure AuthenticationController return server error on UserRecoverPassword throws', async () => {
     const { sut, userRecover } = makeSut()
