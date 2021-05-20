@@ -19,14 +19,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/lu.ca.oliveira41/procap.git"
+    "url": "https://github.com/LuisCarlosb3/patrimonio-ufam.git"
   },
   "author": "Area 01",
   "license": "ISC",
   "bugs": {
-    "url": "https://gitlab.com/lu.ca.oliveira41/procap/issues"
+    "url": "https://github.com/LuisCarlosb3/patrimonio-ufam"
   },
-  "homepage": "https://gitlab.com/lu.ca.oliveira41/procap#readme",
+  "homepage": "https://github.com/LuisCarlosb3/patrimonio-ufam",
   "devDependencies": {
     "@types/bcrypt": "^3.0.1",
     "@types/express": "^4.17.11",
