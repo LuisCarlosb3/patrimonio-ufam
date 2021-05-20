@@ -1,4 +1,4 @@
-import { AuthenticationData } from '@/data/usecases/authentication/auth-authentication'
+import { AuthenticationData } from '@/data/usecases/user/auth-authentication'
 import { UserAuthentication } from '@/domain/usecase/user/user-authentication'
 import BcryptAdapter from '@/infra/bcrypt-adapter/bcrypt-adapter'
 import { UserRepository } from '@/infra/db/repositories/user-repository'
