@@ -98,6 +98,6 @@ describe('RecoverPasswordData', () => {
   test('Should return recover link if RecoverPasswordData', async () => {
     const { sut } = makeSut()
     const link = await sut.recover('any_registration')
-    expect(link).toEqual('hash_link')
+    expect(link).toEqual({ email: 'any@email.com', hashlink: 'hash_link' })
   })
 })

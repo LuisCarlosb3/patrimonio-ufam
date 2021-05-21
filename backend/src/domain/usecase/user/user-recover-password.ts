@@ -1,4 +1,4 @@
 
 export interface UserRecoverPassword {
-  recover(registration: string): Promise<string>
+  recover(registration: string): Promise<{email: string, hashlink: string}>
 }

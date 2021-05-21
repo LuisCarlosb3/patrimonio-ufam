@@ -10,12 +10,12 @@ export class RecoverPasswordData implements UserRecoverPassword {
     private readonly dbUpdateUserRegistration: DbUpdateUserRecoverLink
   ) {}
 
-  async recover (registration: string): Promise<string> {
+  async recover (registration: string): Promise<{email: string, hashlink: string}> {
     const user = await this.dbLoadAccountByRegistration.loadByRegistration(registration)
     if (user) {
-      const hashLink = await this.hasher.hash(registration)
-      await this.dbUpdateUserRegistration.update(user.id, hashLink)
-      return hashLink
+      const hashlink = await this.hasher.hash(registration)
+      await this.dbUpdateUserRegistration.update(user.id, hashlink)
+      return { email: user.email, hashlink }
     }
     return null
   }
