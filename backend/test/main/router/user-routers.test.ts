@@ -11,10 +11,11 @@ const makeUser = (): Omit<User, 'id' | 'password'> => {
     permission: UserPermission.INVENTORIOUS
   }
 }
-const insertPayload = async (): Promise<void> => {
+const insertPayload = async (): Promise<string> => {
   const password = await bcrypt.hash('123456', 12)
   const user = makeUser()
-  await knex('users').insert({ ...user, password })
+  const userId = await knex('users').insert({ ...user, password }).returning('id')
+  return userId[0]
 }
 describe('Authentication Routes', () => {
   beforeAll(async done => {
@@ -22,6 +23,7 @@ describe('Authentication Routes', () => {
     done()
   })
   beforeEach(async () => {
+    await knex('user-recover-link').del()
     await knex('users').del()
   })
   afterAll(async done => {
@@ -46,5 +48,31 @@ describe('Authentication Routes', () => {
   test('Should return 400 on login without password', async () => {
     await insertPayload()
     await request(server).post('/login').send({}).expect(400, { error: 'Invalid param: registration, password' })
+  })
+  test('Should return 204 on recover password', async () => {
+    await insertPayload()
+    await request(server).post('/recover').send({
+      registration: 'myregistration'
+    }).expect(204)
+  })
+  test('Should return 400 on recover without registration', async () => {
+    await insertPayload()
+    await request(server).post('/recover').send({
+      registration: ''
+    }).expect(400)
+  })
+  test('Should return 401 on recover with unregistered user', async () => {
+    await request(server).post('/recover').send({
+      registration: 'myregistration'
+    }).expect(401)
+  })
+  test('Should create a recover link to user on database', async () => {
+    const userId = await insertPayload()
+    await request(server).post('/recover').send({
+      registration: 'myregistration'
+    })
+    const recoverLink = await knex('user-recover-link').where({ user_id: userId })
+    expect(recoverLink).toBeTruthy()
+    console.log(recoverLink)
   })
 })
