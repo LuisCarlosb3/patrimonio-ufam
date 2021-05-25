@@ -1,3 +1,3 @@
 export default interface SendRecoverPasswordEmail {
-  sendRecover(email: string, newPassword: string): Promise<void>
+  sendRecover(email: string, newPasswordLink: string): Promise<void>
 }
