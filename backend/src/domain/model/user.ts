@@ -11,3 +11,9 @@ export enum UserPermission {
   INVENTORIOUS = 1, // inventariante
   ADMINISTRATOR = 2
 }
+export interface UserRecover {
+  id: string
+  userId: string
+  link: string
+  expiresAt: Date
+}
