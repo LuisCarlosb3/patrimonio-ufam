@@ -1,4 +1,4 @@
-import { NodemailerHelper as sut } from './nodemailer-helper'
+import { NodemailerHelper as sut } from '@/infra/email/helper/nodemailer-helper'
 let testAccount: {user: string, email: string, pass: string}
 let fakeTransporter: object
 jest.mock('nodemailer', () => ({
