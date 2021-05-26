@@ -20,7 +20,7 @@ export default createGlobalStyle`
       font-size: 40%;
     }
   }
-  
+
   body, input, button, select {
     font-family: 'Poppins', sans-serif;
     font-size: 1.6rem;

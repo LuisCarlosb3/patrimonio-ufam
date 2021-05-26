@@ -1,4 +1,5 @@
 import React from 'react';
+
 import Home from '../../presentation/pages/Home';
 import Search from '../../presentation/pages/Search';
 import Report from '../../presentation/pages/Report';
@@ -8,7 +9,7 @@ interface IPage {
   icon?: 'home' | 'search' | 'report';
   path: string; // route
   name: string; // name in sidebar
-  component: React.FC;
+  component: React.ReactElement;
   isPrivate?: boolean; // show only authorized users
   nav: boolean; // show in Sidebar
 }
@@ -19,7 +20,7 @@ export const pages: IPage[] = [
     icon: 'home',
     path: '/',
     name: 'Home',
-    component: Home,
+    component: <Home />,
     isPrivate: false,
     nav: true,
   },
@@ -28,7 +29,7 @@ export const pages: IPage[] = [
     icon: 'search',
     path: '/search',
     name: 'Busca Avançada',
-    component: Search,
+    component: <Search />,
     isPrivate: false,
     nav: true,
   },
@@ -37,7 +38,7 @@ export const pages: IPage[] = [
     icon: 'report',
     path: '/report',
     name: 'Relatórios',
-    component: Report,
+    component: <Report />,
     isPrivate: false,
     nav: false,
   },

@@ -2,7 +2,7 @@ import React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { withRouter, useHistory } from 'react-router-dom';
 
-import { pages } from '../../../infra/routes/routes';
+import { pages } from '../../../infra/routes/getRoutes';
 import Icon from '../Icon';
 import logo from '../../../assets/logo.svg';
 
@@ -16,7 +16,7 @@ const Sidebar: React.FC<RouteComponentProps> = ({ location }) => {
   };
 
   return (
-    <Container>
+    <Container isVisible={!['/login', '/notfound'].includes(location.pathname)}>
       <Logo onClick={handleNavigate}>
         <img src={logo} alt="Oráculo" />
       </Logo>

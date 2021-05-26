@@ -8,7 +8,11 @@ interface IsVisible {
   isVisible: boolean;
 }
 
-export const Container = styled.div<IsVisible>`
+interface ShodwSide {
+  isVisible: boolean;
+}
+
+export const Container = styled.div<ShodwSide>`
   width: 26.5rem;
   height: 100vh;
   padding: 3rem 0rem;
