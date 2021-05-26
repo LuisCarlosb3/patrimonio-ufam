@@ -41,7 +41,9 @@
       }
     ],
     "no-use-before-define": "off",
-    "@typescript-eslint/no-use-before-define": ["error"]
+    "@typescript-eslint/no-use-before-define": ["error"],
+    "no-param-reassign": 0,
+    "react/jsx-props-no-spreading": "off"
   },
   "settings": {
     "import/resolver": {

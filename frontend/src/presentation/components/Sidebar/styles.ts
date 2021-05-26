@@ -4,13 +4,16 @@ import { Link as LinkRouter } from 'react-router-dom';
 interface Links {
   active: number;
 }
+interface IsVisible {
+  isVisible: boolean;
+}
 
-export const Container = styled.div`
+export const Container = styled.div<IsVisible>`
   width: 26.5rem;
   height: 100vh;
   padding: 3rem 0rem;
 
-  display: flex;
+  display: ${({ isVisible }) => (isVisible ? 'flex' : 'none')};
   flex-direction: column;
 `;
 
