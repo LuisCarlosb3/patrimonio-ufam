@@ -5,12 +5,16 @@ interface Links {
   active: number;
 }
 
-export const Container = styled.div`
+interface ShodwSide {
+  isVisible: boolean;
+}
+
+export const Container = styled.div<ShodwSide>`
   width: 26.5rem;
   height: 100vh;
   padding: 3rem 0rem;
 
-  display: flex;
+  display: ${({ isVisible }) => (isVisible ? 'flex' : 'none')};
   flex-direction: column;
 `;
 

@@ -23,6 +23,7 @@ const Home: React.FC = () => {
     setSelectState(state);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleClickOutside = (event: any) => {
     if (ref.current) {
       if (ref.current && !ref.current.contains(event.target)) {
