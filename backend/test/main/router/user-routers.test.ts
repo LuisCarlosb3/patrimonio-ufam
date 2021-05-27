@@ -17,6 +17,13 @@ const insertPayload = async (): Promise<string> => {
   const userId = await knex('users').insert({ ...user, password }).returning('id')
   return userId[0]
 }
+const insertLink = async (userId: string): Promise<void> => {
+  const linkData = {
+    user_id: userId,
+    link: 'any_link'
+  }
+  await knex('user-recover-link').insert(linkData)
+}
 describe('Authentication Routes', () => {
   beforeAll(async done => {
     await knex.migrate.latest()
@@ -74,5 +81,15 @@ describe('Authentication Routes', () => {
     const recoverLink = await knex('user-recover-link').where({ user_id: userId })
     expect(recoverLink).toBeTruthy()
     console.log(recoverLink)
+  })
+  test('Should return 400 on access link with invalid link', async () => {
+    await insertPayload()
+    await request(server).get('/recover/link').expect(401)
+  })
+  test('Should return 200 on access link with valid link', async () => {
+    const userId = await insertPayload()
+    await insertLink(userId)
+
+    await request(server).get('/recover/any_link').expect(200, `"${userId}"`)
   })
 })
