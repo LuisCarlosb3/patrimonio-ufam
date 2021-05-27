@@ -20,8 +20,8 @@ const insertLink = async (userId: string): Promise<string> => {
     user_id: userId,
     link: 'any_link'
   }
-  await knex('user-recover-link').insert(linkData)
-  return linkData.link
+  const [linkId] = await knex('user-recover-link').insert(linkData).returning('id')
+  return linkId
 }
 describe('User Postgres Repository', () => {
   beforeAll(async done => {
@@ -61,5 +61,13 @@ describe('User Postgres Repository', () => {
     const sut = makeSut()
     const res = await sut.loadByLink('any_link')
     expect(res).toBeNull()
+  })
+  test('Ensure RecoverLink remove user link on search by id', async () => {
+    const sut = makeSut()
+    const userId = await insertUser()
+    const linkId = await insertLink(userId)
+    await sut.deleteById(linkId)
+    const link = await knex('user-recover-link').where({ id: linkId })
+    expect(link[0]).toBeFalsy()
   })
 })
