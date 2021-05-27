@@ -1,6 +1,6 @@
 import { CheckUserRecoverLink } from '@/domain/usecase/user/user-recover-password'
 import { CheckRecoverLinkController } from '@/presentation/controllers/user/check-recover-password-controller'
-import { badRequest, responseSuccess, serverError } from '@/presentation/protocols/helpers/http-helpers'
+import { badRequest, responseSuccess, serverError, unauthorizedRequest } from '@/presentation/protocols/helpers/http-helpers'
 import { HttpRequest } from '@/presentation/protocols/http'
 import { Validation } from '@/presentation/protocols/validation'
 
@@ -66,5 +66,12 @@ describe('CheckRecoverPasswordController', () => {
     const request = makeFakeHttpRequest()
     const response = await sut.handle(request)
     expect(response).toEqual(responseSuccess('user_id'))
+  })
+  test('Ensure returns unauthorizedRequest on fail', async () => {
+    const { sut, checkLink } = makeSut()
+    jest.spyOn(checkLink, 'verify').mockResolvedValueOnce(null)
+    const request = makeFakeHttpRequest()
+    const response = await sut.handle(request)
+    expect(response).toEqual(unauthorizedRequest())
   })
 })
