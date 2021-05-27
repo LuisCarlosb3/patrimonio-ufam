@@ -10,10 +10,18 @@ const makeUser = (): Omit<User, 'id'> => {
     permission: UserPermission.INVENTORIOUS
   }
 }
-const insertPayload = async (): Promise<string> => {
+const insertUser = async (): Promise<string> => {
   const user = makeUser()
   const userId = await knex('users').insert(user).returning('id')
   return userId[0]
+}
+const insertLink = async (userId: string): Promise<string> => {
+  const linkData = {
+    user_id: userId,
+    link: 'any_link'
+  }
+  await knex('user-recover-link').insert(linkData)
+  return linkData.link
 }
 describe('User Postgres Repository', () => {
   beforeAll(async done => {
@@ -34,11 +42,24 @@ describe('User Postgres Repository', () => {
   }
   test('Ensure RecoverLink create user recover link', async () => {
     const sut = makeSut()
-    const userId = await insertPayload()
+    const userId = await insertUser()
     const res = await sut.update(userId, 'any_hash')
     expect(res).toBeTruthy()
     const link = await knex('user-recover-link').where({ link: 'any_hash' })
     expect(link[0]).toBeTruthy()
     expect(link[0].user_id).toEqual(userId)
+  })
+  test('Ensure RecoverLink returns link if user link exists', async () => {
+    const sut = makeSut()
+    const userId = await insertUser()
+    await insertLink(userId)
+    const res = await sut.loadByLink('any_link')
+    expect(res).toBeTruthy()
+    expect(res.userId).toEqual(userId)
+  })
+  test('Ensure RecoverLink returns null if user link not exists', async () => {
+    const sut = makeSut()
+    const res = await sut.loadByLink('any_link')
+    expect(res).toBeNull()
   })
 })
