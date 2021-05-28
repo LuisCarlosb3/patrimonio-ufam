@@ -70,4 +70,12 @@ describe('User Postgres Repository', () => {
     const link = await knex('user-recover-link').where({ id: linkId })
     expect(link[0]).toBeFalsy()
   })
+  test('Ensure RecoverLink remove user link on search by link', async () => {
+    const sut = makeSut()
+    const userId = await insertUser()
+    await insertLink(userId)
+    await sut.deleteByLink('any_link')
+    const link = await knex('user-recover-link').where({ link: 'any_link' })
+    expect(link[0]).toBeFalsy()
+  })
 })
