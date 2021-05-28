@@ -1,4 +1,5 @@
-import { CheckUserRecoverLink, RemoveUsedUserLink } from '@/domain/usecase/user/user-recover-password'
+import { DbRemoveUsedUserLinkById } from '@/data/protocols/db/db-delete-user-recover-link'
+import { CheckUserRecoverLink } from '@/domain/usecase/user/user-recover-password'
 import { UserUpdatePassword } from '@/domain/usecase/user/user-update-password'
 import { RecoverUpdatePasswordController } from '@/presentation/controllers/user/update-password-controller'
 import { badRequest, noContent, serverError, unauthorizedRequest } from '@/presentation/protocols/helpers/http-helpers'
@@ -28,8 +29,8 @@ function makeUserUpdatePassword (): UserUpdatePassword {
   }
   return new UserUpdatePasswordStub()
 }
-function makeRemoveUsedUserLink (): RemoveUsedUserLink {
-  class RemoveUsedUserLinkStub implements RemoveUsedUserLink {
+function makeRemoveUsedUserLink (): DbRemoveUsedUserLinkById {
+  class RemoveUsedUserLinkStub implements DbRemoveUsedUserLinkById {
     async delete (link: string): Promise<void> {
       return await Promise.resolve()
     }
@@ -52,7 +53,7 @@ interface Sut {
   validator: Validation
   checkLink: CheckUserRecoverLink
   updatePassword: UserUpdatePassword
-  deleteLink: RemoveUsedUserLink
+  deleteLink: DbRemoveUsedUserLinkById
 }
 const makeSut = (): Sut => {
   const validator = makeFakeValidator()

@@ -5,6 +5,3 @@ export interface UserRecoverPassword {
 export interface CheckUserRecoverLink {
   verify(link: string): Promise<string>
 }
-export interface RemoveUsedUserLink{
-  delete(link: string): Promise<void>
-}

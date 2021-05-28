@@ -1,4 +1,5 @@
-import { CheckUserRecoverLink, RemoveUsedUserLink } from '@/domain/usecase/user/user-recover-password'
+import { DbRemoveUsedUserLinkById } from '@/data/protocols/db/db-delete-user-recover-link'
+import { CheckUserRecoverLink } from '@/domain/usecase/user/user-recover-password'
 import { UserUpdatePassword } from '@/domain/usecase/user/user-update-password'
 import { badRequest, noContent, serverError, unauthorizedRequest } from '@/presentation/protocols/helpers/http-helpers'
 import { HttpRequest, HttpResponse } from '@/presentation/protocols/http'
@@ -10,7 +11,7 @@ export class RecoverUpdatePasswordController implements HttpController {
     private readonly validator: Validation,
     private readonly verifyLink: CheckUserRecoverLink,
     private readonly updatePassword: UserUpdatePassword,
-    private readonly deleteLink: RemoveUsedUserLink
+    private readonly deleteLink: DbRemoveUsedUserLinkById
   ) {}
 
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
