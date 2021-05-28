@@ -1,4 +1,4 @@
-import { CheckUserRecoverLink } from '@/domain/usecase/user/user-recover-password'
+import { CheckUserRecoverLink, RemoveUsedUserLink } from '@/domain/usecase/user/user-recover-password'
 import { UserUpdatePassword } from '@/domain/usecase/user/user-update-password'
 import { RecoverUpdatePasswordController } from '@/presentation/controllers/user/update-password-controller'
 import { badRequest, noContent, serverError, unauthorizedRequest } from '@/presentation/protocols/helpers/http-helpers'
@@ -28,6 +28,14 @@ function makeUserUpdatePassword (): UserUpdatePassword {
   }
   return new UserUpdatePasswordStub()
 }
+function makeRemoveUsedUserLink (): RemoveUsedUserLink {
+  class RemoveUsedUserLinkStub implements RemoveUsedUserLink {
+    async delete (link: string): Promise<void> {
+      return await Promise.resolve()
+    }
+  }
+  return new RemoveUsedUserLinkStub()
+}
 const makeFakeHttpRequest = (): HttpRequest => {
   return {
     body: {
@@ -44,13 +52,15 @@ interface Sut {
   validator: Validation
   checkLink: CheckUserRecoverLink
   updatePassword: UserUpdatePassword
+  deleteLink: RemoveUsedUserLink
 }
 const makeSut = (): Sut => {
   const validator = makeFakeValidator()
   const checkLink = makeCheckLinkRecover()
   const updatePassword = makeUserUpdatePassword()
-  const sut = new RecoverUpdatePasswordController(validator, checkLink, updatePassword)
-  return { sut, validator, checkLink, updatePassword }
+  const deleteLink = makeRemoveUsedUserLink()
+  const sut = new RecoverUpdatePasswordController(validator, checkLink, updatePassword, deleteLink)
+  return { sut, validator, checkLink, updatePassword, deleteLink }
 }
 
 describe('Uodate Password Controller', () => {
@@ -101,6 +111,13 @@ describe('Uodate Password Controller', () => {
     const request = makeFakeHttpRequest()
     const res = await sut.handle(request)
     expect(res).toEqual(serverError(new Error()))
+  })
+  test('Ensure RecoverUpdatePasswordController calls remove user recover link on success', async () => {
+    const { sut, deleteLink } = makeSut()
+    const deleteSpy = jest.spyOn(deleteLink, 'delete')
+    const request = makeFakeHttpRequest()
+    await sut.handle(request)
+    expect(deleteSpy).toHaveBeenCalledWith('any_link')
   })
   test('Ensure RecoverUpdatePasswordController returns noContent on success', async () => {
     const { sut } = makeSut()

@@ -1,4 +1,4 @@
-import { CheckUserRecoverLink } from '@/domain/usecase/user/user-recover-password'
+import { CheckUserRecoverLink, RemoveUsedUserLink } from '@/domain/usecase/user/user-recover-password'
 import { UserUpdatePassword } from '@/domain/usecase/user/user-update-password'
 import { badRequest, noContent, serverError, unauthorizedRequest } from '@/presentation/protocols/helpers/http-helpers'
 import { HttpRequest, HttpResponse } from '@/presentation/protocols/http'
@@ -9,7 +9,8 @@ export class RecoverUpdatePasswordController implements HttpController {
   constructor (
     private readonly validator: Validation,
     private readonly verifyLink: CheckUserRecoverLink,
-    private readonly updatePassword: UserUpdatePassword
+    private readonly updatePassword: UserUpdatePassword,
+    private readonly deleteLink: RemoveUsedUserLink
   ) {}
 
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
@@ -19,9 +20,11 @@ export class RecoverUpdatePasswordController implements HttpController {
       if (hasError) {
         return badRequest(hasError)
       }
-      const userId = await this.verifyLink.verify(params.link)
+      const { link } = params
+      const userId = await this.verifyLink.verify(link)
       if (userId) {
         await this.updatePassword.updatePassword(userId, body.password)
+        await this.deleteLink.delete(link)
         return noContent()
       }
       return unauthorizedRequest()
