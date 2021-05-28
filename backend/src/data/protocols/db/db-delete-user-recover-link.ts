@@ -1,3 +1,3 @@
 export interface DbRemoveUsedUserLinkById{
-  delete(link: string): Promise<void>
+  deleteByLink(link: string): Promise<void>
 }
