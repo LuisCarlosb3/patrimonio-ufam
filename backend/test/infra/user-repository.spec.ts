@@ -11,9 +11,10 @@ const makeUser = (): User => {
     permission: UserPermission.INVENTORIOUS
   }
 }
-const insertPayload = async (): Promise<void> => {
+const insertPayload = async (): Promise<string> => {
   const { id, ...user } = makeUser()
-  await knex('users').insert(user)
+  const [userId] = await knex('users').insert(user).returning('id')
+  return userId
 }
 describe('User Postgres Repository', () => {
   beforeAll(async done => {
@@ -42,5 +43,13 @@ describe('User Postgres Repository', () => {
     const sut = makeSut()
     const res = await sut.loadByRegistration('any_registration')
     expect(res).toBeNull()
+  })
+  test('Ensure UserRepository update user password by id on success', async () => {
+    const sut = makeSut()
+    const userId = await insertPayload()
+    await sut.updateById(userId, 'new_hash')
+    const [userData] = await knex('users').where({ id: userId })
+    expect(userData).toBeTruthy()
+    expect(userData.password).toEqual('new_hash')
   })
 })
