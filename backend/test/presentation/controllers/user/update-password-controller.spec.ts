@@ -31,7 +31,7 @@ function makeUserUpdatePassword (): UserUpdatePassword {
 }
 function makeRemoveUsedUserLink (): DbRemoveUsedUserLinkById {
   class RemoveUsedUserLinkStub implements DbRemoveUsedUserLinkById {
-    async delete (link: string): Promise<void> {
+    async deleteByLink (link: string): Promise<void> {
       return await Promise.resolve()
     }
   }
@@ -115,7 +115,7 @@ describe('Uodate Password Controller', () => {
   })
   test('Ensure RecoverUpdatePasswordController calls remove user recover link on success', async () => {
     const { sut, deleteLink } = makeSut()
-    const deleteSpy = jest.spyOn(deleteLink, 'delete')
+    const deleteSpy = jest.spyOn(deleteLink, 'deleteByLink')
     const request = makeFakeHttpRequest()
     await sut.handle(request)
     expect(deleteSpy).toHaveBeenCalledWith('any_link')

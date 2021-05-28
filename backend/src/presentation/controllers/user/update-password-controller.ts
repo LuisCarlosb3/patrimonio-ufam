@@ -25,7 +25,7 @@ export class RecoverUpdatePasswordController implements HttpController {
       const userId = await this.verifyLink.verify(link)
       if (userId) {
         await this.updatePassword.updatePassword(userId, body.password)
-        await this.deleteLink.delete(link)
+        await this.deleteLink.deleteByLink(link)
         return noContent()
       }
       return unauthorizedRequest()
