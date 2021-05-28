@@ -5,7 +5,7 @@ import { HttpRequest, HttpResponse } from '@/presentation/protocols/http'
 import { HttpController } from '@/presentation/protocols/http-controller'
 import { Validation } from '@/presentation/protocols/validation'
 
-export class UpdatePasswordController implements HttpController {
+export class RecoverUpdatePasswordController implements HttpController {
   constructor (
     private readonly validator: Validation,
     private readonly verifyLink: CheckUserRecoverLink,
