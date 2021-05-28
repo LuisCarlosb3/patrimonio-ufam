@@ -22,8 +22,8 @@ function makeCheckLinkRecover (): CheckUserRecoverLink {
 }
 function makeUserUpdatePassword (): UserUpdatePassword {
   class UserUpdatePasswordStub implements UserUpdatePassword {
-    async updatePassword (userId: string, newPassword: string): Promise<boolean> {
-      return await Promise.resolve(true)
+    async updatePassword (userId: string, newPassword: string): Promise<void> {
+      return await Promise.resolve(null)
     }
   }
   return new UserUpdatePasswordStub()
