@@ -89,7 +89,15 @@ describe('Authentication Routes', () => {
   test('Should return 200 on access link with valid link', async () => {
     const userId = await insertPayload()
     await insertLink(userId)
-
     await request(server).get('/recover/any_link').expect(204)
   })
+  test('Should return 400 on recover update password with wrong password confirmation', async () => {
+    const userId = await insertPayload()
+    await insertLink(userId)
+    await request(server).post('/recover/any_link').send({
+      password: 'newpassword',
+      password_confirmation: 'wrongpassword'
+    }).expect(400)
+  })
+  // TODO needs tests routes
 })
