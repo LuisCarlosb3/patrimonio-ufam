@@ -1,6 +1,6 @@
 import { CheckUserRecoverLink } from '@/domain/usecase/user/user-recover-password'
 import { CheckRecoverLinkController } from '@/presentation/controllers/user/check-recover-password-controller'
-import { badRequest, responseSuccess, serverError, unauthorizedRequest } from '@/presentation/protocols/helpers/http-helpers'
+import { badRequest, noContent, serverError, unauthorizedRequest } from '@/presentation/protocols/helpers/http-helpers'
 import { HttpRequest } from '@/presentation/protocols/http'
 import { Validation } from '@/presentation/protocols/validation'
 
@@ -61,11 +61,11 @@ describe('CheckRecoverPasswordController', () => {
     const response = await sut.handle({ params: {} })
     expect(response).toEqual(badRequest(new Error()))
   })
-  test('Ensure returns user id on succeeds', async () => {
+  test('Ensure returns noContent on succeeds', async () => {
     const { sut } = makeSut()
     const request = makeFakeHttpRequest()
     const response = await sut.handle(request)
-    expect(response).toEqual(responseSuccess('user_id'))
+    expect(response).toEqual(noContent())
   })
   test('Ensure returns unauthorizedRequest on fail', async () => {
     const { sut, checkLink } = makeSut()

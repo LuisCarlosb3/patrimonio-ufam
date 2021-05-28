@@ -1,5 +1,5 @@
 import { CheckUserRecoverLink } from '@/domain/usecase/user/user-recover-password'
-import { badRequest, responseSuccess, serverError, unauthorizedRequest } from '@/presentation/protocols/helpers/http-helpers'
+import { badRequest, noContent, serverError, unauthorizedRequest } from '@/presentation/protocols/helpers/http-helpers'
 import { HttpRequest, HttpResponse } from '@/presentation/protocols/http'
 import { HttpController } from '@/presentation/protocols/http-controller'
 import { Validation } from '@/presentation/protocols/validation'
@@ -19,7 +19,7 @@ export class CheckRecoverLinkController implements HttpController {
       }
       const userId = await this.checkUserByLink.verify(params.link)
       if (userId) {
-        return responseSuccess(userId)
+        return noContent()
       }
       return unauthorizedRequest()
     } catch (error) {

@@ -90,6 +90,6 @@ describe('Authentication Routes', () => {
     const userId = await insertPayload()
     await insertLink(userId)
 
-    await request(server).get('/recover/any_link').expect(200, `"${userId}"`)
+    await request(server).get('/recover/any_link').expect(204)
   })
 })
