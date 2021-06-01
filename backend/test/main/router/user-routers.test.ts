@@ -99,5 +99,37 @@ describe('Authentication Routes', () => {
       password_confirmation: 'wrongpassword'
     }).expect(400)
   })
+  test('Should return 400 on recover update password without  password confirmation', async () => {
+    const userId = await insertPayload()
+    await insertLink(userId)
+    await request(server).post('/recover/any_link').send({
+      password: 'newpassword'
+    }).expect(400)
+  })
+  test('Should return 400 on recover update password without password', async () => {
+    const userId = await insertPayload()
+    await insertLink(userId)
+    await request(server).post('/recover/any_link').send({
+      password_confirmation: 'wrongpassword'
+    }).expect(400)
+  })
+  test('Should return 400 on recover update password with invalid link', async () => {
+    await insertPayload()
+    await request(server).post('/recover/wrong_link').send({
+      password: 'newpassword',
+      password_confirmation: 'newpassword'
+    }).expect(401, { error: 'Unauthorized' })
+  })
+  test('Should return 201 on recover update password', async () => {
+    const userId = await insertPayload()
+    await insertLink(userId)
+    await request(server).post('/recover/any_link').send({
+      password: 'newpassword',
+      password_confirmation: 'newpassword'
+    }).expect(204)
+    const [userData] = await knex('users').where({ id: userId })
+    const passwordMatches = bcrypt.compareSync('newpassword', userData.password)
+    expect(passwordMatches).toBeTruthy()
+  })
   // TODO needs tests routes
 })
