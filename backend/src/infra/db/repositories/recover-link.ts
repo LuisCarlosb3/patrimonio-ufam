@@ -5,11 +5,11 @@ import { DbUpdateUserRecoverLink } from '@/data/protocols/db/user-recover-passwo
 import { UserRecover } from '@/domain/model/user'
 import knex from '../helper/index'
 export class RecoverLink implements DbUpdateUserRecoverLink, DbLoadUserByRecoverLink, DbDeleteUserByRecoverByID, DbRemoveUsedUserLinkById {
+  private readonly tableName = 'user-recover-link'
   async deleteByLink (link: string): Promise<void> {
     await knex(this.tableName).delete().where({ link })
   }
 
-  private readonly tableName = 'user-recover-link'
   async update (id: string, link: string): Promise<boolean> {
     const res = await knex(this.tableName).insert({
       user_id: id,

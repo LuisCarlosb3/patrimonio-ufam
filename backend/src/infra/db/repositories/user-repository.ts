@@ -6,12 +6,12 @@ import knex from '../helper/index'
 export class UserRepository implements DbLoadAccountByRegistration, DbUpdateUserPasswordById {
   private readonly tableName = 'users'
   async loadByRegistration (registration: string): Promise<User> {
-    const data = await knex(this.tableName).where({ registration })
+    const data = await knex<User>(this.tableName).where({ registration })
     return data[0] ?? null
   }
 
   async updateById (userId: string, newPassword: string): Promise<void> {
-    await knex(this.tableName).update({
+    await knex<User>(this.tableName).update({
       password: newPassword
     }).where({ id: userId })
   }
