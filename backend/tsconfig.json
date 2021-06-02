@@ -7,6 +7,10 @@
       "esModuleInterop": true,
       "rootDirs": ["src","test"],
       "baseUrl": "src",
+      "skipDefaultLibCheck": true,
+      "typeRoots": [
+        "./node_modules/@types"
+      ],
       "paths": {
           "@/test/*":["../test/*"],
           "@/*":["*"]
