@@ -2,7 +2,7 @@ import { Knex } from 'knex'
 
 export async function up (knex: Knex): Promise<void> {
   await knex.raw('create extension if not exists "uuid-ossp"')
-  return knex.schema.createTable('users', (table) => {
+  return await knex.schema.createTable('users', (table) => {
     table.uuid('id').defaultTo(knex.raw('uuid_generate_v4()')).primary()
     table.string('name', 255).notNullable()
     table.string('registration', 20).notNullable()
@@ -14,5 +14,5 @@ export async function up (knex: Knex): Promise<void> {
 
 export async function down (knex: Knex): Promise<void> {
   await knex.schema.dropTable('users')
-  return knex.raw('drop extension if exists "uuid-ossp"')
+  return await knex.raw('drop extension if exists "uuid-ossp"')
 }
