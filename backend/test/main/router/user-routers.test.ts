@@ -83,7 +83,6 @@ describe('Authentication Routes', () => {
       })
       const recoverLink = await knex('user-recover-link').where({ user_id: userId })
       expect(recoverLink).toBeTruthy()
-      console.log(recoverLink)
     })
   })
   describe('GET /recover/link', () => {
