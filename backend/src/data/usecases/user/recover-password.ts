@@ -1,6 +1,6 @@
 import { Hasher } from '@/data/protocols/criptography/hasher'
-import { DbLoadAccountByRegistration } from '@/data/protocols/db/db-load-account-by-registration'
-import { DbUpdateUserRecoverLink } from '@/data/protocols/db/user-recover-password/db-update-user-recover-password'
+import { DbLoadAccountByRegistration } from '@/data/protocols/db/user/db-load-account-by-registration'
+import { DbUpdateUserRecoverLink } from '@/data/protocols/db/user/user-recover-password/db-update-user-recover-password'
 import { UserRecoverPassword } from '@/domain/usecase/user/user-recover-password'
 
 export class RecoverPasswordData implements UserRecoverPassword {

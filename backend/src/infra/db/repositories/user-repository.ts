@@ -1,5 +1,5 @@
-import { DbLoadAccountByRegistration } from '@/data/protocols/db/db-load-account-by-registration'
-import { DbUpdateUserPasswordById } from '@/data/protocols/db/db-update-user-password-by-id'
+import { DbLoadAccountByRegistration } from '@/data/protocols/db/user/db-load-account-by-registration'
+import { DbUpdateUserPasswordById } from '@/data/protocols/db/user/db-update-user-password-by-id'
 import { User } from '@/domain/model/user'
 import knex from '../helper/index'
 

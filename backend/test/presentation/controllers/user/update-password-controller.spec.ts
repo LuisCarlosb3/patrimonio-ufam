@@ -1,4 +1,4 @@
-import { DbRemoveUsedUserLinkById } from '@/data/protocols/db/db-delete-user-recover-link'
+import { DbRemoveUsedUserLinkById } from '@/data/protocols/db/user/user-recover-password/db-delete-user-recover-link'
 import { CheckUserRecoverLink } from '@/domain/usecase/user/user-recover-password'
 import { UserUpdatePassword } from '@/domain/usecase/user/user-update-password'
 import { RecoverUpdatePasswordController } from '@/presentation/controllers/user/update-password-controller'

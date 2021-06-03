@@ -1,9 +1,9 @@
-import { DbLoadAccountByRegistration } from '@/data/protocols/db/db-load-account-by-registration'
+import { DbLoadAccountByRegistration } from '@/data/protocols/db/user/db-load-account-by-registration'
 import { User, UserPermission } from '@/domain/model/user'
 import { UserRecoverPassword } from '@/domain/usecase/user/user-recover-password'
 import { RecoverPasswordData } from '@/data/usecases/user/recover-password'
 import { Hasher } from '@/data/protocols/criptography/hasher'
-import { DbUpdateUserRecoverLink } from '@/data/protocols/db/user-recover-password/db-update-user-recover-password'
+import { DbUpdateUserRecoverLink } from '@/data/protocols/db/user/user-recover-password/db-update-user-recover-password'
 
 const makeFakeUser = (): User => {
   return {

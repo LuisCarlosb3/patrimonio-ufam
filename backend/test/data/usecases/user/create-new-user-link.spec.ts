@@ -1,5 +1,5 @@
 import { CreateNewUserLinkData } from '@/data/usecases/user/create-new-user-link'
-import { DbCreateFirsAccessLink } from '@/data/protocols/db/db-update-user-with-first-access-link'
+import { DbCreateFirsAccessLink } from '@/data/protocols/db/user/db-update-user-with-first-access-link'
 const fakeString = 'c82f563848f7782b8a9fdef5776'
 jest.mock('crypto', () => ({
   randomBytes: () => fakeString

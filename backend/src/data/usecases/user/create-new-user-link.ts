@@ -1,4 +1,4 @@
-import { DbCreateFirsAccessLink } from '@/data/protocols/db/db-update-user-with-first-access-link'
+import { DbCreateFirsAccessLink } from '@/data/protocols/db/user/db-update-user-with-first-access-link'
 import { CreateNewUserLink } from '@/domain/usecase/user/create-user-by-admin'
 import { randomBytes } from 'crypto'
 export class CreateNewUserLinkData implements CreateNewUserLink {

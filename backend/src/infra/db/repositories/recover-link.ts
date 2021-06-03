@@ -1,7 +1,7 @@
-import { DbDeleteUserByRecoverByID } from '@/data/protocols/db/check-user-recover-password/db-delete-user-link'
-import { DbLoadUserByRecoverLink } from '@/data/protocols/db/check-user-recover-password/db-load-user-by-link'
-import { DbRemoveUsedUserLinkById } from '@/data/protocols/db/db-delete-user-recover-link'
-import { DbUpdateUserRecoverLink } from '@/data/protocols/db/user-recover-password/db-update-user-recover-password'
+import { DbDeleteUserByRecoverByID } from '@/data/protocols/db/user/check-user-recover-password/db-delete-user-link'
+import { DbLoadUserByRecoverLink } from '@/data/protocols/db/user/check-user-recover-password/db-load-user-by-link'
+import { DbRemoveUsedUserLinkById } from '@/data/protocols/db/user/user-recover-password/db-delete-user-recover-link'
+import { DbUpdateUserRecoverLink } from '@/data/protocols/db/user/user-recover-password/db-update-user-recover-password'
 import { UserRecover } from '@/domain/model/user'
 import knex from '../helper/index'
 export class RecoverLink implements DbUpdateUserRecoverLink, DbLoadUserByRecoverLink, DbDeleteUserByRecoverByID, DbRemoveUsedUserLinkById {

@@ -1,5 +1,5 @@
-import { DbDeleteUserByRecoverByID } from '@/data/protocols/db/check-user-recover-password/db-delete-user-link'
-import { DbLoadUserByRecoverLink } from '@/data/protocols/db/check-user-recover-password/db-load-user-by-link'
+import { DbDeleteUserByRecoverByID } from '@/data/protocols/db/user/check-user-recover-password/db-delete-user-link'
+import { DbLoadUserByRecoverLink } from '@/data/protocols/db/user/check-user-recover-password/db-load-user-by-link'
 import { CheckUserRecoverLink } from '@/domain/usecase/user/user-recover-password'
 
 export class CheckUserRecoverPassword implements CheckUserRecoverLink {

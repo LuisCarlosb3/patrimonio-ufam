@@ -1,5 +1,5 @@
 import { Hasher } from '@/data/protocols/criptography/hasher'
-import { DbUpdateUserPasswordById } from '@/data/protocols/db/db-update-user-password-by-id'
+import { DbUpdateUserPasswordById } from '@/data/protocols/db/user/db-update-user-password-by-id'
 import { UserUpdatePasswordData } from '@/data/usecases/user/update-password'
 
 const makeHashPassword = (): Hasher => {

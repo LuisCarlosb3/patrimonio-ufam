@@ -1,6 +1,6 @@
 import { Hasher } from '@/data/protocols/criptography/hasher'
-import { DbCreateNewUser, DbCreateNewUserModel } from '@/data/protocols/db/db-create-new-user'
-import { DbLoadUserByEmailAndRegistration } from '@/data/protocols/db/db-load-user-by-email-and-registration'
+import { DbCreateNewUser, DbCreateNewUserModel } from '@/data/protocols/db/user/db-create-new-user'
+import { DbLoadUserByEmailAndRegistration } from '@/data/protocols/db/user/db-load-user-by-email-and-registration'
 import { CreateNewUserData } from '@/data/usecases/user/admin-create-mew-user'
 import { User, UserPermission } from '@/domain/model/user'
 import { NewUserModel } from '@/domain/usecase/user/create-user-by-admin'

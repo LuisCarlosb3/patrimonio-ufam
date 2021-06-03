@@ -1,5 +1,5 @@
 import { Hasher } from '@/data/protocols/criptography/hasher'
-import { DbUpdateUserPasswordById } from '@/data/protocols/db/db-update-user-password-by-id'
+import { DbUpdateUserPasswordById } from '@/data/protocols/db/user/db-update-user-password-by-id'
 import { UserUpdatePassword } from '@/domain/usecase/user/user-update-password'
 
 export class UserUpdatePasswordData implements UserUpdatePassword {

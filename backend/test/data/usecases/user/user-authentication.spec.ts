@@ -1,5 +1,5 @@
 import { HashComparer } from '@/data/protocols/criptography/hash-compare'
-import { DbLoadAccountByRegistration } from '@/data/protocols/db/db-load-account-by-registration'
+import { DbLoadAccountByRegistration } from '@/data/protocols/db/user/db-load-account-by-registration'
 import { AuthenticationData } from '@/data/usecases/user/auth-authentication'
 import { User, UserPermission } from '@/domain/model/user'
 import { AuthenticationModel } from '@/domain/usecase/user/user-authentication'

@@ -1,7 +1,7 @@
-import { DbLoadUserByRecoverLink } from '@/data/protocols/db/check-user-recover-password/db-load-user-by-link'
+import { DbLoadUserByRecoverLink } from '@/data/protocols/db/user/check-user-recover-password/db-load-user-by-link'
 import { UserRecover } from '@/domain/model/user'
 import { CheckUserRecoverPassword } from '@/data/usecases/user/check-user-recover-password'
-import { DbDeleteUserByRecoverByID } from '@/data/protocols/db/check-user-recover-password/db-delete-user-link'
+import { DbDeleteUserByRecoverByID } from '@/data/protocols/db/user/check-user-recover-password/db-delete-user-link'
 const makeFakeLinkData = (expiresAt: Date): UserRecover => {
   return {
     id: 'any_id',
