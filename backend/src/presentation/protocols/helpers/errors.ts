@@ -31,9 +31,10 @@ export class AccessDeniedError extends Error {
     this.name = 'AccessDenied'
   }
 }
-export class EmailInUseError extends Error {
-  constructor () {
-    super('The received email is already in use')
-    this.name = 'EmailInUseError'
+export class ValueInUseError extends Error {
+  constructor (param: string[]) {
+    const message = param.length > 1 ? param.reduce((total, partial) => `${total}, ${partial}`) : param[0]
+    super(`The received ${message} is already in use`)
+    this.name = 'ValueInUseError'
   }
 }
