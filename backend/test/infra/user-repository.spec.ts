@@ -68,4 +68,13 @@ describe('User Postgres Repository', () => {
     expect(res.email).toEqual('any@email.com')
     expect(res.registration).toEqual('any_registration')
   })
+  test('Ensure UserRepository create new user returns an user on success', async () => {
+    const sut = makeSut()
+    const { id, ...user } = makeUser()
+    const res = await sut.create(user)
+    const [createdUser] = await knex('users').select()
+    expect(res).toBeTruthy()
+    expect(res.id).toBeTruthy()
+    expect(createdUser.id).toEqual(res.id)
+  })
 })
