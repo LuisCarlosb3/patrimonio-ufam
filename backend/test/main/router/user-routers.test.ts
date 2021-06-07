@@ -203,4 +203,17 @@ describe('Authentication Routes', () => {
       expect(user[0].registration).toEqual('new_registration')
     })
   })
+  describe('Auth middleware', () => {
+    test('Should return 403 on request router with invalid permission', async () => {
+      const userId = await insertPayload(false)
+      const accessToken = await makeAccessToken(userId, UserPermission.INVENTORIOUS)
+      await request(server).post('/users/create')
+        .set('x-access-token', accessToken)
+        .send().expect(403, { error: 'Access denied' })
+    })
+    test('Should return 403 on none token set', async () => {
+      await request(server).post('/users/create')
+        .send().expect(403, { error: 'Access denied' })
+    })
+  })
 })
