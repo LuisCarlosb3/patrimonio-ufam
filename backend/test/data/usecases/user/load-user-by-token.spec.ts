@@ -26,7 +26,7 @@ const makeDecrypterStub = (): Decrypter => {
 }
 const makeLoadUserByTokenRepositoryStub = (): LoadUserByTokenRepository => {
   class LoadUserByTokenRepositoryStub implements LoadUserByTokenRepository {
-    async loadByToken (accessToken: string, permission: number): Promise<User> {
+    async loadByToken (token: string, permission: number): Promise<User> {
       return await new Promise(resolve => resolve(makeFakeUser()))
     }
   }
