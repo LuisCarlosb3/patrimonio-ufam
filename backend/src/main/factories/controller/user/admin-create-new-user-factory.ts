@@ -10,7 +10,7 @@ export function makeAdminCreateNewUserController (): AdminCreateNewUserControlle
     name: 'required',
     registration: 'required',
     email: 'required|email',
-    permisssion: ['required', { in: [UserPermission.ADMINISTRATOR, UserPermission.INVENTORIOUS] }]
+    permission: ['required', { in: [UserPermission.ADMINISTRATOR, UserPermission.INVENTORIOUS] }]
   }
 
   const userValidation = new ValidatorJsAdapter(rules)
