@@ -1,19 +1,22 @@
 import request from 'supertest'
 import server from '@/main/config/app'
+import Env from '@/main/config/env'
 import bcrypt from 'bcrypt'
 import knex from '@/infra/db/helper/index'
 import { User, UserPermission } from '@/domain/model/user'
-const makeUser = (): Omit<User, 'id' | 'password'> => {
+import { sign } from 'jsonwebtoken'
+const makeUser = (isAdmin?: boolean): Omit<User, 'id' | 'password'> => {
+  const perm = isAdmin ? UserPermission.ADMINISTRATOR : UserPermission.INVENTORIOUS
   return {
     name: 'any_name',
     registration: 'myregistration',
     email: 'any@email.com',
-    permission: UserPermission.INVENTORIOUS
+    permission: perm
   }
 }
-const insertPayload = async (): Promise<string> => {
+const insertPayload = async (isAdmin?: boolean): Promise<string> => {
   const password = await bcrypt.hash('123456', 12)
-  const user = makeUser()
+  const user = makeUser(isAdmin)
   const userId = await knex('users').insert({ ...user, password }).returning('id')
   return userId[0]
 }
@@ -24,13 +27,23 @@ const insertLink = async (userId: string): Promise<void> => {
   }
   await knex('user-recover-link').insert(linkData)
 }
+const makeAccessToken = async (id: string, permission: UserPermission): Promise<string> => {
+  const accessToken = sign({ id, permission }, Env.jwtSecret)
+  await knex('user-access-token').insert({
+    user_id: id,
+    token: accessToken
+  })
+  return accessToken
+}
 describe('Authentication Routes', () => {
   beforeAll(async done => {
+    await knex.migrate.down()
     await knex.migrate.latest()
     done()
   })
   beforeEach(async () => {
     await knex('user-recover-link').del()
+    await knex('user-access-token').del()
     await knex('users').del()
   })
   afterAll(async done => {
@@ -136,6 +149,58 @@ describe('Authentication Routes', () => {
       const [userData] = await knex('users').where({ id: userId })
       const passwordMatches = bcrypt.compareSync('newpassword', userData.password)
       expect(passwordMatches).toBeTruthy()
+    })
+  })
+  describe('POST /users/create', () => {
+    test('Should return 400 on crate user with invalid param ', async () => {
+      const userId = await insertPayload(true)
+      const accessToken = await makeAccessToken(userId, UserPermission.ADMINISTRATOR)
+      await request(server).post('/users/create')
+        .set('x-access-token', accessToken)
+        .send({
+          registration: 'valid_registration',
+          email: 'newuser@email.com',
+          permission: UserPermission.INVENTORIOUS
+        }).expect(400, { error: 'Invalid param: name' })
+    })
+    test('Should return 400 on crate user with invalid permission ', async () => {
+      const userId = await insertPayload(true)
+      const accessToken = await makeAccessToken(userId, UserPermission.ADMINISTRATOR)
+      await request(server).post('/users/create')
+        .set('x-access-token', accessToken)
+        .send({
+          name: 'any_name',
+          registration: 'valid_registration',
+          email: 'newuser@email.com',
+          permission: 5
+        }).expect(400, { error: 'Invalid param: permission' })
+    })
+    test('Should return 403 on crate user with aready registered email or registration', async () => {
+      const userId = await insertPayload(true)
+      const accessToken = await makeAccessToken(userId, UserPermission.ADMINISTRATOR)
+      await request(server).post('/users/create')
+        .set('x-access-token', accessToken)
+        .send({
+          name: 'any_name',
+          registration: 'myregistration',
+          email: 'any@email.com',
+          permission: UserPermission.INVENTORIOUS
+        }).expect(403, { error: 'The received registration, email is already in use' })
+    })
+    test('Should return 203 on crate user on success', async () => {
+      const userId = await insertPayload(true)
+      const accessToken = await makeAccessToken(userId, UserPermission.ADMINISTRATOR)
+      await request(server).post('/users/create')
+        .set('x-access-token', accessToken)
+        .send({
+          name: 'new_name',
+          registration: 'new_registration',
+          email: 'new@email.com',
+          permission: UserPermission.INVENTORIOUS
+        }).expect(204)
+      const user = await knex('users').where({ email: 'new@email.com' })
+      expect(user[0]).toBeTruthy()
+      expect(user[0].registration).toEqual('new_registration')
     })
   })
 })
