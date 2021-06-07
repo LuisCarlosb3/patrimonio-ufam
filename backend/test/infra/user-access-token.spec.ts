@@ -46,7 +46,14 @@ describe('UserAccessTokenRepository', () => {
     expect(userAccount.id).toEqual(userId)
     expect(userAccount.name).toEqual('any_name')
   })
-  test('Ensure NewUserLinkRepository returns null on token not found', async () => {
+  test('Ensure NewUserLinkRepository dont loadUser if user dont have permission', async () => {
+    const sut = makeSut()
+    const userId = await insertUser()
+    await insertToken(userId)
+    const userAccount = await sut.loadByToken('user_token', UserPermission.ADMINISTRATOR)
+    expect(userAccount).toBeNull()
+  })
+  test('Ensure NewUserLinkRepository returns null on token with permission not found', async () => {
     const sut = makeSut()
     await insertUser()
     const userData = await sut.loadByToken('user_token', UserPermission.INVENTORIOUS)
