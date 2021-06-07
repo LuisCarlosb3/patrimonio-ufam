@@ -4,6 +4,7 @@ import { AuthenticationData } from '@/data/usecases/user/auth-authentication'
 import { User, UserPermission } from '@/domain/model/user'
 import { AuthenticationModel } from '@/domain/usecase/user/user-authentication'
 import Encrypter from '@/data/protocols/criptography/encrypter'
+import { DbCreateUserAccessToken } from '@/data/protocols/db/user/db-create-user-token'
 
 const makeFakeUser = (): User => {
   return {
@@ -45,24 +46,34 @@ const makeEncrypter = (): Encrypter => {
   }
   return new EncrypterStub()
 }
-
+const makeDbCreateUserAccessToken = (): DbCreateUserAccessToken => {
+  class DbCreateUserAccessTokenStub implements DbCreateUserAccessToken {
+    async createUserToken (userId: string, token: string): Promise<void> {
+      return await Promise.resolve()
+    }
+  }
+  return new DbCreateUserAccessTokenStub()
+}
 interface SutTypes {
   sut: AuthenticationData
   dbLoadAccountByRegistration: DbLoadAccountByRegistration
   hashComparerStub: HashComparer
   encrypterStub: Encrypter
+  dbCreateUserAccessToken: DbCreateUserAccessToken
 }
 
 const makeSut = (): SutTypes => {
   const dbLoadAccountByRegistration = makeDbLoadAccountByRegistration()
   const hashComparerStub = makeHashCompareStub()
   const encrypterStub = makeEncrypter()
-  const sut = new AuthenticationData(dbLoadAccountByRegistration, hashComparerStub, encrypterStub)
+  const dbCreateUserAccessToken = makeDbCreateUserAccessToken()
+  const sut = new AuthenticationData(dbLoadAccountByRegistration, hashComparerStub, encrypterStub, dbCreateUserAccessToken)
   return {
     sut,
     dbLoadAccountByRegistration,
     hashComparerStub,
-    encrypterStub
+    encrypterStub,
+    dbCreateUserAccessToken
   }
 }
 
@@ -116,6 +127,21 @@ describe('DbAuthentication UseCase', () => {
     const promise = sut.auth(makeFakeAuthenticationModel())
     await expect(promise).rejects.toThrow()
   })
+
+  test('Should call CreateUserToken with user token', async () => {
+    const { sut, dbCreateUserAccessToken } = makeSut()
+    const { id } = makeFakeUser()
+    const createUserTokenSpy = jest.spyOn(dbCreateUserAccessToken, 'createUserToken')
+    await sut.auth(makeFakeAuthenticationModel())
+    expect(createUserTokenSpy).toHaveBeenCalledWith(id, 'any_token')
+  })
+  test('Should call CreateUserToken with user token', async () => {
+    const { sut, dbCreateUserAccessToken } = makeSut()
+    jest.spyOn(dbCreateUserAccessToken, 'createUserToken').mockRejectedValueOnce(new Error())
+    const promise = sut.auth(makeFakeAuthenticationModel())
+    await expect(promise).rejects.toThrow()
+  })
+
   test('Should return a token on success', async () => {
     const { sut } = makeSut()
     const accessToken = await sut.auth(makeFakeAuthenticationModel())
