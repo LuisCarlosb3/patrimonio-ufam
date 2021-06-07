@@ -27,8 +27,9 @@ const insertLink = async (userId: string): Promise<void> => {
   }
   await knex('user-recover-link').insert(linkData)
 }
-const makeAccessToken = async (id: string, permission: UserPermission): Promise<string> => {
-  const accessToken = sign({ id, permission }, Env.jwtSecret)
+const makeAccessToken = async (id: string, permission: UserPermission, isExpired?: boolean): Promise<string> => {
+  const options = isExpired ? { expiresIn: '1ms' } : {}
+  const accessToken = sign({ id, permission }, Env.jwtSecret, options)
   await knex('user-access-token').insert({
     user_id: id,
     token: accessToken
@@ -43,6 +44,7 @@ describe('Authentication Routes', () => {
   })
   beforeEach(async () => {
     await knex('user-recover-link').del()
+    await knex('new-user-link').del()
     await knex('user-access-token').del()
     await knex('users').del()
   })
@@ -207,6 +209,13 @@ describe('Authentication Routes', () => {
     test('Should return 403 on request router with invalid permission', async () => {
       const userId = await insertPayload(false)
       const accessToken = await makeAccessToken(userId, UserPermission.INVENTORIOUS)
+      await request(server).post('/users/create')
+        .set('x-access-token', accessToken)
+        .send().expect(403, { error: 'Access denied' })
+    })
+    test('Should return 403 on expired token', async () => {
+      const userId = await insertPayload(true)
+      const accessToken = await makeAccessToken(userId, UserPermission.INVENTORIOUS, true)
       await request(server).post('/users/create')
         .set('x-access-token', accessToken)
         .send().expect(403, { error: 'Access denied' })
