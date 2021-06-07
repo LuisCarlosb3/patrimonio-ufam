@@ -38,7 +38,7 @@ describe('UserAccessTokenRepository', () => {
   const makeSut = (): UserAccessTokenRepository => {
     return new UserAccessTokenRepository()
   }
-  test('Ensure NewUserLinkRepository loadUser data success', async () => {
+  test('Ensure UserAccessTokenRepository loadUser data success', async () => {
     const sut = makeSut()
     const userId = await insertUser()
     await insertToken(userId)
@@ -46,17 +46,33 @@ describe('UserAccessTokenRepository', () => {
     expect(userAccount.id).toEqual(userId)
     expect(userAccount.name).toEqual('any_name')
   })
-  test('Ensure NewUserLinkRepository dont loadUser if user dont have permission', async () => {
+  test('Ensure UserAccessTokenRepository dont loadUser if user dont have permission', async () => {
     const sut = makeSut()
     const userId = await insertUser()
     await insertToken(userId)
     const userAccount = await sut.loadByToken('user_token', UserPermission.ADMINISTRATOR)
     expect(userAccount).toBeNull()
   })
-  test('Ensure NewUserLinkRepository returns null on token with permission not found', async () => {
+  test('Ensure UserAccessTokenRepository returns null on token with permission not found', async () => {
     const sut = makeSut()
     await insertUser()
     const userData = await sut.loadByToken('user_token', UserPermission.INVENTORIOUS)
     expect(userData).toBeNull()
+  })
+  test('Ensure UserAccessTokenRepository insert user token data success', async () => {
+    const sut = makeSut()
+    const userId = await insertUser()
+    await sut.createUserToken(userId, 'user_token')
+    const [user] = await knex('user-access-token').where({ user_id: userId, token: 'user_token' })
+    expect(user.user_id).toEqual(userId)
+    expect(user.token).toEqual('user_token')
+  })
+  test('Ensure UserAccessTokenRepository insert user token', async () => {
+    const sut = makeSut()
+    const userId = await insertUser()
+    await insertToken(userId)
+    await sut.createUserToken(userId, 'other_user_token')
+    const tokens = await knex('user-access-token').where({ user_id: userId })
+    expect(tokens.length).toBe(2)
   })
 })

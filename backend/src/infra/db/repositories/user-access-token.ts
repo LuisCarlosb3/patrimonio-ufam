@@ -1,8 +1,9 @@
+import { DbCreateUserAccessToken } from '@/data/protocols/db/user/db-create-user-token'
 import { LoadUserByTokenRepository } from '@/data/protocols/db/user/db-load-user-by-token'
 import { User } from '@/domain/model/user'
 import knex from '../helper/index'
 
-export class UserAccessTokenRepository implements LoadUserByTokenRepository {
+export class UserAccessTokenRepository implements LoadUserByTokenRepository, DbCreateUserAccessToken {
   private readonly tableName = 'user-access-token'
   async loadByToken (token: string, permission: number): Promise<User> {
     const queryResponse = await knex({ tokens: this.tableName })
@@ -17,5 +18,12 @@ export class UserAccessTokenRepository implements LoadUserByTokenRepository {
       return userData
     }
     return null
+  }
+
+  async createUserToken (userId: string, token: string): Promise<void> {
+    await knex(this.tableName).insert({
+      user_id: userId,
+      token
+    })
   }
 }
