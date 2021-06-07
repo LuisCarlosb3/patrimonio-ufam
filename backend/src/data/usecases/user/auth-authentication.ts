@@ -3,12 +3,14 @@ import { DbLoadAccountByRegistration } from '@/data/protocols/db/user/db-load-ac
 import { HashComparer } from '@/data/protocols/criptography/hash-compare'
 import Encrypter from '@/data/protocols/criptography/encrypter'
 import { User } from '@/domain/model/user'
+import { DbCreateUserAccessToken } from '@/data/protocols/db/user/db-create-user-token'
 
 export class AuthenticationData implements UserAuthentication {
   constructor (
     private readonly dbLoadAccountByRegistration: DbLoadAccountByRegistration,
     private readonly hashComparer: HashComparer,
-    private readonly jwtGenerator: Encrypter
+    private readonly jwtGenerator: Encrypter,
+    private readonly dbCreateUserAccessToken: DbCreateUserAccessToken
   ) {}
 
   async auth (auth: AuthenticationModel): Promise<{token: string, userData: Omit<User, 'id' | 'password'>}> {
@@ -18,6 +20,7 @@ export class AuthenticationData implements UserAuthentication {
       if (passwordMath) {
         const token = await this.jwtGenerator.encrypt({ id: userData.id, permission: userData.permission })
         const { id, password, ...userInfo } = userData
+        await this.dbCreateUserAccessToken.createUserToken(id, token)
         return { token, userData: userInfo }
       }
     }
