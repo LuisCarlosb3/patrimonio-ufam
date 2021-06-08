@@ -1,6 +1,6 @@
 import { AdminCreateNewUserController } from '@/presentation/controllers/user/admin-create-new-user-controller'
 import { User, UserPermission } from '@/domain/model/user'
-import { badRequest, forbidden, noContent, serverError } from '@/presentation/protocols/helpers/http-helpers'
+import { badRequest, noContent, serverError } from '@/presentation/protocols/helpers/http-helpers'
 import { HttpRequest } from '@/presentation/protocols/http'
 import { Validation } from '@/presentation/protocols/validation'
 import { CreateNewUser, CreateNewUserLink, NewUserModel } from '@/domain/usecase/user/create-user-by-admin'
@@ -99,7 +99,7 @@ describe('Uodate Password Controller', () => {
     const { sut, createNewUser } = makeSut()
     jest.spyOn(createNewUser, 'create').mockResolvedValueOnce(['email'])
     const res = await sut.handle(makeFakeHttpRequest())
-    expect(res).toEqual(forbidden(new ValueInUseError(['email'])))
+    expect(res).toEqual(badRequest(new ValueInUseError(['email'])))
   })
   test('Ensure AdminCreateNewUserController returns server error on CreateUserThrows', async () => {
     const { sut, createNewUser } = makeSut()

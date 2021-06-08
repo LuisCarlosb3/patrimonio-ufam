@@ -177,7 +177,7 @@ describe('Authentication Routes', () => {
           permission: 5
         }).expect(400, { error: 'Invalid param: permission' })
     })
-    test('Should return 403 on crate user with aready registered email or registration', async () => {
+    test('Should return 400 on crate user with aready registered email or registration', async () => {
       const userId = await insertPayload(true)
       const accessToken = await makeAccessToken(userId, UserPermission.ADMINISTRATOR)
       await request(server).post('/users/create')
@@ -187,7 +187,7 @@ describe('Authentication Routes', () => {
           registration: 'myregistration',
           email: 'any@email.com',
           permission: UserPermission.INVENTORIOUS
-        }).expect(403, { error: 'The received registration, email is already in use' })
+        }).expect(400, { error: 'The received registration, email is already in use' })
     })
     test('Should return 203 on crate user on success', async () => {
       const userId = await insertPayload(true)
