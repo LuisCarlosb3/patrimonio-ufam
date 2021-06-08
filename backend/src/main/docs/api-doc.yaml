@@ -97,7 +97,32 @@ paths:
           description: link expired or does not exist
         "500":
           description: Server Error
-  
+  /users/create:
+    post:
+      tags:
+        - Admin Functions
+      description: Route used by administrator to create new users
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/createUserRequest"
+      responses:
+        "204":
+          description: User create with success
+        "400":
+          description: Invalid parameters or informations already registered
+        "403":
+          description: User don't have administrator permission to create new user
+        "500":
+          description: Server Error
   
 components:
   schemas:
@@ -136,6 +161,16 @@ components:
           type: string
         password_confirm:
           type: string
-
+    createUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        permission:
+          type: number
+        email:
+          type: string
+        registration:
+          type: string
 
     
