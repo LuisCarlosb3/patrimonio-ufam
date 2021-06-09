@@ -7,9 +7,10 @@ export async function up (knex: Knex): Promise<void> {
     table.string('code', 50).notNullable()
     table.text('description').notNullable()
     table.string('state', 20).notNullable()
-    table.date('entryDate').notNullable()
-    table.date('lastConferenceData').notNullable()
+    table.date('entry_date').notNullable()
+    table.date('last_conference_date').notNullable()
     table.double('value', 2).notNullable()
+    table.timestamp('created_at').defaultTo(knex.fn.now())
   })
 }
 
