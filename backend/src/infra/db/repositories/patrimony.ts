@@ -1,5 +1,6 @@
-import { DbCreateNewPatrimony, NewPatrimonyModel } from '@/data/protocols/db/patrimony/db-create-new-patrimony'
+import { DbCreateNewPatrimony } from '@/data/protocols/db/patrimony/db-create-new-patrimony'
 import { DbCheckPatrimonyByCode } from '@/data/protocols/db/patrimony/db-load-patrimony-by-code'
+import { NewPatrimonyModel } from '@/domain/usecase/patrimony/create-patrimony'
 import knex from '@/infra/db/helper/index'
 export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewPatrimony {
   private readonly patrimonyTable = 'patrimony'

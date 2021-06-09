@@ -1,7 +1,7 @@
 import { PatrimonyRepository } from '@/infra/db/repositories/patrimony'
 import knex from '@/infra/db/helper/index'
 import { PatrimonyState } from '@/domain/model/patrimony'
-import { NewPatrimonyModel } from '@/data/protocols/db/patrimony/db-create-new-patrimony'
+import { NewPatrimonyModel } from '@/domain/usecase/patrimony/create-patrimony'
 const makeSut = (): PatrimonyRepository => {
   return new PatrimonyRepository()
 }
