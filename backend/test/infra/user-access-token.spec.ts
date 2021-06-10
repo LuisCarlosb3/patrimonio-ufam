@@ -48,6 +48,14 @@ describe('UserAccessTokenRepository', () => {
     expect(userAccount.id).toEqual(userId)
     expect(userAccount.name).toEqual('any_name')
   })
+  test('Ensure UserAccessTokenRepository loadUser data success same if permission not defined', async () => {
+    const sut = makeSut()
+    const userId = await insertUser()
+    await insertToken(userId)
+    const userAccount = await sut.loadByToken('user_token')
+    expect(userAccount.id).toEqual(userId)
+    expect(userAccount.name).toEqual('any_name')
+  })
   test('Ensure UserAccessTokenRepository dont loadUser if user dont have permission', async () => {
     const sut = makeSut()
     const userId = await insertUser()

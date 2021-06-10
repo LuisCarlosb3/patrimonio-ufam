@@ -24,7 +24,7 @@ interface Sut {
 }
 const makeLoadAccountByToken = (): LoadUserByToken => {
   class LoadUserByTokenStub implements LoadUserByToken {
-    async load (accessToken: string, permission: UserPermission): Promise<User> {
+    async load (accessToken: string, permission?: UserPermission): Promise<User> {
       return await Promise.resolve(makeFakeAccount())
     }
   }
