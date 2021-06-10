@@ -17,7 +17,7 @@ export interface PatrimonyItens {
 export enum PatrimonyState {
   NEW = 'NOVO',
   GOOD = 'BOM',
-  UNSERVIBLE = 'INSERVÍVEl',
-  UNRECOVERABLE = 'RECUPERÁVEL',
-  UNECONOMICAL = 'ANTIECONÔMICO'
+  UNSERVIBLE = 'INSERVIVEl',
+  UNRECOVERABLE = 'RECUPERAVEL',
+  UNECONOMICAL = 'ANTIECONOMICO'
 }
