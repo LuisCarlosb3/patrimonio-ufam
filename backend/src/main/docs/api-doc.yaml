@@ -17,14 +17,14 @@ paths:
         content:
           "application/json":
             schema:
-              $ref: "#/components/schemas/loginRequest"
+              $ref: "#/components/schemas/LoginRequest"
       responses:
         "200":
           description: Authentication successful
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/loginResponse"
+                $ref: "#/components/schemas/LoginResponse"
         "400":
           description: Invalid password or registration
         "401":
@@ -41,7 +41,7 @@ paths:
         content:
           "application/json":
             schema:
-              $ref: "#/components/schemas/recoverRequest"
+              $ref: "#/components/schemas/RecoverPasswordRequest"
       responses:
         "204":
           description: Recover request succeeds, access link send to user email
@@ -86,7 +86,7 @@ paths:
         content:
           "application/json":
             schema:
-              $ref: "#/components/schemas/recoverUpdatePasswordRequest"
+              $ref: "#/components/schemas/UpdatePasswordRequestFromRecoverLink"
       description: Route used to request user recover password
       responses:
         "204":
@@ -113,7 +113,7 @@ paths:
         content:
           "application/json":
             schema:
-              $ref: "#/components/schemas/createUserRequest"
+              $ref: "#/components/schemas/CreateNewUserRequest"
       responses:
         "204":
           description: User create with success
@@ -139,7 +139,7 @@ paths:
         content:
           "application/json":
             schema:
-              $ref: "#/components/schemas/createPatrimonyRequest"
+              $ref: "#/components/schemas/CreateNewPatrimonyRequest"
       responses:
         "204":
           description: Patrimony created with success
@@ -152,14 +152,14 @@ paths:
   
 components:
   schemas:
-    loginRequest:
+    LoginRequest:
       type: object
       properties:
         registration:
           type: string
         password:
           type: string
-    loginResponse:
+    LoginResponse:
       type: object
       properties:
         token:
@@ -175,19 +175,19 @@ components:
               type: string
             permission:
               type: string
-    recoverRequest:
+    RecoverPasswordRequest:
       type: object
       properties:
         registration:
           type: string
-    recoverUpdatePasswordRequest:
+    UpdatePasswordRequestFromRecoverLink:
       type: object
       properties:
         password:
           type: string
         password_confirm:
           type: string
-    createUserRequest:
+    CreateNewUserRequest:
       type: object
       properties:
         name:
@@ -198,7 +198,7 @@ components:
           type: string
         registration:
           type: string
-    createPatrimonyRequest:
+    CreateNewPatrimonyRequest:
       type: object
       properties:
         code:
