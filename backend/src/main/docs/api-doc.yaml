@@ -1,7 +1,7 @@
 openapi: "3.0.0"
 info:
   version: 1.0.0
-  title: ""
+  title: "Oraculo API"
 servers:
   - url: http://{URL}:3000/
 tags:
@@ -123,6 +123,32 @@ paths:
           description: User don't have administrator permission to create new user
         "500":
           description: Server Error
+  /patrimony/create:
+    post:
+      tags:
+        - Admin Functions
+      description: Route used by administrator to create new patrimony registers
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/createPatrimonyRequest"
+      responses:
+        "204":
+          description: Patrimony created with success
+        "400":
+          description: Code already registered or any params missing
+        "403":
+          description: User don't have administrator permission to create new user
+        "500":
+          description: Server Error
   
 components:
   schemas:
@@ -172,5 +198,39 @@ components:
           type: string
         registration:
           type: string
+    createPatrimonyRequest:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        state:
+          type: string
+          enum: ['NOVO', 'BOM', 'INSERVIVEl', 'RECUPERAVEL', 'ANTIECONOMICO']
+        entryDate:
+          type: string
+          format: date 
+        lastConferenceDate:
+          type: string
+          format: date 
+        value:
+          type: number
+          format: double
+        patrimonyItens: 
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              localization:
+                type: string
+              observation:
+                type: string
+                nullable: true
+                
+
+          
 
     
