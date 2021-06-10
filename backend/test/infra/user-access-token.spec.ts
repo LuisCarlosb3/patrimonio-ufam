@@ -27,6 +27,8 @@ describe('UserAccessTokenRepository', () => {
     done()
   })
   beforeEach(async () => {
+    await knex('user-recover-link').del()
+    await knex('new-user-link').del()
     await knex('user-access-token').del()
     await knex('users').del()
   })
@@ -43,6 +45,14 @@ describe('UserAccessTokenRepository', () => {
     const userId = await insertUser()
     await insertToken(userId)
     const userAccount = await sut.loadByToken('user_token', UserPermission.INVENTORIOUS)
+    expect(userAccount.id).toEqual(userId)
+    expect(userAccount.name).toEqual('any_name')
+  })
+  test('Ensure UserAccessTokenRepository loadUser data success same if permission not defined', async () => {
+    const sut = makeSut()
+    const userId = await insertUser()
+    await insertToken(userId)
+    const userAccount = await sut.loadByToken('user_token')
     expect(userAccount.id).toEqual(userId)
     expect(userAccount.name).toEqual('any_name')
   })

@@ -9,7 +9,7 @@ export class LoadUserByTokenData implements LoadUserByToken {
     private readonly loadUserByTokenRepository: LoadUserByTokenRepository
   ) {}
 
-  async load (accessToken: string, permission: UserPermission): Promise<User> {
+  async load (accessToken: string, permission?: UserPermission): Promise<User> {
     const token = await this.decrypter.decrypt(accessToken)
     if (token) {
       const userAccount = await this.loadUserByTokenRepository.loadByToken(accessToken, permission)

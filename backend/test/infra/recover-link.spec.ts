@@ -30,6 +30,8 @@ describe('User Postgres Repository', () => {
   })
   beforeEach(async () => {
     await knex('user-recover-link').del()
+    await knex('new-user-link').del()
+    await knex('user-access-token').del()
     await knex('users').del()
   })
   afterAll(async done => {
