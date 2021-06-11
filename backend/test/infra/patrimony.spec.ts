@@ -17,7 +17,7 @@ const makeNewPatrimony = (): NewPatrimonyModel => ({
     { name: 'item2', localization: 'any_localization' }
   ]
 })
-async function insertPatrimony (): Promise<void> {
+async function insertPatrimony (): Promise<string> {
   const patrimony = {
     code: 'any_code',
     description: 'any_description',
@@ -26,7 +26,12 @@ async function insertPatrimony (): Promise<void> {
     last_conference_date: new Date('1/1/2021'),
     value: 200
   }
-  await knex('patrimony').insert(patrimony)
+  const [id] = await knex('patrimony').insert(patrimony).returning('id')
+  return id
+}
+async function insertItens (id: string): Promise<void> {
+  const item = { patrimony_id: id, name: 'item1', localization: 'any_localization' }
+  await knex('patrimony-itens').insert(item)
 }
 describe('PatrimonyRepository', () => {
   beforeAll(async done => {
@@ -85,6 +90,17 @@ describe('PatrimonyRepository', () => {
       const itens = await knex('patrimony-itens')
       expect(response).toBeNull()
       expect(itens.length).toEqual(0)
+    })
+  })
+  describe('DbLoadPatrimonyList', () => {
+    test('ensure DbLoadPatrimonyList load patrimony itens', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      await insertItens(id)
+      await insertItens(id)
+      const patrimonies = await sut.load(0, 10)
+      expect(patrimonies.length).toBe(1)
+      expect(patrimonies[0].code).toEqual('any_code')
     })
   })
 })
