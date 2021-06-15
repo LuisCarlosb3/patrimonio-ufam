@@ -1,10 +1,22 @@
 import { DbCreateNewPatrimony } from '@/data/protocols/db/patrimony/db-create-new-patrimony'
 import { DbCheckPatrimonyByCode } from '@/data/protocols/db/patrimony/db-load-patrimony-by-code'
+import { DbLoadPatrimonyList } from '@/data/protocols/db/patrimony/db-load-patrimony-list'
+import { Patrimony } from '@/domain/model/patrimony'
 import { NewPatrimonyModel } from '@/domain/usecase/patrimony/create-patrimony'
 import knex from '@/infra/db/helper/index'
-export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewPatrimony {
+export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewPatrimony, DbLoadPatrimonyList {
   private readonly patrimonyTable = 'patrimony'
   private readonly itensTable = 'patrimony-itens'
+  private readonly columnNameParser = {
+    id: 'id',
+    code: 'code',
+    description: 'description',
+    state: 'state',
+    entryDate: 'entry_date',
+    lastConferenceDate: 'last_conference_date',
+    value: 'value'
+  }
+
   async checkByCode (code: string): Promise<string> {
     const patrimony = await knex(this.patrimonyTable).select('code').where({ code })
     if (patrimony.length > 0) {
@@ -32,5 +44,20 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
       }
     })
     return (data as any || null)
+  }
+
+  async load (page: number, quantityPeerPage: number): Promise<Patrimony[]> {
+    const baseData = await knex(this.patrimonyTable).select(this.columnNameParser).limit(quantityPeerPage).offset(page)
+    const patrimonies = []
+    for await (const item of baseData) {
+      const id = item.id
+      const patrimonyItens = await knex(this.itensTable).where({ patrimony_id: id })
+      const patrimonyInstance = {
+        ...item,
+        patrimonyItens
+      }
+      patrimonies.push(patrimonyInstance)
+    }
+    return patrimonies
   }
 }
