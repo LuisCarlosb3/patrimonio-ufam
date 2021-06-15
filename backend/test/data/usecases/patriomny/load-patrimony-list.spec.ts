@@ -52,7 +52,7 @@ describe('LoadPatrimonyList', () => {
   test('Ensure LoadPatrimonyList calls load patrimony repository with quantity and page', async () => {
     const { sut, dbLoadPatrimonyList } = makeSut()
     const loadSpy = jest.spyOn(dbLoadPatrimonyList, 'load')
-    await sut.load(1)
+    await sut.load(2)
     expect(loadSpy).toHaveBeenCalledWith(10, 10)
   })
   test('Ensure LoadPatrimonyList returns patrimony list from repository', async () => {

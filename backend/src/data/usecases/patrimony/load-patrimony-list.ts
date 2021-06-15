@@ -9,7 +9,7 @@ export class LoadPatrimonyListData implements LoadPatrimonyList {
 
   async load (page?: number): Promise<Patrimony[]> {
     const quantityPeerPage = 10
-    const pageToQuery = (page && page >= 0) ? (page * quantityPeerPage) : 0
+    const pageToQuery = (page && page > 0) ? ((page - 1) * quantityPeerPage) : 0
     const patrimonyList = await this.loadpatrimony.load(pageToQuery, quantityPeerPage)
     return patrimonyList
   }
