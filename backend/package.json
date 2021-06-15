@@ -14,7 +14,9 @@
     "test:ci": "npm test -- --coverage",
     "knex:migrate:make": "npx knex --knexfile src/main/config/knexfile.ts migrate:make -x ts",
     "knex:migrate:latest": "npx knex --knexfile src/main/config/knexfile.ts migrate:latest",
-    "knex:migrate:down": "npx knex --knexfile src/main/config/knexfile.ts migrate:down"
+    "knex:migrate:down": "npx knex --knexfile src/main/config/knexfile.ts migrate:down",
+    "knex:seed:make": "npx knex --knexfile src/main/config/knexfile.ts seed:make -x ts",
+    "knex:seed:up": "npx knex --knexfile src/main/config/knexfile.ts seed:up"
   },
   "repository": {
     "type": "git",

@@ -8,6 +8,9 @@ const migrationsData = {
   tableName: 'knex_migrations',
   directory: path.join(__dirname, '../../infra/db/helper/migrations')
 }
+const seedsDev = {
+  directory: path.join(__dirname, '../../infra/db/helper/seeds_dev')
+}
 const knexConfig: KnexConfig = {
 
   development: {
@@ -18,7 +21,8 @@ const knexConfig: KnexConfig = {
       user: 'postgres',
       password: 'root'
     },
-    migrations: migrationsData
+    migrations: migrationsData,
+    seeds: seedsDev
   },
 
   test: {
