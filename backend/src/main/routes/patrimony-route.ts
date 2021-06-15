@@ -10,7 +10,7 @@ export default (router: Router): void => {
   router.post('/patrimony/create',
     ExpressMiddlewareAdapterFactory(makeAuthMiddleware(UserPermission.ADMINISTRATOR)),
     ExpressRouteAdapterFactory(makeCreateNewPatrimony()))
-  router.get('/patrimony/:page',
+  router.get('/patrimony/:page?',
     ExpressMiddlewareAdapterFactory(makeAuthMiddleware()),
     ExpressRouteAdapterFactory(makeListPatrimonyController()))
 }
