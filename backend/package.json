@@ -16,7 +16,7 @@
     "knex:migrate:latest": "npx knex --knexfile src/main/config/knexfile.ts migrate:latest",
     "knex:migrate:down": "npx knex --knexfile src/main/config/knexfile.ts migrate:down",
     "knex:seed:make": "npx knex --knexfile src/main/config/knexfile.ts seed:make -x ts",
-    "knex:seed:up": "npx knex --knexfile src/main/config/knexfile.ts seed:up"
+    "knex:seed:up": "npx knex --knexfile src/main/config/knexfile.ts seed:run"
   },
   "repository": {
     "type": "git",
