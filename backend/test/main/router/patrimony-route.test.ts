@@ -135,5 +135,13 @@ describe('Authentication Routes', () => {
       expect(patrimonyList.length).toEqual(10)
       expect(patrimonyList[0].code).toEqual('10')
     })
+    test('ensure patrimony create return 200 with first page of patrimony list on page is lower than 1', async () => {
+      const accessToken = await generateUserAndToken()
+      await insertPatrimonyList(20)
+      const response = await request(server).get('/patrimony/-1').set('x-access-token', accessToken).expect(200)
+      const { patrimonyList } = response.body
+      expect(patrimonyList.length).toEqual(10)
+      expect(patrimonyList[0].code).toEqual('0')
+    })
   })
 })
