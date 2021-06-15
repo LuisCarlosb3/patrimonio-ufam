@@ -70,7 +70,7 @@ describe('ListPatrimonyController', () => {
   test('Ensure ListPatrimonyController calls LoadPatrimonyList', async () => {
     const { sut } = makeSut()
     const response = await sut.handle({})
-    expect(response).toEqual(responseSuccess(makePatrimonyList()))
+    expect(response).toEqual(responseSuccess({ patrimonyList: makePatrimonyList() }))
   })
   test('Ensure ListPatrimonyController returns 500 on throws', async () => {
     const { sut, loadPatrimonyList } = makeSut()

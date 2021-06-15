@@ -13,7 +13,7 @@ export class ListPatrimonyController implements HttpController {
       const params = httpRequest.params
       const page = (params?.page && params?.page >= 0) ? params.page : 0
       const patrimonyList = await this.loadPatrimonyList.load(page)
-      return responseSuccess(patrimonyList)
+      return responseSuccess({ patrimonyList })
     } catch (error) {
       return serverError(error)
     }
