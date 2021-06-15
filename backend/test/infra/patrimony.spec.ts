@@ -17,9 +17,9 @@ const makeNewPatrimony = (): NewPatrimonyModel => ({
     { name: 'item2', localization: 'any_localization' }
   ]
 })
-async function insertPatrimony (): Promise<string> {
+async function insertPatrimony (code?: String): Promise<string> {
   const patrimony = {
-    code: 'any_code',
+    code: code || 'any_code',
     description: 'any_description',
     state: PatrimonyState.GOOD,
     entry_date: new Date('1/1/2021'),
@@ -101,6 +101,22 @@ describe('PatrimonyRepository', () => {
       const patrimonies = await sut.load(0, 10)
       expect(patrimonies.length).toBe(1)
       expect(patrimonies[0].code).toEqual('any_code')
+    })
+    test('ensure DbLoadPatrimonyList load patrimony itens paginated', async () => {
+      const sut = makeSut()
+      for await (const i of Array(5).keys()) {
+        const id = await insertPatrimony(`${i}`)
+        await insertItens(id)
+        await insertItens(id)
+      }
+      const firstPage = await sut.load(0, 2)
+      expect(firstPage.length).toBe(2)
+      const secondPage = await sut.load(2, 2)
+      expect(secondPage.length).toBe(2)
+      expect(firstPage[0]).not.toEqual(secondPage[0])
+      expect(firstPage[0]).not.toEqual(secondPage[1])
+      expect(firstPage[1]).not.toEqual(secondPage[0])
+      expect(firstPage[1]).not.toEqual(secondPage[1])
     })
   })
 })
