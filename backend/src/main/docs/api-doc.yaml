@@ -127,6 +127,7 @@ paths:
     post:
       tags:
         - Admin Functions
+        - Patrimony
       description: Route used by administrator to create new patrimony registers
       parameters:
         - in: header
@@ -149,7 +150,62 @@ paths:
           description: User don't have administrator permission to create new user
         "500":
           description: Server Error
-  
+  /patrimony:
+    get:
+      tags: 
+        - Patrimony
+      description: Route used to list patrimonies in pages
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+        - in: path
+          required: true
+          name: page
+          schema:
+            type: number
+          description: patrimonies list page number 
+      responses:
+          "200":
+            description: Patrimony list
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/PatrimonyListResponse"
+          "403":
+            description: User don't have permission to see page
+          "500":
+            description: Server Error
+  /patrimony/{page}:
+    get:
+      tags: 
+        - Patrimony
+      description: Route used to list patrimonies in pages
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+        - in: path
+          required: true
+          name: page
+          schema:
+            type: number
+          description: patrimonies list page number 
+      responses:
+          "200":
+            description: Patrimony list
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/PatrimonyListResponse"
+          "403":
+            description: User don't have permission to see page
+          "500":
+            description: Server Error
 components:
   schemas:
     LoginRequest:
@@ -229,6 +285,44 @@ components:
               observation:
                 type: string
                 nullable: true
+    PatrimonyListResponse:
+      type: object
+      properties:
+        patrimonyList: 
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              code:
+                type: string
+              description:
+                type: string
+              state:
+                type: string
+                enum: ['NOVO', 'BOM', 'INSERVIVEl', 'RECUPERAVEL', 'ANTIECONOMICO']
+              entryDate:
+                type: string
+                format: date 
+              lastConferenceDate:
+                type: string
+                format: date 
+              value:
+                type: number
+                format: double
+              patrimonyItens: 
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    localization:
+                      type: string
+                    observation:
+                      type: string
+                      nullable: true
                 
 
           
