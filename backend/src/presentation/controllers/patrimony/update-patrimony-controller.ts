@@ -1,5 +1,6 @@
 import { UpdatePatrimonyById } from '@/domain/usecase/patrimony/update-patrimony-by-id'
 import { LoadUserById } from '@/domain/usecase/user/load-user-by-id'
+import { PatrimonyNotFound } from '@/presentation/protocols/helpers/errors'
 import { badRequest, noContent, serverError } from '@/presentation/protocols/helpers/http-helpers'
 import { HttpRequest, HttpResponse } from '@/presentation/protocols/http'
 import { HttpController } from '@/presentation/protocols/http-controller'
@@ -24,6 +25,7 @@ export class UpdatePatrimonyController implements HttpController {
       if (isUpdate) {
         return noContent()
       }
+      return badRequest(new PatrimonyNotFound())
     } catch (error) {
       return serverError(error)
     }
