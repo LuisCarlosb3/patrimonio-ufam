@@ -95,7 +95,10 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
         res = error
       }
     })
-    return res
+    if (res) {
+      throw (res)
+    }
+    return null
   }
 
   async verifyById (id: string): Promise<boolean> {

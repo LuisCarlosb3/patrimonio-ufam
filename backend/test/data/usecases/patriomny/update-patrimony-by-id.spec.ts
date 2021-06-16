@@ -77,4 +77,11 @@ describe('UpdatePatrimonyByIdData', () => {
     const res = await sut.updateById(UserPermission.INVENTORIOUS, patrimony)
     expect(res).toBeTruthy()
   })
+  test('Should throws if updateById throws', async () => {
+    const { sut, updateById } = makeSut()
+    jest.spyOn(updateById, 'updateById').mockRejectedValueOnce(new Error())
+    const patrimony = makeFakePatrimony()
+    const promise = sut.updateById(UserPermission.INVENTORIOUS, patrimony)
+    await expect(promise).rejects.toThrow()
+  })
 })
