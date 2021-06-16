@@ -155,4 +155,18 @@ describe('PatrimonyRepository', () => {
       expect(item.observation).toEqual('any_description')
     })
   })
+  describe('DbCheckPatrimonyExistsById', () => {
+    test('ensure loadByid returns true if patrimony exists', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const exists = await sut.verifyById(id)
+      expect(exists).toBeTruthy()
+    })
+    test('ensure loadByid returns false if patrimony don\'t exists', async () => {
+      const sut = makeSut()
+      const fakeUUID = 'cab81c1e-e10c-466f-b17a-49b0dff4f89e'
+      const exists = await sut.verifyById(fakeUUID)
+      expect(exists).toBeFalsy()
+    })
+  })
 })
