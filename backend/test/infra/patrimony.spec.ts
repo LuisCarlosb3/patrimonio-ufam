@@ -1,6 +1,6 @@
 import { PatrimonyRepository } from '@/infra/db/repositories/patrimony'
 import knex from '@/infra/db/helper/index'
-import { PatrimonyState } from '@/domain/model/patrimony'
+import { Patrimony, PatrimonyState } from '@/domain/model/patrimony'
 import { NewPatrimonyModel } from '@/domain/usecase/patrimony/create-patrimony'
 const makeSut = (): PatrimonyRepository => {
   return new PatrimonyRepository()
@@ -29,9 +29,20 @@ async function insertPatrimony (code?: String): Promise<string> {
   const [id] = await knex('patrimony').insert(patrimony).returning('id')
   return id
 }
-async function insertItens (id: string): Promise<void> {
+const makePatrimonyToUpdate = (patrimonyId: string, itemid: string): Patrimony => ({
+  id: patrimonyId,
+  code: 'updated_code',
+  description: 'updated_description',
+  state: PatrimonyState.UNECONOMICAL,
+  entryDate: new Date('1/1/2021'),
+  lastConferenceDate: new Date('2/1/2021'),
+  value: 220,
+  patrimonyItens: [{ id: itemid, name: 'item1_updated', localization: 'updated_localization', observation: 'any_description' }]
+})
+async function insertItens (id: string): Promise<string> {
   const item = { patrimony_id: id, name: 'item1', localization: 'any_localization' }
-  await knex('patrimony-itens').insert(item)
+  const [itemid] = await knex('patrimony-itens').insert(item).returning('id')
+  return itemid
 }
 describe('PatrimonyRepository', () => {
   beforeAll(async done => {
@@ -117,6 +128,31 @@ describe('PatrimonyRepository', () => {
       expect(firstPage[0]).not.toEqual(secondPage[1])
       expect(firstPage[1]).not.toEqual(secondPage[0])
       expect(firstPage[1]).not.toEqual(secondPage[1])
+    })
+  })
+  describe('DbUpdatePatrimonyById', () => {
+    test('Ensure repository update patrimony by id', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const itemId = await insertItens(id)
+      const patrimonyPayLoad = makePatrimonyToUpdate(id, itemId)
+      await sut.updateById(patrimonyPayLoad)
+      const [patrimony] = await knex('patrimony').where({ id })
+      expect(patrimony).toBeTruthy()
+      expect(patrimony.code).toEqual('updated_code')
+      expect(patrimony.description).toEqual('updated_description')
+    })
+    test('Ensure repository update patrimony item', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const itemId = await insertItens(id)
+      const patrimonyPayLoad = makePatrimonyToUpdate(id, itemId)
+      await sut.updateById(patrimonyPayLoad)
+      const [item] = await knex('patrimony-itens').where({ id: itemId })
+      expect(item).toBeTruthy()
+      expect(item.name).toEqual('item1_updated')
+      expect(item.localization).toEqual('updated_localization')
+      expect(item.observation).toEqual('any_description')
     })
   })
 })
