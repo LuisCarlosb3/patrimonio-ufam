@@ -80,4 +80,17 @@ describe('User Postgres Repository', () => {
     expect(res.id).toBeTruthy()
     expect(createdUser.id).toEqual(res.id)
   })
+  test('Ensure UserRepository loads user by id on success', async () => {
+    const sut = makeSut()
+    const id = await insertPayload()
+    const res = await sut.loadById(id)
+    expect(res).toBeTruthy()
+    expect(res.email).toEqual('any@email.com')
+  })
+  test('Ensure UserRepository returns null on user not exists', async () => {
+    const sut = makeSut()
+    const fakeUUID = 'cab81c1e-e10c-466f-b17a-49b0dff4f89e'
+    const res = await sut.loadById(fakeUUID)
+    expect(res).toBeNull()
+  })
 })
