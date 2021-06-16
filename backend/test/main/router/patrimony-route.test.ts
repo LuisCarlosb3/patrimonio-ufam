@@ -41,7 +41,17 @@ const makePatrimonyPayload = (): any => ({
     { name: 'any_item2', localization: 'any_localization', observation: 'any_obs' }
   ]
 })
-const insertNewPatrimony = async (code?: string): Promise<void> => {
+const makePatrimonyPayloadToUpdate = (id: string): any => ({
+  id,
+  code: 'updated_code',
+  description: 'updated_desc',
+  state: 'NOVO',
+  entryDate: new Date(),
+  lastConferenceDate: new Date(),
+  value: 50,
+  patrimonyItens: []
+})
+const insertNewPatrimony = async (code?: string): Promise<string> => {
   const patrimony = {
     code: code || 'any_code',
     description: 'any_desc',
@@ -50,7 +60,8 @@ const insertNewPatrimony = async (code?: string): Promise<void> => {
     last_conference_date: new Date(),
     value: 500.99
   }
-  await knex('patrimony').insert(patrimony)
+  const [id] = await knex('patrimony').insert(patrimony).returning('id')
+  return id
 }
 const insertPatrimonyList = async (quantity: number): Promise<void> => {
   for await (const i of Array(quantity).keys()) {
@@ -66,6 +77,8 @@ describe('Authentication Routes', () => {
   beforeEach(async () => {
     await knex('patrimony-itens').del()
     await knex('patrimony').del()
+    // await knex('user-recover-link').del()
+    await knex('new-user-link').del()
     await knex('user-access-token').del()
     await knex('users').del()
   })
@@ -142,6 +155,20 @@ describe('Authentication Routes', () => {
       const { patrimonyList } = response.body
       expect(patrimonyList.length).toEqual(10)
       expect(patrimonyList[0].code).toEqual('0')
+    })
+  })
+  describe.only('/patrimony/update', () => {
+    test('ensure patrimony create return 204 on update a patrimony info', async () => {
+      const accessToken = await generateUserAndToken()
+      const patrimonyId = await insertNewPatrimony()
+      const payload = makePatrimonyPayloadToUpdate(patrimonyId)
+      await request(server).post('/patrimony/update')
+        .set('x-access-token', accessToken)
+        .send({ patrimony: payload }).expect(204)
+      const [patrimony] = await knex('patrimony').where({ id: patrimonyId })
+      expect(patrimony.code).toEqual(payload.code)
+      expect(patrimony.value).toEqual(payload.value)
+      expect(patrimony.id).toEqual(patrimonyId)
     })
   })
 })
