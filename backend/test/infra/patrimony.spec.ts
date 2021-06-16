@@ -154,6 +154,18 @@ describe('PatrimonyRepository', () => {
       expect(item.localization).toEqual('updated_localization')
       expect(item.observation).toEqual('any_description')
     })
+    test('Ensure repository return err on not update patrimony', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const itemId = await insertItens(id)
+      const patrimonyPayLoad = makePatrimonyToUpdate(id, itemId)
+      patrimonyPayLoad.code = null
+      const res = await sut.updateById(patrimonyPayLoad)
+      const [patrimony] = await knex('patrimony').where({ id })
+      expect(res).not.toBeNull()
+      expect(patrimony).toBeTruthy()
+      expect(patrimony.code).toEqual('any_code')
+    })
   })
   describe('DbCheckPatrimonyExistsById', () => {
     test('ensure loadByid returns true if patrimony exists', async () => {

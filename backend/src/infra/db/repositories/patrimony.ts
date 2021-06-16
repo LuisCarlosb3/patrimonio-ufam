@@ -67,6 +67,7 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
   async updateById (patrimony: Patrimony): Promise<void> {
     const patrimonyId = patrimony.id
     const { patrimonyItens, ...patrimonyData } = patrimony
+    let res = null
     await knex.transaction(async trx => {
       try {
         const { entryDate, lastConferenceDate, code, description, state, value } = patrimonyData
@@ -88,11 +89,13 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
           }).where({ id })
         }
         await trx.commit(patrimonyId)
+        return null
       } catch (error) {
         await trx.rollback()
-        throw error
+        res = error
       }
     })
+    return res
   }
 
   async verifyById (id: string): Promise<boolean> {
