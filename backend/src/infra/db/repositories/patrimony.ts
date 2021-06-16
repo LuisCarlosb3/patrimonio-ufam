@@ -1,10 +1,11 @@
 import { DbCreateNewPatrimony } from '@/data/protocols/db/patrimony/db-create-new-patrimony'
 import { DbCheckPatrimonyByCode } from '@/data/protocols/db/patrimony/db-load-patrimony-by-code'
 import { DbLoadPatrimonyList } from '@/data/protocols/db/patrimony/db-load-patrimony-list'
+import { DbUpdatePatrimonyById } from '@/data/protocols/db/patrimony/db-update-patrimony-by-id'
 import { Patrimony } from '@/domain/model/patrimony'
 import { NewPatrimonyModel } from '@/domain/usecase/patrimony/create-patrimony'
 import knex from '@/infra/db/helper/index'
-export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewPatrimony, DbLoadPatrimonyList {
+export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewPatrimony, DbLoadPatrimonyList, DbUpdatePatrimonyById {
   private readonly patrimonyTable = 'patrimony'
   private readonly itensTable = 'patrimony-itens'
   private readonly columnNameParser = {
@@ -59,5 +60,36 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
       patrimonies.push(patrimonyInstance)
     }
     return patrimonies
+  }
+
+  async updateById (patrimony: Patrimony): Promise<void> {
+    const patrimonyId = patrimony.id
+    const { patrimonyItens, ...patrimonyData } = patrimony
+    await knex.transaction(async trx => {
+      try {
+        const { entryDate, lastConferenceDate, code, description, state, value } = patrimonyData
+        await knex(this.patrimonyTable).transacting(trx).update({
+          code,
+          description,
+          state,
+          entry_date: entryDate,
+          last_conference_date: lastConferenceDate,
+          value
+        }).where({ id: patrimonyId })
+
+        for await (const item of patrimonyItens) {
+          const { name, localization, id, observation } = item
+          await knex(this.itensTable).transacting(trx).update({
+            name,
+            localization,
+            observation
+          }).where({ id })
+        }
+        await trx.commit(patrimonyId)
+      } catch (error) {
+        await trx.rollback()
+        throw error
+      }
+    })
   }
 }
