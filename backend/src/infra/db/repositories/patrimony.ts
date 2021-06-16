@@ -1,3 +1,4 @@
+import { DbCheckIfPatrimonyExists } from '@/data/protocols/db/patrimony/db-check-if-patrimony-exists-by-id'
 import { DbCreateNewPatrimony } from '@/data/protocols/db/patrimony/db-create-new-patrimony'
 import { DbCheckPatrimonyByCode } from '@/data/protocols/db/patrimony/db-load-patrimony-by-code'
 import { DbLoadPatrimonyList } from '@/data/protocols/db/patrimony/db-load-patrimony-list'
@@ -5,7 +6,8 @@ import { DbUpdatePatrimonyById } from '@/data/protocols/db/patrimony/db-update-p
 import { Patrimony } from '@/domain/model/patrimony'
 import { NewPatrimonyModel } from '@/domain/usecase/patrimony/create-patrimony'
 import knex from '@/infra/db/helper/index'
-export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewPatrimony, DbLoadPatrimonyList, DbUpdatePatrimonyById {
+export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewPatrimony,
+   DbLoadPatrimonyList, DbUpdatePatrimonyById, DbCheckIfPatrimonyExists {
   private readonly patrimonyTable = 'patrimony'
   private readonly itensTable = 'patrimony-itens'
   private readonly columnNameParser = {
@@ -91,5 +93,13 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
         throw error
       }
     })
+  }
+
+  async verifyById (id: string): Promise<boolean> {
+    const patrimony = await knex(this.patrimonyTable).select('id').where({ id })
+    if (patrimony.length > 0) {
+      return true
+    }
+    return false
   }
 }
