@@ -7,18 +7,20 @@ import { PatrimonyState } from '@/domain/model/patrimony'
 
 export function makeUpdatePatrimonyController (): HttpController {
   const rules = {
-    id: 'required|string',
-    code: 'required|string',
-    description: 'required|string',
-    state: ['required', { in: [PatrimonyState.GOOD, PatrimonyState.NEW, PatrimonyState.UNECONOMICAL, PatrimonyState.UNRECOVERABLE, PatrimonyState.UNSERVIBLE] }],
-    entryDate: 'required|date',
-    lastConferenceDate: 'required|date',
-    value: 'required|numeric',
-    patrimonyItens: 'required',
-    'patrimonyItens.*.id': 'required|string',
-    'patrimonyItens.*.name': 'required|string',
-    'patrimonyItens.*.localization': 'required|string',
-    'patrimonyItens.*.observation': 'string'
+    patrimony: {
+      id: 'required|string',
+      code: 'required|string',
+      description: 'required|string',
+      state: ['required', { in: [PatrimonyState.GOOD, PatrimonyState.NEW, PatrimonyState.UNECONOMICAL, PatrimonyState.UNRECOVERABLE, PatrimonyState.UNSERVIBLE] }],
+      entryDate: 'required|date',
+      lastConferenceDate: 'required|date',
+      value: 'required|numeric',
+      'patrimonyItens.*.id': 'required|string',
+      'patrimonyItens.*.name': 'required|string',
+      'patrimonyItens.*.localization': 'required|string',
+      'patrimonyItens.*.observation': 'string'
+    }
+
   }
   const validator = new ValidatorJsAdapter(rules)
   const loadUserById = makeLoadUserById()
