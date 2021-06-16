@@ -6,6 +6,7 @@ import { HttpRequest } from '@/presentation/protocols/http'
 import { Validation } from '@/presentation/protocols/validation'
 import { UpdatePatrimonyController } from '@/presentation/controllers/patrimony/update-patrimony-controller'
 import { LoadUserById } from '@/domain/usecase/user/load-user-by-id'
+import { PatrimonyNotFound } from '@/presentation/protocols/helpers/errors'
 const makeFakeUser = (): User => {
   return {
     id: 'any_id',
@@ -114,5 +115,12 @@ describe('UpdatePatrimonyController', () => {
     const request = makeFakeHttpRequest()
     const response = await sut.handle(request)
     expect(response).toEqual(noContent())
+  })
+  test('Ensure UpdatePatrimonyController returns badRequest  update returns false', async () => {
+    const { sut, updatePatrimonyById } = makeSut()
+    jest.spyOn(updatePatrimonyById, 'updateById').mockResolvedValueOnce(null)
+    const request = makeFakeHttpRequest()
+    const response = await sut.handle(request)
+    expect(response).toEqual(badRequest(new PatrimonyNotFound()))
   })
 })
