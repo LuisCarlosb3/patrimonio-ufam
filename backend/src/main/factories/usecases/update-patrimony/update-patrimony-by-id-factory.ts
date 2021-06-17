@@ -5,6 +5,8 @@ import { PatrimonyRepository } from '@/infra/db/repositories/patrimony'
 export function makeUpdatePatrimonyById (): UpdatePatrimonyById {
   const verifyByIdRepository = new PatrimonyRepository()
   const updateByIdRepository = new PatrimonyRepository()
-  const updateByIdData = new UpdatePatrimonyByIdData(verifyByIdRepository, updateByIdRepository)
+  const insertNewItens = new PatrimonyRepository()
+  const dbDeleteItensById = new PatrimonyRepository()
+  const updateByIdData = new UpdatePatrimonyByIdData(verifyByIdRepository, updateByIdRepository, insertNewItens, dbDeleteItensById)
   return updateByIdData
 }
