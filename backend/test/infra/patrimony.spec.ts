@@ -60,11 +60,12 @@ describe('PatrimonyRepository', () => {
     done()
   })
   describe('DbCheckPatrimonyByCode', () => {
-    test('ensure checkByCode returns patrimony code if exists', async () => {
+    test('ensure checkByCode returns patrimony data if exists', async () => {
       const sut = makeSut()
-      await insertPatrimony()
-      const patrimonyCode = await sut.checkByCode('any_code')
-      expect(patrimonyCode).toEqual('any_code')
+      const id = await insertPatrimony()
+      const patrimony = await sut.checkByCode('any_code')
+      expect(patrimony.code).toEqual('any_code')
+      expect(patrimony.id).toEqual(id)
     })
     test('ensure checkByCode returns null if not exists', async () => {
       const sut = makeSut()
