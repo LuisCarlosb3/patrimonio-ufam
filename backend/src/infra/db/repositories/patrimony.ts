@@ -23,10 +23,16 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
     value: 'value'
   }
 
-  async checkByCode (code: string): Promise<string> {
-    const patrimony = await knex(this.patrimonyTable).select('code').where({ code })
-    if (patrimony.length > 0) {
-      return patrimony[0].code
+  async checkByCode (code: string): Promise<Patrimony> {
+    const queryRes = await knex(this.patrimonyTable).select(this.columnNameParser).where({ code })
+    if (queryRes.length > 0) {
+      const patrimony = queryRes[0]
+      const patrimonyItens = await knex(this.itensTable).where({ patrimony_id: patrimony.id })
+      const patrimonyInstance = {
+        ...patrimony,
+        patrimonyItens
+      }
+      return patrimonyInstance
     }
     return null
   }
