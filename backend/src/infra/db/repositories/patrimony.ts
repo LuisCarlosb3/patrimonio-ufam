@@ -1,13 +1,15 @@
 import { DbCheckIfPatrimonyExists } from '@/data/protocols/db/patrimony/db-check-if-patrimony-exists-by-id'
 import { DbCreateNewPatrimony } from '@/data/protocols/db/patrimony/db-create-new-patrimony'
+import { DbInsertNewItensToPatrimony } from '@/data/protocols/db/patrimony/db-insert-new-itens-to-patrimony'
 import { DbCheckPatrimonyByCode } from '@/data/protocols/db/patrimony/db-load-patrimony-by-code'
 import { DbLoadPatrimonyList } from '@/data/protocols/db/patrimony/db-load-patrimony-list'
 import { DbUpdatePatrimonyById } from '@/data/protocols/db/patrimony/db-update-patrimony-by-id'
 import { Patrimony } from '@/domain/model/patrimony'
 import { NewPatrimonyModel } from '@/domain/usecase/patrimony/create-patrimony'
+import { NewItenToInsert } from '@/domain/usecase/patrimony/update-patrimony-by-id'
 import knex from '@/infra/db/helper/index'
 export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewPatrimony,
-   DbLoadPatrimonyList, DbUpdatePatrimonyById, DbCheckIfPatrimonyExists {
+   DbLoadPatrimonyList, DbUpdatePatrimonyById, DbCheckIfPatrimonyExists, DbInsertNewItensToPatrimony {
   private readonly patrimonyTable = 'patrimony'
   private readonly itensTable = 'patrimony-itens'
   private readonly columnNameParser = {
@@ -107,5 +109,15 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
       return true
     }
     return false
+  }
+
+  async insertItens (patrimonyId: string, itens: NewItenToInsert[]): Promise<void> {
+    const itensToInsert = itens.map(item => {
+      return {
+        patrimony_id: patrimonyId,
+        ...item
+      }
+    })
+    await knex(this.itensTable).insert(itensToInsert)
   }
 }
