@@ -1,4 +1,5 @@
 import { DbCheckIfPatrimonyExists } from '@/data/protocols/db/patrimony/db-check-if-patrimony-exists-by-id'
+import { DbDeletePatrimonyItenById } from '@/data/protocols/db/patrimony/db-delete-patrimony-itens-by-id'
 import { DbInsertNewItensToPatrimony } from '@/data/protocols/db/patrimony/db-insert-new-itens-to-patrimony'
 import { DbUpdatePatrimonyById } from '@/data/protocols/db/patrimony/db-update-patrimony-by-id'
 import { Patrimony, PatrimonyItens } from '@/domain/model/patrimony'
@@ -9,7 +10,8 @@ export class UpdatePatrimonyByIdData implements UpdatePatrimonyById {
   constructor (
     private readonly verifyByIdRepository: DbCheckIfPatrimonyExists,
     private readonly updateByIdRepository: DbUpdatePatrimonyById,
-    private readonly insertNewItens: DbInsertNewItensToPatrimony
+    private readonly insertNewItens: DbInsertNewItensToPatrimony,
+    private readonly dbDeleteItensById: DbDeletePatrimonyItenById
   ) {}
 
   async updateById (userPermission: UserPermission, patrimony: UpdatePatrimonyModel): Promise<boolean> {
@@ -28,6 +30,7 @@ export class UpdatePatrimonyByIdData implements UpdatePatrimonyById {
       }
       const updateSucceeds = await this.updateByIdRepository.updateById(patrimonyToUpdate)
       await this.insertNewItens.insertItens(patrimony.id, newItens)
+      await this.dbDeleteItensById.deleteById(deletedItens)
       if (updateSucceeds === null) {
         return true
       }
