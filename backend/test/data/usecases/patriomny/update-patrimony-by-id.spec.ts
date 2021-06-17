@@ -1,9 +1,10 @@
 import { DbCheckIfPatrimonyExists } from '@/data/protocols/db/patrimony/db-check-if-patrimony-exists-by-id'
-import { UpdatePatrimonyById } from '@/domain/usecase/patrimony/update-patrimony-by-id'
+import { NewItenToInsert, UpdatePatrimonyById, UpdatePatrimonyModel } from '@/domain/usecase/patrimony/update-patrimony-by-id'
 import { UpdatePatrimonyByIdData } from '@/data/usecases/patrimony/update-patrimony-by-id'
 import { Patrimony, PatrimonyState } from '@/domain/model/patrimony'
 import { UserPermission } from '@/domain/model/user'
 import { DbUpdatePatrimonyById } from '@/data/protocols/db/patrimony/db-update-patrimony-by-id'
+import { DbInsertNewItensToPatrimony } from '@/data/protocols/db/patrimony/db-insert-new-itens-to-patrimony'
 function makeDbCheckIfPatrimony (): DbCheckIfPatrimonyExists {
   class DbCheckIfPatrimonyExistsStub implements DbCheckIfPatrimonyExists {
     async verifyById (id: string): Promise<boolean> {
@@ -20,7 +21,15 @@ function makeDbUpdatePatrimonyById (): DbUpdatePatrimonyById {
   }
   return new DbUpdatePatrimonyByIdStub()
 }
-function makeFakePatrimony (): Patrimony {
+function makeDbInsertNewItensToPatrimony (): DbInsertNewItensToPatrimony {
+  class DbInsertNewItensToPatrimonyStub implements DbInsertNewItensToPatrimony {
+    async insertItens (patrimonyId: string, itens: NewItenToInsert[]): Promise<void> {
+      return await Promise.resolve(null)
+    }
+  }
+  return new DbInsertNewItensToPatrimonyStub()
+}
+function makeFakePatrimony (): UpdatePatrimonyModel {
   return {
     id: 'any_id',
     code: 'any_code',
@@ -29,23 +38,29 @@ function makeFakePatrimony (): Patrimony {
     entryDate: new Date('1/1/2021'),
     lastConferenceDate: new Date('1/1/2021'),
     value: 200,
-    patrimonyItens: []
+    patrimonyItens: [],
+    deletedItens: []
   }
 }
+const newIten = (): {name: string, localization: string} => ({ name: 'any_item2', localization: 'any_localization' })
+const updatedIten = (): {id: string, name: string, localization: string} => ({ id: 'first', name: 'any_item', localization: 'any_localization' })
 interface Sut {
   sut: UpdatePatrimonyById
   verifyById: DbCheckIfPatrimonyExists
   updateById: DbUpdatePatrimonyById
+  insertNewItens: DbInsertNewItensToPatrimony
 }
 
 const makeSut = (): Sut => {
   const verifyById = makeDbCheckIfPatrimony()
   const updateById = makeDbUpdatePatrimonyById()
-  const sut = new UpdatePatrimonyByIdData(verifyById, updateById)
+  const insertNewItens = makeDbInsertNewItensToPatrimony()
+  const sut = new UpdatePatrimonyByIdData(verifyById, updateById, insertNewItens)
   return {
     sut,
     verifyById,
-    updateById
+    updateById,
+    insertNewItens
   }
 }
 
@@ -67,7 +82,8 @@ describe('UpdatePatrimonyByIdData', () => {
   test('Should call UpdatePatrimonyById with patrimony', async () => {
     const { sut, updateById } = makeSut()
     const updateSpy = jest.spyOn(updateById, 'updateById')
-    const patrimony = makeFakePatrimony()
+    const { deletedItens, ...patrimony } = makeFakePatrimony()
+    patrimony.patrimonyItens.push(updatedIten())
     await sut.updateById(UserPermission.INVENTORIOUS, patrimony)
     expect(updateSpy).toHaveBeenCalledWith(patrimony)
   })
@@ -83,5 +99,13 @@ describe('UpdatePatrimonyByIdData', () => {
     const patrimony = makeFakePatrimony()
     const promise = sut.updateById(UserPermission.INVENTORIOUS, patrimony)
     await expect(promise).rejects.toThrow()
+  })
+  test('Should call DbInsertNewItensToPatrimony with patrimony id and new itens', async () => {
+    const { sut, insertNewItens } = makeSut()
+    const insertSpy = jest.spyOn(insertNewItens, 'insertItens')
+    const patrimony = makeFakePatrimony()
+    patrimony.patrimonyItens.push(newIten())
+    await sut.updateById(UserPermission.INVENTORIOUS, patrimony)
+    expect(insertSpy).toHaveBeenCalledWith(patrimony.id, [newIten()])
   })
 })
