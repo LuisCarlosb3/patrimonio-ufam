@@ -157,7 +157,7 @@ describe('Authentication Routes', () => {
       expect(patrimonyList[0].code).toEqual('0')
     })
   })
-  describe.only('/patrimony/update', () => {
+  describe('/patrimony/update', () => {
     test('ensure patrimony create return 204 on update a patrimony info', async () => {
       const accessToken = await generateUserAndToken()
       const patrimonyId = await insertNewPatrimony()
@@ -169,6 +169,21 @@ describe('Authentication Routes', () => {
       expect(patrimony.code).toEqual(payload.code)
       expect(patrimony.value).toEqual(payload.value)
       expect(patrimony.id).toEqual(patrimonyId)
+    })
+    test('ensure patrimony create return 400 on validation fail', async () => {
+      const accessToken = await generateUserAndToken()
+      const patrimonyId = await insertNewPatrimony()
+      const { code, ...payload } = makePatrimonyPayloadToUpdate(patrimonyId)
+      await request(server).post('/patrimony/update')
+        .set('x-access-token', accessToken)
+        .send({ patrimony: payload }).expect(400, { error: 'Invalid param: patrimony.code' })
+    })
+    test('ensure patrimony create return 400 on validation fail', async () => {
+      const accessToken = await generateUserAndToken()
+      const payload = makePatrimonyPayloadToUpdate('7e2b6994-840d-42f5-b730-33bb5d10a68e')
+      await request(server).post('/patrimony/update')
+        .set('x-access-token', accessToken)
+        .send({ patrimony: payload }).expect(400, { error: 'Patrimony not found' })
     })
   })
 })
