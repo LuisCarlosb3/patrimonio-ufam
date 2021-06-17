@@ -206,5 +206,13 @@ describe('PatrimonyRepository', () => {
       const itens = await knex('patrimony-itens').where({ id: itemId })
       expect(itens.length).toBe(0)
     })
+    test('ensure deleteById dont\'t deletes if receive empty array', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      await insertItens(id)
+      await sut.deleteById(null)
+      const itens = await knex('patrimony-itens')
+      expect(itens.length).toBe(1)
+    })
   })
 })
