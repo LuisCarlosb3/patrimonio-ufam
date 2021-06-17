@@ -178,4 +178,14 @@ describe('PatrimonyRepository', () => {
       expect(exists).toBeFalsy()
     })
   })
+  describe('DbInsertNewItensToPatrimony', () => {
+    test('ensure insertNewItens returns true if patrimony exists', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const { patrimonyItens } = makeNewPatrimony()
+      await sut.insertItens(id, patrimonyItens)
+      const itens = await knex('patrimony-itens').where({ patrimony_id: id })
+      expect(itens.length).toBe(2)
+    })
+  })
 })
