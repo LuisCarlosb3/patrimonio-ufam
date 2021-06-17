@@ -29,8 +29,12 @@ export class UpdatePatrimonyByIdData implements UpdatePatrimonyById {
         patrimonyItens: updatedItens as PatrimonyItens[]
       }
       const updateSucceeds = await this.updateByIdRepository.updateById(patrimonyToUpdate)
-      await this.insertNewItens.insertItens(patrimony.id, newItens)
-      await this.dbDeleteItensById.deleteById(deletedItens)
+      if (newItens.length > 0) {
+        await this.insertNewItens.insertItens(patrimony.id, newItens)
+      }
+      if (deletedItens && deletedItens.length > 0) {
+        await this.dbDeleteItensById.deleteById(deletedItens)
+      }
       if (updateSucceeds === null) {
         return true
       }

@@ -120,6 +120,13 @@ describe('UpdatePatrimonyByIdData', () => {
     await sut.updateById(UserPermission.INVENTORIOUS, patrimony)
     expect(insertSpy).toHaveBeenCalledWith(patrimony.id, [newIten()])
   })
+  test('Shouldn\'t call DbInsertNewItensToPatrimony if new itens array is empty', async () => {
+    const { sut, insertNewItens } = makeSut()
+    const insertSpy = jest.spyOn(insertNewItens, 'insertItens')
+    const patrimony = makeFakePatrimony()
+    await sut.updateById(UserPermission.INVENTORIOUS, patrimony)
+    expect(insertSpy).not.toHaveBeenCalled()
+  })
   test('Should call DbDeletePatrimonyItenById with patrimony id and new itens', async () => {
     const { sut, deletedById } = makeSut()
     const deleteSpy = jest.spyOn(deletedById, 'deleteById')
@@ -127,5 +134,13 @@ describe('UpdatePatrimonyByIdData', () => {
     patrimony.patrimonyItens.push(newIten())
     await sut.updateById(UserPermission.INVENTORIOUS, patrimony)
     expect(deleteSpy).toHaveBeenCalledWith(patrimony.deletedItens)
+  })
+  test('Shouldn\'t call DbDeletePatrimonyItenById if itens to delete array is empty', async () => {
+    const { sut, deletedById } = makeSut()
+    const deleteSpy = jest.spyOn(deletedById, 'deleteById')
+    const patrimony = makeFakePatrimony()
+    patrimony.deletedItens = null
+    await sut.updateById(UserPermission.INVENTORIOUS, patrimony)
+    expect(deleteSpy).not.toHaveBeenCalled()
   })
 })
