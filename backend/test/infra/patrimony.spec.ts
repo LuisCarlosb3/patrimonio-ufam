@@ -188,4 +188,23 @@ describe('PatrimonyRepository', () => {
       expect(itens.length).toBe(2)
     })
   })
+  describe('DbDeletePatrimonyItenById', () => {
+    test('ensure deleteById deletes one item on pass an id array', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const itemId = await insertItens(id)
+      await sut.deleteById(itemId)
+      const itens = await knex('patrimony-itens').where({ id: itemId })
+      expect(itens.length).toBe(0)
+    })
+    test('ensure deleteById deletes one item on pass only a id', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const itemId = await insertItens(id)
+      const itemId2 = await insertItens(id)
+      await sut.deleteById([itemId, itemId2])
+      const itens = await knex('patrimony-itens').where({ id: itemId })
+      expect(itens.length).toBe(0)
+    })
+  })
 })
