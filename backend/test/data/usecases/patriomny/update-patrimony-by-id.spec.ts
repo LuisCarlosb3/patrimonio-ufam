@@ -5,6 +5,7 @@ import { Patrimony, PatrimonyState } from '@/domain/model/patrimony'
 import { UserPermission } from '@/domain/model/user'
 import { DbUpdatePatrimonyById } from '@/data/protocols/db/patrimony/db-update-patrimony-by-id'
 import { DbInsertNewItensToPatrimony } from '@/data/protocols/db/patrimony/db-insert-new-itens-to-patrimony'
+import { DbDeletePatrimonyItenById } from '@/data/protocols/db/patrimony/db-delete-patrimony-itens-by-id'
 function makeDbCheckIfPatrimony (): DbCheckIfPatrimonyExists {
   class DbCheckIfPatrimonyExistsStub implements DbCheckIfPatrimonyExists {
     async verifyById (id: string): Promise<boolean> {
@@ -29,6 +30,14 @@ function makeDbInsertNewItensToPatrimony (): DbInsertNewItensToPatrimony {
   }
   return new DbInsertNewItensToPatrimonyStub()
 }
+function makeDbDeletePatrimonyItenById (): DbDeletePatrimonyItenById {
+  class DbDeletePatrimonyItenByIdStub implements DbDeletePatrimonyItenById {
+    async deleteById (itenId: string | string[]): Promise<void> {
+      return await Promise.resolve(null)
+    }
+  }
+  return new DbDeletePatrimonyItenByIdStub()
+}
 function makeFakePatrimony (): UpdatePatrimonyModel {
   return {
     id: 'any_id',
@@ -39,7 +48,7 @@ function makeFakePatrimony (): UpdatePatrimonyModel {
     lastConferenceDate: new Date('1/1/2021'),
     value: 200,
     patrimonyItens: [],
-    deletedItens: []
+    deletedItens: ['id1', 'id2']
   }
 }
 const newIten = (): {name: string, localization: string} => ({ name: 'any_item2', localization: 'any_localization' })
@@ -49,18 +58,21 @@ interface Sut {
   verifyById: DbCheckIfPatrimonyExists
   updateById: DbUpdatePatrimonyById
   insertNewItens: DbInsertNewItensToPatrimony
+  deletedById: DbDeletePatrimonyItenById
 }
 
 const makeSut = (): Sut => {
   const verifyById = makeDbCheckIfPatrimony()
   const updateById = makeDbUpdatePatrimonyById()
   const insertNewItens = makeDbInsertNewItensToPatrimony()
-  const sut = new UpdatePatrimonyByIdData(verifyById, updateById, insertNewItens)
+  const deletedById = makeDbDeletePatrimonyItenById()
+  const sut = new UpdatePatrimonyByIdData(verifyById, updateById, insertNewItens, deletedById)
   return {
     sut,
     verifyById,
     updateById,
-    insertNewItens
+    insertNewItens,
+    deletedById
   }
 }
 
@@ -107,5 +119,13 @@ describe('UpdatePatrimonyByIdData', () => {
     patrimony.patrimonyItens.push(newIten())
     await sut.updateById(UserPermission.INVENTORIOUS, patrimony)
     expect(insertSpy).toHaveBeenCalledWith(patrimony.id, [newIten()])
+  })
+  test('Should call DbDeletePatrimonyItenById with patrimony id and new itens', async () => {
+    const { sut, deletedById } = makeSut()
+    const deleteSpy = jest.spyOn(deletedById, 'deleteById')
+    const patrimony = makeFakePatrimony()
+    patrimony.patrimonyItens.push(newIten())
+    await sut.updateById(UserPermission.INVENTORIOUS, patrimony)
+    expect(deleteSpy).toHaveBeenCalledWith(patrimony.deletedItens)
   })
 })
