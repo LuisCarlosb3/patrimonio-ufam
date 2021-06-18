@@ -216,4 +216,18 @@ describe('PatrimonyRepository', () => {
       expect(itens.length).toBe(1)
     })
   })
+  describe('DbLoadPatrimonyById', () => {
+    test('ensure loadById returns patrimony data if exists', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const patrimony = await sut.loadById(id)
+      expect(patrimony.code).toEqual('any_code')
+      expect(patrimony.id).toEqual(id)
+    })
+    test('ensure loadById returns null if not exists', async () => {
+      const sut = makeSut()
+      const patrimonyCode = await sut.loadById('4a189ed2-373d-42a2-80b7-8def350f56a0')
+      expect(patrimonyCode).toBeNull()
+    })
+  })
 })
