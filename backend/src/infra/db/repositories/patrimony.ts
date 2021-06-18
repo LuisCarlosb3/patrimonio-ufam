@@ -3,6 +3,7 @@ import { DbCreateNewPatrimony } from '@/data/protocols/db/patrimony/db-create-ne
 import { DbDeletePatrimonyItenById } from '@/data/protocols/db/patrimony/db-delete-patrimony-itens-by-id'
 import { DbInsertNewItensToPatrimony } from '@/data/protocols/db/patrimony/db-insert-new-itens-to-patrimony'
 import { DbCheckPatrimonyByCode } from '@/data/protocols/db/patrimony/db-load-patrimony-by-code'
+import { DbLoadPatrimonyById } from '@/data/protocols/db/patrimony/db-load-patrimony-by-id'
 import { DbLoadPatrimonyList } from '@/data/protocols/db/patrimony/db-load-patrimony-list'
 import { DbUpdatePatrimonyById } from '@/data/protocols/db/patrimony/db-update-patrimony-by-id'
 import { Patrimony } from '@/domain/model/patrimony'
@@ -10,7 +11,8 @@ import { NewPatrimonyModel } from '@/domain/usecase/patrimony/create-patrimony'
 import { NewItenToInsert } from '@/domain/usecase/patrimony/update-patrimony-by-id'
 import knex from '@/infra/db/helper/index'
 export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewPatrimony,
-   DbLoadPatrimonyList, DbUpdatePatrimonyById, DbCheckIfPatrimonyExists, DbInsertNewItensToPatrimony, DbDeletePatrimonyItenById {
+   DbLoadPatrimonyList, DbUpdatePatrimonyById, DbCheckIfPatrimonyExists, DbInsertNewItensToPatrimony,
+   DbDeletePatrimonyItenById, DbLoadPatrimonyById {
   private readonly patrimonyTable = 'patrimony'
   private readonly itensTable = 'patrimony-itens'
   private readonly columnNameParser = {
@@ -25,6 +27,20 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
 
   async checkByCode (code: string): Promise<Patrimony> {
     const queryRes = await knex(this.patrimonyTable).select(this.columnNameParser).where({ code })
+    if (queryRes.length > 0) {
+      const patrimony = queryRes[0]
+      const patrimonyItens = await knex(this.itensTable).where({ patrimony_id: patrimony.id })
+      const patrimonyInstance = {
+        ...patrimony,
+        patrimonyItens
+      }
+      return patrimonyInstance
+    }
+    return null
+  }
+
+  async loadById (id: string): Promise<Patrimony> {
+    const queryRes = await knex(this.patrimonyTable).select(this.columnNameParser).where({ id })
     if (queryRes.length > 0) {
       const patrimony = queryRes[0]
       const patrimonyItens = await knex(this.itensTable).where({ patrimony_id: patrimony.id })
