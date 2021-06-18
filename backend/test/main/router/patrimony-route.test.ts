@@ -142,15 +142,15 @@ describe('Authentication Routes', () => {
         .send(payload).expect(400, { error: 'The received code is already in use' })
     })
   })
-  describe('/patrimony/:page', () => {
+  describe('/patrimony-list/:page', () => {
     test('ensure patrimony create return 200 with patrimony list', async () => {
       const accessToken = await generateUserAndToken()
       await insertPatrimonyList(20)
-      let response = await request(server).get('/patrimony').set('x-access-token', accessToken).expect(200)
+      let response = await request(server).get('/patrimony-list').set('x-access-token', accessToken).expect(200)
       let { patrimonyList } = response.body
       expect(patrimonyList.length).toEqual(10)
       expect(patrimonyList[0].code).toEqual('0')
-      response = await request(server).get('/patrimony/2').set('x-access-token', accessToken).expect(200)
+      response = await request(server).get('/patrimony-list/2').set('x-access-token', accessToken).expect(200)
       patrimonyList = response.body.patrimonyList
       expect(patrimonyList.length).toEqual(10)
       expect(patrimonyList[0].code).toEqual('10')
@@ -158,7 +158,7 @@ describe('Authentication Routes', () => {
     test('ensure patrimony create return 200 with first page of patrimony list on page is lower than 1', async () => {
       const accessToken = await generateUserAndToken()
       await insertPatrimonyList(20)
-      const response = await request(server).get('/patrimony/-1').set('x-access-token', accessToken).expect(200)
+      const response = await request(server).get('/patrimony-list/-1').set('x-access-token', accessToken).expect(200)
       const { patrimonyList } = response.body
       expect(patrimonyList.length).toEqual(10)
       expect(patrimonyList[0].code).toEqual('0')
