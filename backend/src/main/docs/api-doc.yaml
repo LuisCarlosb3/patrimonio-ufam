@@ -150,7 +150,7 @@ paths:
           description: User don't have administrator permission to create new patrimony
         "500":
           description: Server Error
-  /patrimony:
+  /patrimony-list:
     get:
       tags: 
         - Patrimony
