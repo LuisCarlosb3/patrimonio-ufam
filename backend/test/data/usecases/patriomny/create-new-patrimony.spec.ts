@@ -1,12 +1,12 @@
 import { DbCreateNewPatrimony } from '@/data/protocols/db/patrimony/db-create-new-patrimony'
 import { DbCheckPatrimonyByCode } from '@/data/protocols/db/patrimony/db-load-patrimony-by-code'
 import { CreateNewPatrimonyData } from '@/data/usecases/patrimony/create-new-patrimony'
-import { PatrimonyState } from '@/domain/model/patrimony'
+import { Patrimony, PatrimonyState } from '@/domain/model/patrimony'
 import { NewPatrimonyModel } from '@/domain/usecase/patrimony/create-patrimony'
 
 function makeDbCheckPatrimonyByCode (): DbCheckPatrimonyByCode {
   class DbCheckPatrimonyByCodeStub implements DbCheckPatrimonyByCode {
-    async checkByCode (code: string): Promise<string> {
+    async checkByCode (code: string): Promise<Patrimony> {
       return await Promise.resolve(null)
     }
   }
@@ -32,6 +32,18 @@ const makeNewPatrimony = (): NewPatrimonyModel => ({
     { name: 'item2', localization: 'any_localization' }
   ]
 })
+function makeFakePatrimony (): Patrimony {
+  return {
+    id: 'any_id',
+    code: 'any_code',
+    description: 'any_description',
+    state: PatrimonyState.GOOD,
+    entryDate: new Date('1/1/2021'),
+    lastConferenceDate: new Date('1/1/2021'),
+    value: 200,
+    patrimonyItens: []
+  }
+}
 interface Sut {
   sut: CreateNewPatrimonyData
   dbCheckPatrimonyByCode: DbCheckPatrimonyByCode
@@ -56,7 +68,7 @@ describe('CreateNewPatrimonyData', () => {
   })
   test('ensure CreateNewPatrimonyData returns null if code already exists', async () => {
     const { sut, dbCheckPatrimonyByCode } = makeSut()
-    jest.spyOn(dbCheckPatrimonyByCode, 'checkByCode').mockResolvedValueOnce('any_code')
+    jest.spyOn(dbCheckPatrimonyByCode, 'checkByCode').mockResolvedValueOnce(makeFakePatrimony())
     const response = await sut.create(makeNewPatrimony())
     expect(response).toBeFalsy()
   })

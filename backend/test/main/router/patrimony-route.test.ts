@@ -41,7 +41,18 @@ const makePatrimonyPayload = (): any => ({
     { name: 'any_item2', localization: 'any_localization', observation: 'any_obs' }
   ]
 })
-const insertNewPatrimony = async (code?: string): Promise<void> => {
+const makePatrimonyPayloadToUpdate = (id: string): any => ({
+  id,
+  code: 'updated_code',
+  description: 'updated_desc',
+  state: 'NOVO',
+  entryDate: new Date(),
+  lastConferenceDate: new Date(),
+  value: 50,
+  patrimonyItens: [{ name: 'new_item', localization: 'new_localization' }],
+  deletedItens: []
+})
+const insertNewPatrimony = async (code?: string): Promise<string> => {
   const patrimony = {
     code: code || 'any_code',
     description: 'any_desc',
@@ -50,12 +61,19 @@ const insertNewPatrimony = async (code?: string): Promise<void> => {
     last_conference_date: new Date(),
     value: 500.99
   }
-  await knex('patrimony').insert(patrimony)
+  const [id] = await knex('patrimony').insert(patrimony).returning('id')
+  return id
 }
 const insertPatrimonyList = async (quantity: number): Promise<void> => {
   for await (const i of Array(quantity).keys()) {
     await insertNewPatrimony(`${i}`)
   }
+}
+
+async function insertItens (id: string): Promise<string> {
+  const item = { patrimony_id: id, name: 'item1', localization: 'any_localization' }
+  const [itemid] = await knex('patrimony-itens').insert(item).returning('id')
+  return itemid
 }
 describe('Authentication Routes', () => {
   beforeAll(async done => {
@@ -66,6 +84,8 @@ describe('Authentication Routes', () => {
   beforeEach(async () => {
     await knex('patrimony-itens').del()
     await knex('patrimony').del()
+    // await knex('user-recover-link').del()
+    await knex('new-user-link').del()
     await knex('user-access-token').del()
     await knex('users').del()
   })
@@ -142,6 +162,59 @@ describe('Authentication Routes', () => {
       const { patrimonyList } = response.body
       expect(patrimonyList.length).toEqual(10)
       expect(patrimonyList[0].code).toEqual('0')
+    })
+  })
+  describe('/patrimony/update', () => {
+    test('ensure patrimony create return 204 on update a patrimony info', async () => {
+      const accessToken = await generateUserAndToken()
+      const patrimonyId = await insertNewPatrimony()
+      const payload = makePatrimonyPayloadToUpdate(patrimonyId)
+      await request(server).post('/patrimony/update')
+        .set('x-access-token', accessToken)
+        .send({ patrimony: payload }).expect(204)
+      const [patrimony] = await knex('patrimony').where({ id: patrimonyId })
+      expect(patrimony.code).toEqual(payload.code)
+      expect(patrimony.value).toEqual(payload.value)
+      expect(patrimony.id).toEqual(patrimonyId)
+    })
+
+    test('ensure patrimony create return 204 and deletes old itens and create new itens', async () => {
+      const accessToken = await generateUserAndToken()
+      const patrimonyId = await insertNewPatrimony()
+      const item1Id = await insertItens(patrimonyId)
+      const payload = makePatrimonyPayloadToUpdate(patrimonyId)
+      payload.deletedItens.push(item1Id)
+      await request(server).post('/patrimony/update')
+        .set('x-access-token', accessToken)
+        .send({ patrimony: payload }).expect(204)
+      const itens = await knex('patrimony-itens').where({ patrimony_id: patrimonyId })
+      expect(itens.length).toBe(1)
+      expect(itens[0].id).not.toEqual(item1Id)
+      expect(itens[0].name).toEqual('new_item')
+    })
+    test('ensure patrimony create return 400 on validation fail', async () => {
+      const accessToken = await generateUserAndToken()
+      const patrimonyId = await insertNewPatrimony()
+      const { code, ...payload } = makePatrimonyPayloadToUpdate(patrimonyId)
+      await request(server).post('/patrimony/update')
+        .set('x-access-token', accessToken)
+        .send({ patrimony: payload }).expect(400, { error: 'Invalid param: patrimony.code' })
+    })
+    test('ensure patrimony create return 400 on validation rejects value of deletedItens', async () => {
+      const accessToken = await generateUserAndToken()
+      const patrimonyId = await insertNewPatrimony()
+      const payload = makePatrimonyPayloadToUpdate(patrimonyId)
+      payload.deletedItens = 'anyothervalue'
+      await request(server).post('/patrimony/update')
+        .set('x-access-token', accessToken)
+        .send({ patrimony: payload }).expect(400, { error: 'Invalid param: patrimony.deletedItens' })
+    })
+    test('ensure patrimony create return 400 on validation fail', async () => {
+      const accessToken = await generateUserAndToken()
+      const payload = makePatrimonyPayloadToUpdate('7e2b6994-840d-42f5-b730-33bb5d10a68e')
+      await request(server).post('/patrimony/update')
+        .set('x-access-token', accessToken)
+        .send({ patrimony: payload }).expect(400, { error: 'Patrimony not found' })
     })
   })
 })

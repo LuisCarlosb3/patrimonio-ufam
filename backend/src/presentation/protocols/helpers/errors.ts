@@ -31,6 +31,18 @@ export class AccessDeniedError extends Error {
     this.name = 'AccessDenied'
   }
 }
+export class PatrimonyNotFound extends Error {
+  constructor () {
+    super('Patrimony not found')
+    this.name = 'PatrimonyNotFound'
+  }
+}
+export class CodeAlreadyRegistered extends Error {
+  constructor () {
+    super('Code already registered')
+    this.name = 'CodeAlreadyRegistered'
+  }
+}
 export class ValueInUseError extends Error {
   constructor (param: string[]) {
     const message = param.length > 1 ? param.reduce((total, partial) => `${total}, ${partial}`) : param[0]

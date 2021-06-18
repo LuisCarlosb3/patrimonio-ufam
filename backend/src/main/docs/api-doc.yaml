@@ -147,7 +147,7 @@ paths:
         "400":
           description: Code already registered or any params missing
         "403":
-          description: User don't have administrator permission to create new user
+          description: User don't have administrator permission to create new patrimony
         "500":
           description: Server Error
   /patrimony:
@@ -206,6 +206,34 @@ paths:
             description: User don't have permission to see page
           "500":
             description: Server Error
+  /patrimony/update:
+    post:
+      tags:
+        - Admin Functions
+        - Patrimony
+      description: Route used by administrator to update patrimony informations, with this functionality admin can update patrimony info, patrimony itens info,
+       add new itens to patrimony or delete existent itens
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/UpdatePatrimonyRequest"
+      responses:
+        "204":
+          description: Patrimony updated with success
+        "400":
+          description: some params from body request have a problem
+        "403":
+          description: User don't have administrator permission to update patrimony info
+        "500":
+          description: Server Error
 components:
   schemas:
     LoginRequest:
@@ -295,6 +323,7 @@ components:
             properties:
               id:
                 type: string
+                format: uuid
               code:
                 type: string
               description:
@@ -316,6 +345,9 @@ components:
                 items:
                   type: object
                   properties:
+                    id: 
+                      type: string
+                      format: uuid
                     name:
                       type: string
                     localization:
@@ -323,6 +355,53 @@ components:
                     observation:
                       type: string
                       nullable: true
+    UpdatePatrimonyRequest:
+      type: object
+      properties:
+        patrimony: 
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            code:
+              type: string
+            description:
+              type: string
+            state:
+              type: string
+              enum: ['NOVO', 'BOM', 'INSERVIVEl', 'RECUPERAVEL', 'ANTIECONOMICO']
+            entryDate:
+              type: string
+              format: date 
+            lastConferenceDate:
+              type: string
+              format: date 
+            value:
+              type: number
+              format: double
+            patrimonyItens: 
+              type: array
+              items:
+                type: object
+                properties:
+                  id: 
+                    type: string
+                    format: uuid
+                    nullable: true
+                  name:
+                    type: string
+                  localization:
+                    type: string
+                  observation:
+                    type: string
+                    nullable: true
+            deletedItens:
+              type: array
+              items:
+                type: string
+                format: uuid
+
                 
 
           

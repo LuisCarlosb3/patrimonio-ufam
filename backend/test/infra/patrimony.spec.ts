@@ -1,6 +1,6 @@
 import { PatrimonyRepository } from '@/infra/db/repositories/patrimony'
 import knex from '@/infra/db/helper/index'
-import { PatrimonyState } from '@/domain/model/patrimony'
+import { Patrimony, PatrimonyState } from '@/domain/model/patrimony'
 import { NewPatrimonyModel } from '@/domain/usecase/patrimony/create-patrimony'
 const makeSut = (): PatrimonyRepository => {
   return new PatrimonyRepository()
@@ -29,9 +29,20 @@ async function insertPatrimony (code?: String): Promise<string> {
   const [id] = await knex('patrimony').insert(patrimony).returning('id')
   return id
 }
-async function insertItens (id: string): Promise<void> {
+const makePatrimonyToUpdate = (patrimonyId: string, itemid: string): Patrimony => ({
+  id: patrimonyId,
+  code: 'updated_code',
+  description: 'updated_description',
+  state: PatrimonyState.UNECONOMICAL,
+  entryDate: new Date('1/1/2021'),
+  lastConferenceDate: new Date('2/1/2021'),
+  value: 220,
+  patrimonyItens: [{ id: itemid, name: 'item1_updated', localization: 'updated_localization', observation: 'any_description' }]
+})
+async function insertItens (id: string): Promise<string> {
   const item = { patrimony_id: id, name: 'item1', localization: 'any_localization' }
-  await knex('patrimony-itens').insert(item)
+  const [itemid] = await knex('patrimony-itens').insert(item).returning('id')
+  return itemid
 }
 describe('PatrimonyRepository', () => {
   beforeAll(async done => {
@@ -49,11 +60,12 @@ describe('PatrimonyRepository', () => {
     done()
   })
   describe('DbCheckPatrimonyByCode', () => {
-    test('ensure checkByCode returns patrimony code if exists', async () => {
+    test('ensure checkByCode returns patrimony data if exists', async () => {
       const sut = makeSut()
-      await insertPatrimony()
-      const patrimonyCode = await sut.checkByCode('any_code')
-      expect(patrimonyCode).toEqual('any_code')
+      const id = await insertPatrimony()
+      const patrimony = await sut.checkByCode('any_code')
+      expect(patrimony.code).toEqual('any_code')
+      expect(patrimony.id).toEqual(id)
     })
     test('ensure checkByCode returns null if not exists', async () => {
       const sut = makeSut()
@@ -117,6 +129,105 @@ describe('PatrimonyRepository', () => {
       expect(firstPage[0]).not.toEqual(secondPage[1])
       expect(firstPage[1]).not.toEqual(secondPage[0])
       expect(firstPage[1]).not.toEqual(secondPage[1])
+    })
+  })
+  describe('DbUpdatePatrimonyById', () => {
+    test('Ensure repository update patrimony by id', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const itemId = await insertItens(id)
+      const patrimonyPayLoad = makePatrimonyToUpdate(id, itemId)
+      await sut.updateById(patrimonyPayLoad)
+      const [patrimony] = await knex('patrimony').where({ id })
+      expect(patrimony).toBeTruthy()
+      expect(patrimony.code).toEqual('updated_code')
+      expect(patrimony.description).toEqual('updated_description')
+    })
+    test('Ensure repository update patrimony item', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const itemId = await insertItens(id)
+      const patrimonyPayLoad = makePatrimonyToUpdate(id, itemId)
+      await sut.updateById(patrimonyPayLoad)
+      const [item] = await knex('patrimony-itens').where({ id: itemId })
+      expect(item).toBeTruthy()
+      expect(item.name).toEqual('item1_updated')
+      expect(item.localization).toEqual('updated_localization')
+      expect(item.observation).toEqual('any_description')
+    })
+    test('Ensure repository throws on error', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const itemId = await insertItens(id)
+      const patrimonyPayLoad = makePatrimonyToUpdate(id, itemId)
+      patrimonyPayLoad.code = null
+      const res = sut.updateById(patrimonyPayLoad)
+      await expect(res).rejects.toThrow()
+    })
+  })
+  describe('DbCheckPatrimonyExistsById', () => {
+    test('ensure loadByid returns true if patrimony exists', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const exists = await sut.verifyById(id)
+      expect(exists).toBeTruthy()
+    })
+    test('ensure loadByid returns false if patrimony don\'t exists', async () => {
+      const sut = makeSut()
+      const fakeUUID = 'cab81c1e-e10c-466f-b17a-49b0dff4f89e'
+      const exists = await sut.verifyById(fakeUUID)
+      expect(exists).toBeFalsy()
+    })
+  })
+  describe('DbInsertNewItensToPatrimony', () => {
+    test('ensure insertNewItens returns true if patrimony exists', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const { patrimonyItens } = makeNewPatrimony()
+      await sut.insertItens(id, patrimonyItens)
+      const itens = await knex('patrimony-itens').where({ patrimony_id: id })
+      expect(itens.length).toBe(2)
+    })
+  })
+  describe('DbDeletePatrimonyItenById', () => {
+    test('ensure deleteById deletes one item on pass an id array', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const itemId = await insertItens(id)
+      await sut.deleteById(itemId)
+      const itens = await knex('patrimony-itens').where({ id: itemId })
+      expect(itens.length).toBe(0)
+    })
+    test('ensure deleteById deletes one item on pass only a id', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const itemId = await insertItens(id)
+      const itemId2 = await insertItens(id)
+      await sut.deleteById([itemId, itemId2])
+      const itens = await knex('patrimony-itens').where({ id: itemId })
+      expect(itens.length).toBe(0)
+    })
+    test('ensure deleteById dont\'t deletes if receive empty array', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      await insertItens(id)
+      await sut.deleteById(null)
+      const itens = await knex('patrimony-itens')
+      expect(itens.length).toBe(1)
+    })
+  })
+  describe('DbLoadPatrimonyById', () => {
+    test('ensure loadById returns patrimony data if exists', async () => {
+      const sut = makeSut()
+      const id = await insertPatrimony()
+      const patrimony = await sut.loadById(id)
+      expect(patrimony.code).toEqual('any_code')
+      expect(patrimony.id).toEqual(id)
+    })
+    test('ensure loadById returns null if not exists', async () => {
+      const sut = makeSut()
+      const patrimonyCode = await sut.loadById('4a189ed2-373d-42a2-80b7-8def350f56a0')
+      expect(patrimonyCode).toBeNull()
     })
   })
 })
