@@ -1,6 +1,7 @@
 import { UpdatePatrimonyController } from '@/presentation/controllers/patrimony/update-patrimony-controller'
 import { makeLoadUserById } from '../../usecases/load-user-by-id/load-user-by-id-factory'
 import { makeUpdatePatrimonyById } from '../../usecases/update-patrimony/update-patrimony-by-id-factory'
+import { makeCheckPatrimonyIdAndCodeToUpdate } from '../../usecases/verify-patrimony-by-id-and-code/verify-patrimony-by-id-and-code-factory'
 import { HttpController } from '@/presentation/protocols/http-controller'
 import { ValidatorJsAdapter } from '@/infra/validation/validatorjs-adapter'
 import { PatrimonyState } from '@/domain/model/patrimony'
@@ -26,6 +27,7 @@ export function makeUpdatePatrimonyController (): HttpController {
   const validator = new ValidatorJsAdapter(rules)
   const loadUserById = makeLoadUserById()
   const updatePatrimonyById = makeUpdatePatrimonyById()
-  const updatePatrimony = new UpdatePatrimonyController(validator, loadUserById, updatePatrimonyById)
+  const checkPatrimonyIdAndCode = makeCheckPatrimonyIdAndCodeToUpdate()
+  const updatePatrimony = new UpdatePatrimonyController(validator, loadUserById, updatePatrimonyById, checkPatrimonyIdAndCode)
   return updatePatrimony
 }
