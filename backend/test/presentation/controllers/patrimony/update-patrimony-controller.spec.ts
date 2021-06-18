@@ -7,7 +7,7 @@ import { Validation } from '@/presentation/protocols/validation'
 import { UpdatePatrimonyController } from '@/presentation/controllers/patrimony/update-patrimony-controller'
 import { LoadUserById } from '@/domain/usecase/user/load-user-by-id'
 import { PatrimonyNotFound } from '@/presentation/protocols/helpers/errors'
-import { LoadPatrimonyById } from '@/domain/usecase/patrimony/load-patrimony-by-id'
+import { CheckPatrimonyIdAndCodeToUpdate } from '@/domain/usecase/patrimony/check-patrimony-id-and-code'
 const makeFakeUser = (): User => {
   return {
     id: 'any_id',
@@ -46,13 +46,13 @@ function makeUpdatePatrimonyById (): UpdatePatrimonyById {
   }
   return new UpdatePatrimonyByIdStub()
 }
-function makeLoadPatrimonyById (): LoadPatrimonyById {
-  class LoadPatrimonyByIdStub implements LoadPatrimonyById {
-    async laodById (id: string): Promise<Patrimony> {
+function makeCheckPatrimonyIdAndCodeToUpdate (): CheckPatrimonyIdAndCodeToUpdate {
+  class CheckPatrimonyIdAndCodeToUpdateStub implements CheckPatrimonyIdAndCodeToUpdate {
+    async verifyPatrimony (id: string, code: string): Promise<Patrimony | Error> {
       return await Promise.resolve(makeFakePatrimony())
     }
   }
-  return new LoadPatrimonyByIdStub()
+  return new CheckPatrimonyIdAndCodeToUpdateStub()
 }
 const makeFakeHttpRequest = (): HttpRequest => {
   return {
@@ -88,17 +88,17 @@ interface Sut {
   validator: Validation
   loadUserById: LoadUserById
   updatePatrimonyById: UpdatePatrimonyById
-  loadById: LoadPatrimonyById
+  checkByIdAndCode: CheckPatrimonyIdAndCodeToUpdate
 
 }
 const makeSut = (): Sut => {
   const validator = makeFakeValidator()
   const updatePatrimonyById = makeUpdatePatrimonyById()
   const loadUserById = makeLoadUserById()
-  const loadById = makeLoadPatrimonyById()
+  const checkByIdAndCode = makeCheckPatrimonyIdAndCodeToUpdate()
 
-  const sut = new UpdatePatrimonyController(validator, loadUserById, updatePatrimonyById, loadById)
-  return { sut, validator, loadUserById, updatePatrimonyById, loadById }
+  const sut = new UpdatePatrimonyController(validator, loadUserById, updatePatrimonyById, checkByIdAndCode)
+  return { sut, validator, loadUserById, updatePatrimonyById, checkByIdAndCode }
 }
 describe('UpdatePatrimonyController', () => {
   test('Ensure UpdatePatrimonyController calls validator with body data', async () => {
@@ -148,19 +148,19 @@ describe('UpdatePatrimonyController', () => {
     const response = await sut.handle(request)
     expect(response).toEqual(badRequest(new PatrimonyNotFound()))
   })
-  test('Ensure CreateNewPatrimonyController returns badRequest on patrimony not exists', async () => {
-    const { sut, loadById } = makeSut()
-    const loadSpy = jest.spyOn(loadById, 'laodById')
+  test.only('Ensure CreateNewPatrimonyController calls checkPatrimonyIdAndCode with patrimony info', async () => {
+    const { sut, checkByIdAndCode } = makeSut()
+    const verifySpy = jest.spyOn(checkByIdAndCode, 'verifyPatrimony')
     const request = makeFakeHttpRequest()
-    const id = request.body.patrimony.id
+    const { id, code } = request.body.patrimony
     await sut.handle(request)
-    expect(loadSpy).toHaveBeenCalledWith(id)
+    expect(verifySpy).toHaveBeenCalledWith(id, code)
   })
-  test('Ensure UpdatePatrimonyController returns badRequest  if loadByid returns null', async () => {
-    const { sut, loadById } = makeSut()
-    jest.spyOn(loadById, 'laodById').mockResolvedValueOnce(null)
+  test.only('Ensure UpdatePatrimonyController returns badRequest  if loadByid returns null', async () => {
+    const { sut, checkByIdAndCode } = makeSut()
+    jest.spyOn(checkByIdAndCode, 'verifyPatrimony').mockResolvedValueOnce(new Error())
     const request = makeFakeHttpRequest()
     const response = await sut.handle(request)
-    expect(response).toEqual(badRequest(new PatrimonyNotFound()))
+    expect(response).toEqual(badRequest(new Error()))
   })
 })
