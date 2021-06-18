@@ -1,4 +1,3 @@
-import { DbCheckIfPatrimonyExists } from '@/data/protocols/db/patrimony/db-check-if-patrimony-exists-by-id'
 import { NewItenToInsert, UpdatePatrimonyById, UpdatePatrimonyModel } from '@/domain/usecase/patrimony/update-patrimony-by-id'
 import { UpdatePatrimonyByIdData } from '@/data/usecases/patrimony/update-patrimony-by-id'
 import { Patrimony, PatrimonyState } from '@/domain/model/patrimony'
@@ -6,14 +5,6 @@ import { UserPermission } from '@/domain/model/user'
 import { DbUpdatePatrimonyById } from '@/data/protocols/db/patrimony/db-update-patrimony-by-id'
 import { DbInsertNewItensToPatrimony } from '@/data/protocols/db/patrimony/db-insert-new-itens-to-patrimony'
 import { DbDeletePatrimonyItenById } from '@/data/protocols/db/patrimony/db-delete-patrimony-itens-by-id'
-function makeDbCheckIfPatrimony (): DbCheckIfPatrimonyExists {
-  class DbCheckIfPatrimonyExistsStub implements DbCheckIfPatrimonyExists {
-    async verifyById (id: string): Promise<boolean> {
-      return await Promise.resolve(true)
-    }
-  }
-  return new DbCheckIfPatrimonyExistsStub()
-}
 function makeDbUpdatePatrimonyById (): DbUpdatePatrimonyById {
   class DbUpdatePatrimonyByIdStub implements DbUpdatePatrimonyById {
     async updateById (patrimony: Patrimony): Promise<void> {
@@ -55,21 +46,18 @@ const newIten = (): {name: string, localization: string} => ({ name: 'any_item2'
 const updatedIten = (): {id: string, name: string, localization: string} => ({ id: 'first', name: 'any_item', localization: 'any_localization' })
 interface Sut {
   sut: UpdatePatrimonyById
-  verifyById: DbCheckIfPatrimonyExists
   updateById: DbUpdatePatrimonyById
   insertNewItens: DbInsertNewItensToPatrimony
   deletedById: DbDeletePatrimonyItenById
 }
 
 const makeSut = (): Sut => {
-  const verifyById = makeDbCheckIfPatrimony()
   const updateById = makeDbUpdatePatrimonyById()
   const insertNewItens = makeDbInsertNewItensToPatrimony()
   const deletedById = makeDbDeletePatrimonyItenById()
-  const sut = new UpdatePatrimonyByIdData(verifyById, updateById, insertNewItens, deletedById)
+  const sut = new UpdatePatrimonyByIdData(updateById, insertNewItens, deletedById)
   return {
     sut,
-    verifyById,
     updateById,
     insertNewItens,
     deletedById
@@ -77,20 +65,6 @@ const makeSut = (): Sut => {
 }
 
 describe('UpdatePatrimonyByIdData', () => {
-  test('Should call checkIfPatrimonyExistsById with patrimony id', async () => {
-    const { sut, verifyById } = makeSut()
-    const verifySpy = jest.spyOn(verifyById, 'verifyById')
-    const patrimony = makeFakePatrimony()
-    await sut.updateById(UserPermission.INVENTORIOUS, patrimony)
-    expect(verifySpy).toHaveBeenCalledWith(patrimony.id)
-  })
-  test('Should return null if verifyById returns null', async () => {
-    const { sut, verifyById } = makeSut()
-    jest.spyOn(verifyById, 'verifyById').mockResolvedValueOnce(false)
-    const patrimony = makeFakePatrimony()
-    const res = await sut.updateById(UserPermission.INVENTORIOUS, patrimony)
-    expect(res).toBeNull()
-  })
   test('Should call UpdatePatrimonyById with patrimony', async () => {
     const { sut, updateById } = makeSut()
     const updateSpy = jest.spyOn(updateById, 'updateById')
