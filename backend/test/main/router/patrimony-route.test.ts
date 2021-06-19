@@ -75,7 +75,7 @@ async function insertItens (id: string): Promise<string> {
   const [itemid] = await knex('patrimony-itens').insert(item).returning('id')
   return itemid
 }
-describe('Authentication Routes', () => {
+describe('Patrimony Routes', () => {
   beforeAll(async done => {
     await knex.migrate.down()
     await knex.migrate.latest()
@@ -142,26 +142,40 @@ describe('Authentication Routes', () => {
         .send(payload).expect(400, { error: 'The received code is already in use' })
     })
   })
-  describe('/patrimony/:page', () => {
-    test('ensure patrimony create return 200 with patrimony list', async () => {
+  describe('/patrimony-list/:page', () => {
+    test('ensure patrimony list return 200 with patrimony list', async () => {
       const accessToken = await generateUserAndToken()
       await insertPatrimonyList(20)
-      let response = await request(server).get('/patrimony').set('x-access-token', accessToken).expect(200)
+      let response = await request(server).get('/patrimony-list').set('x-access-token', accessToken).expect(200)
       let { patrimonyList } = response.body
       expect(patrimonyList.length).toEqual(10)
       expect(patrimonyList[0].code).toEqual('0')
-      response = await request(server).get('/patrimony/2').set('x-access-token', accessToken).expect(200)
+      response = await request(server).get('/patrimony-list/2').set('x-access-token', accessToken).expect(200)
       patrimonyList = response.body.patrimonyList
       expect(patrimonyList.length).toEqual(10)
       expect(patrimonyList[0].code).toEqual('10')
     })
-    test('ensure patrimony create return 200 with first page of patrimony list on page is lower than 1', async () => {
+    test('ensure patrimony list return 200 with first page of patrimony list on page is lower than 1', async () => {
       const accessToken = await generateUserAndToken()
       await insertPatrimonyList(20)
-      const response = await request(server).get('/patrimony/-1').set('x-access-token', accessToken).expect(200)
+      const response = await request(server).get('/patrimony-list/-1').set('x-access-token', accessToken).expect(200)
       const { patrimonyList } = response.body
       expect(patrimonyList.length).toEqual(10)
       expect(patrimonyList[0].code).toEqual('0')
+    })
+  })
+  describe('/patrimony/:code', () => {
+    test('ensure patrimony list return 200 with patrimony list', async () => {
+      const accessToken = await generateUserAndToken()
+      const id = await insertNewPatrimony('1234')
+      const response = await request(server).get('/patrimony/1234').set('x-access-token', accessToken).expect(200)
+      const { patrimony } = response.body
+      expect(patrimony.id).toEqual(id)
+      expect(patrimony.code).toEqual('1234')
+    })
+    test('ensure patrimony list return 404 with patrimony not found', async () => {
+      const accessToken = await generateUserAndToken()
+      await request(server).get('/patrimony/1234').set('x-access-token', accessToken).expect(404)
     })
   })
   describe('/patrimony/update', () => {

@@ -150,7 +150,7 @@ paths:
           description: User don't have administrator permission to create new patrimony
         "500":
           description: Server Error
-  /patrimony:
+  /patrimony-list:
     get:
       tags: 
         - Patrimony
@@ -178,7 +178,7 @@ paths:
             description: User don't have permission to see page
           "500":
             description: Server Error
-  /patrimony/{page}:
+  /patrimony-list/{page}:
     get:
       tags: 
         - Patrimony
@@ -204,6 +204,36 @@ paths:
                   $ref: "#/components/schemas/PatrimonyListResponse"
           "403":
             description: User don't have permission to see page
+          "500":
+            description: Server Error
+  /patrimony/{code}:
+    get:
+      tags: 
+        - Patrimony
+      description: Route used to get patrimonies by code
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+        - in: path
+          required: true
+          name: patrimony code
+          schema:
+            type: number
+          description: patrimonies code register
+      responses:
+          "200":
+            description: Patrimony information
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/PatrimonyResponse"
+          "403":
+            description: User don't have permission to see page
+          "404":
+            description: Patrimony not found with informed code
           "500":
             description: Server Error
   /patrimony/update:
@@ -355,6 +385,46 @@ components:
                     observation:
                       type: string
                       nullable: true
+    PatrimonyResponse:
+      type: object
+      properties:
+        patrimony: 
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            code:
+              type: string
+            description:
+              type: string
+            state:
+              type: string
+              enum: ['NOVO', 'BOM', 'INSERVIVEl', 'RECUPERAVEL', 'ANTIECONOMICO']
+            entryDate:
+              type: string
+              format: date 
+            lastConferenceDate:
+              type: string
+              format: date 
+            value:
+              type: number
+              format: double
+            patrimonyItens: 
+              type: array
+              items:
+                type: object
+                properties:
+                  id: 
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  localization:
+                    type: string
+                  observation:
+                    type: string
+                    nullable: true
     UpdatePatrimonyRequest:
       type: object
       properties:

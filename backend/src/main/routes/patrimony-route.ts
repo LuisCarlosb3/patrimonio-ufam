@@ -4,6 +4,7 @@ import ExpressMiddlewareAdapterFactory from '../factories/adapter/express-middle
 import ExpressRouteAdapterFactory from '../factories/adapter/express-route-adapter-factory'
 import { makeCreateNewPatrimony } from '../factories/controller/patrimony/create-new-patrimony-factory'
 import { makeListPatrimonyController } from '../factories/controller/patrimony/list-patrimony-controller-factory'
+import { makeLoadPatrimonyByCodeController } from '../factories/controller/patrimony/load-patrimony-by-code-factory'
 import { makeUpdatePatrimonyController } from '../factories/controller/patrimony/update-patrimony-factory'
 import { makeAuthMiddleware } from '../factories/middleware/auth-middleware-factory'
 
@@ -14,7 +15,10 @@ export default (router: Router): void => {
   router.post('/patrimony/update',
     ExpressMiddlewareAdapterFactory(makeAuthMiddleware(UserPermission.ADMINISTRATOR)),
     ExpressRouteAdapterFactory(makeUpdatePatrimonyController()))
-  router.get('/patrimony/:page?',
+  router.get('/patrimony/:code',
+    ExpressMiddlewareAdapterFactory(makeAuthMiddleware()),
+    ExpressRouteAdapterFactory(makeLoadPatrimonyByCodeController()))
+  router.get('/patrimony-list/:page?',
     ExpressMiddlewareAdapterFactory(makeAuthMiddleware()),
     ExpressRouteAdapterFactory(makeListPatrimonyController()))
 }
