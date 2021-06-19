@@ -1,7 +1,7 @@
 openapi: "3.0.0"
 info:
   version: 1.0.0
-  title: ""
+  title: "Oraculo API"
 servers:
   - url: http://{URL}:3000/
 tags:
@@ -11,49 +11,469 @@ paths:
     post:
       tags:
         - Authentication
-      description: Route used to authentication
+      description: Route used to user authentication
       requestBody:
         required: true
         content:
           "application/json":
             schema:
-              $ref: "#/components/schemas/loginRequest"
+              $ref: "#/components/schemas/LoginRequest"
       responses:
         "200":
           description: Authentication successful
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/loginResponse"
+                $ref: "#/components/schemas/LoginResponse"
         "400":
-          description: Bad Request
+          description: Invalid password or registration
         "401":
-          description: User not authorized
-  
-  
+          description: Forbidden Request
+        "500":
+          description: Server Error
+  /recover:
+    post:
+      tags:
+        - Authentication
+      description: Route used to request user recover password
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/RecoverPasswordRequest"
+      responses:
+        "204":
+          description: Recover request succeeds, access link send to user email
+        "400":
+          description: User registration not defined
+        "401":
+          description: Unauthorized request
+        "500":
+          description: Server Error
+  /recover/{link}:
+    get:
+      tags:
+          - Authentication
+      parameters:
+        - in: path
+          name: link
+          schema:
+            type: string
+          required: true
+          description: Recovery link to access recover password page
+      
+      description: Route used to user access recover password page
+      responses:
+        "204":
+          description: Link verificaiton succeeds
+        "400":
+          description: Invalid link
+        "500":
+          description: Server Error
+    post:
+      tags:
+        - Authentication
+      parameters:
+        - in: path
+          name: link
+          schema:
+            type: string
+          required: true
+          description: Recovery link to access recover password page
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/UpdatePasswordRequestFromRecoverLink"
+      description: Route used to request user recover password
+      responses:
+        "204":
+          description: Recover request succeeds, access link send to user email
+        "400":
+          description: Invalid password or password confirmation
+        "401":
+          description: link expired or does not exist
+        "500":
+          description: Server Error
+  /users/create:
+    post:
+      tags:
+        - Admin Functions
+      description: Route used by administrator to create new users
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/CreateNewUserRequest"
+      responses:
+        "204":
+          description: User create with success
+        "400":
+          description: Invalid parameters or informations already registered
+        "403":
+          description: User don't have administrator permission to create new user
+        "500":
+          description: Server Error
+  /patrimony/create:
+    post:
+      tags:
+        - Admin Functions
+        - Patrimony
+      description: Route used by administrator to create new patrimony registers
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/CreateNewPatrimonyRequest"
+      responses:
+        "204":
+          description: Patrimony created with success
+        "400":
+          description: Code already registered or any params missing
+        "403":
+          description: User don't have administrator permission to create new patrimony
+        "500":
+          description: Server Error
+  /patrimony-list:
+    get:
+      tags: 
+        - Patrimony
+      description: Route used to list patrimonies in pages
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+        - in: path
+          required: true
+          name: page
+          schema:
+            type: number
+          description: patrimonies list page number 
+      responses:
+          "200":
+            description: Patrimony list
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/PatrimonyListResponse"
+          "403":
+            description: User don't have permission to see page
+          "500":
+            description: Server Error
+  /patrimony-list/{page}:
+    get:
+      tags: 
+        - Patrimony
+      description: Route used to list patrimonies in pages
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+        - in: path
+          required: true
+          name: page
+          schema:
+            type: number
+          description: patrimonies list page number 
+      responses:
+          "200":
+            description: Patrimony list
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/PatrimonyListResponse"
+          "403":
+            description: User don't have permission to see page
+          "500":
+            description: Server Error
+  /patrimony/{code}:
+    get:
+      tags: 
+        - Patrimony
+      description: Route used to get patrimonies by code
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+        - in: path
+          required: true
+          name: patrimony code
+          schema:
+            type: number
+          description: patrimonies code register
+      responses:
+          "200":
+            description: Patrimony information
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/PatrimonyResponse"
+          "403":
+            description: User don't have permission to see page
+          "404":
+            description: Patrimony not found with informed code
+          "500":
+            description: Server Error
+  /patrimony/update:
+    post:
+      tags:
+        - Admin Functions
+        - Patrimony
+      description: Route used by administrator to update patrimony informations, with this functionality admin can update patrimony info, patrimony itens info,
+       add new itens to patrimony or delete existent itens
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/UpdatePatrimonyRequest"
+      responses:
+        "204":
+          description: Patrimony updated with success
+        "400":
+          description: some params from body request have a problem
+        "403":
+          description: User don't have administrator permission to update patrimony info
+        "500":
+          description: Server Error
 components:
   schemas:
-    loginRequest:
+    LoginRequest:
       type: object
       properties:
-        matricula:
+        registration:
           type: string
         password:
           type: string
-    loginResponse:
+    LoginResponse:
       type: object
       properties:
-        accessToken:
+        token:
           type: string
-        operatorAccount:
+        userData:
           type: object
           properties:
             name:
               type: string
             email:
               type: string
-            line:
-              type: array
+            registration:
+              type: string
             permission:
               type: string
+    RecoverPasswordRequest:
+      type: object
+      properties:
+        registration:
+          type: string
+    UpdatePasswordRequestFromRecoverLink:
+      type: object
+      properties:
+        password:
+          type: string
+        password_confirm:
+          type: string
+    CreateNewUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        permission:
+          type: number
+        email:
+          type: string
+        registration:
+          type: string
+    CreateNewPatrimonyRequest:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        state:
+          type: string
+          enum: ['NOVO', 'BOM', 'INSERVIVEl', 'RECUPERAVEL', 'ANTIECONOMICO']
+        entryDate:
+          type: string
+          format: date 
+        lastConferenceDate:
+          type: string
+          format: date 
+        value:
+          type: number
+          format: double
+        patrimonyItens: 
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              localization:
+                type: string
+              observation:
+                type: string
+                nullable: true
+    PatrimonyListResponse:
+      type: object
+      properties:
+        patrimonyList: 
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              code:
+                type: string
+              description:
+                type: string
+              state:
+                type: string
+                enum: ['NOVO', 'BOM', 'INSERVIVEl', 'RECUPERAVEL', 'ANTIECONOMICO']
+              entryDate:
+                type: string
+                format: date 
+              lastConferenceDate:
+                type: string
+                format: date 
+              value:
+                type: number
+                format: double
+              patrimonyItens: 
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: 
+                      type: string
+                      format: uuid
+                    name:
+                      type: string
+                    localization:
+                      type: string
+                    observation:
+                      type: string
+                      nullable: true
+    PatrimonyResponse:
+      type: object
+      properties:
+        patrimony: 
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            code:
+              type: string
+            description:
+              type: string
+            state:
+              type: string
+              enum: ['NOVO', 'BOM', 'INSERVIVEl', 'RECUPERAVEL', 'ANTIECONOMICO']
+            entryDate:
+              type: string
+              format: date 
+            lastConferenceDate:
+              type: string
+              format: date 
+            value:
+              type: number
+              format: double
+            patrimonyItens: 
+              type: array
+              items:
+                type: object
+                properties:
+                  id: 
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  localization:
+                    type: string
+                  observation:
+                    type: string
+                    nullable: true
+    UpdatePatrimonyRequest:
+      type: object
+      properties:
+        patrimony: 
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            code:
+              type: string
+            description:
+              type: string
+            state:
+              type: string
+              enum: ['NOVO', 'BOM', 'INSERVIVEl', 'RECUPERAVEL', 'ANTIECONOMICO']
+            entryDate:
+              type: string
+              format: date 
+            lastConferenceDate:
+              type: string
+              format: date 
+            value:
+              type: number
+              format: double
+            patrimonyItens: 
+              type: array
+              items:
+                type: object
+                properties:
+                  id: 
+                    type: string
+                    format: uuid
+                    nullable: true
+                  name:
+                    type: string
+                  localization:
+                    type: string
+                  observation:
+                    type: string
+                    nullable: true
+            deletedItens:
+              type: array
+              items:
+                type: string
+                format: uuid
+
+                
+
+          
+
     

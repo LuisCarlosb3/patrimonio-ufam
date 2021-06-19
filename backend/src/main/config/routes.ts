@@ -4,8 +4,6 @@ export default (app: Express): void => {
   const router = Router()
   app.use(router)
   readdirSync(`${__dirname}/../routes/`).map(async file => {
-    if (!file.includes('test')) {
-      (await import(`../routes/${file}`)).default(router)
-    }
+    (await import(`../routes/${file}`)).default(router)
   })
 }

@@ -19,8 +19,9 @@ export class MissingParamError extends Error {
   }
 }
 export class InvalidParamError extends Error {
-  constructor (param: string) {
-    super(`Invalid param: ${param}`)
+  constructor (param: string[]) {
+    const message = param.length > 1 ? param.reduce((total, partial) => `${total}, ${partial}`) : param[0]
+    super(`Invalid param: ${message}`)
     this.name = 'InvalidParamError'
   }
 }
@@ -30,9 +31,22 @@ export class AccessDeniedError extends Error {
     this.name = 'AccessDenied'
   }
 }
-export class EmailInUseError extends Error {
+export class PatrimonyNotFound extends Error {
   constructor () {
-    super('The received email is already in use')
-    this.name = 'EmailInUseError'
+    super('Patrimony not found')
+    this.name = 'PatrimonyNotFound'
+  }
+}
+export class CodeAlreadyRegistered extends Error {
+  constructor () {
+    super('Code already registered')
+    this.name = 'CodeAlreadyRegistered'
+  }
+}
+export class ValueInUseError extends Error {
+  constructor (param: string[]) {
+    const message = param.length > 1 ? param.reduce((total, partial) => `${total}, ${partial}`) : param[0]
+    super(`The received ${message} is already in use`)
+    this.name = 'ValueInUseError'
   }
 }

@@ -1,3 +1,3 @@
 export default interface Encrypter {
-  encrypt(value: { id: string, permission: string, line?: string[] }): Promise<string>
+  encrypt(value: { id: string, permission: number }): Promise<string>
 }

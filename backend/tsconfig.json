@@ -3,14 +3,18 @@
       "outDir": "dist",
       "module":"CommonJS",
       "target": "ES2019",
+      "suppressImplicitAnyIndexErrors": true,
       "esModuleInterop": true,
-      "rootDir": "src",
+      "rootDirs": ["src","test"],
       "baseUrl": "src",
+      "skipDefaultLibCheck": true,
+      "typeRoots": [
+        "./node_modules/@types"
+      ],
       "paths": {
+          "@/test/*":["../test/*"],
           "@/*":["*"]
       }
   },
-  "include": [
-      "src"
-  ]
+  "include": ["src","test"]
 }
