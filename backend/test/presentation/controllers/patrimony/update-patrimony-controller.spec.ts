@@ -6,7 +6,6 @@ import { HttpRequest } from '@/presentation/protocols/http'
 import { Validation } from '@/presentation/protocols/validation'
 import { UpdatePatrimonyController } from '@/presentation/controllers/patrimony/update-patrimony-controller'
 import { LoadUserById } from '@/domain/usecase/user/load-user-by-id'
-import { PatrimonyNotFound } from '@/presentation/protocols/helpers/errors'
 import { CheckPatrimonyIdAndCodeToUpdate } from '@/domain/usecase/patrimony/check-patrimony-id-and-code'
 const makeFakeUser = (): User => {
   return {
@@ -141,14 +140,7 @@ describe('UpdatePatrimonyController', () => {
     const response = await sut.handle(request)
     expect(response).toEqual(noContent())
   })
-  test('Ensure UpdatePatrimonyController returns badRequest  update returns false', async () => {
-    const { sut, updatePatrimonyById } = makeSut()
-    jest.spyOn(updatePatrimonyById, 'updateById').mockResolvedValueOnce(null)
-    const request = makeFakeHttpRequest()
-    const response = await sut.handle(request)
-    expect(response).toEqual(badRequest(new PatrimonyNotFound()))
-  })
-  test.only('Ensure CreateNewPatrimonyController calls checkPatrimonyIdAndCode with patrimony info', async () => {
+  test('Ensure CreateNewPatrimonyController calls checkPatrimonyIdAndCode with patrimony info', async () => {
     const { sut, checkByIdAndCode } = makeSut()
     const verifySpy = jest.spyOn(checkByIdAndCode, 'verifyPatrimony')
     const request = makeFakeHttpRequest()
@@ -156,7 +148,7 @@ describe('UpdatePatrimonyController', () => {
     await sut.handle(request)
     expect(verifySpy).toHaveBeenCalledWith(id, code)
   })
-  test.only('Ensure UpdatePatrimonyController returns badRequest  if loadByid returns null', async () => {
+  test('Ensure UpdatePatrimonyController returns badRequest  if loadByid returns null', async () => {
     const { sut, checkByIdAndCode } = makeSut()
     jest.spyOn(checkByIdAndCode, 'verifyPatrimony').mockResolvedValueOnce(new Error())
     const request = makeFakeHttpRequest()

@@ -25,10 +25,8 @@ export class UpdatePatrimonyController implements HttpController {
       const patrimonyLoaded = await this.checkPatrimonyIdAndCode.verifyPatrimony(patrimony.id, patrimony.code)
       if (!(patrimonyLoaded instanceof Error)) {
         const { permission } = await this.loadUserById.load(accountId)
-        const isUpdate = await this.updatePatrimonyById.updateById(permission, patrimony)
-        if (isUpdate) {
-          return noContent()
-        }
+        await this.updatePatrimonyById.updateById(permission, patrimony)
+        return noContent()
       } else {
         return badRequest(patrimonyLoaded)
       }
