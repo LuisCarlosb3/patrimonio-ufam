@@ -1,6 +1,6 @@
 import { Patrimony, PatrimonyState } from '@/domain/model/patrimony'
 import { LoadPatrimonyByCode } from '@/domain/usecase/patrimony/load-patrimony-by-code'
-import { badRequest, responseSuccess, serverError } from '@/presentation/protocols/helpers/http-helpers'
+import { badRequest, notFound, responseSuccess, serverError } from '@/presentation/protocols/helpers/http-helpers'
 import { GetPatrimonyByCodeController } from '@/presentation/controllers/patrimony/get-patrimony-by-code-controller'
 import { HttpRequest } from '@/presentation/protocols/http'
 import { Validation } from '@/presentation/protocols/validation'
@@ -76,7 +76,7 @@ describe('GetPatrimonyByCodeController', () => {
     const { sut, loadPatrimony } = makeSut()
     jest.spyOn(loadPatrimony, 'loadByCode').mockResolvedValueOnce(null)
     const response = await sut.handle(makeHttpRequest())
-    expect(response).toEqual(badRequest(new PatrimonyNotFound()))
+    expect(response).toEqual(notFound(new PatrimonyNotFound()))
   })
   test('Ensure GetPatrimonyByCodeController returns 500 on throws', async () => {
     const { sut, loadPatrimony } = makeSut()
