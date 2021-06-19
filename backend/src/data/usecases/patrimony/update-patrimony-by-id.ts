@@ -29,7 +29,7 @@ export class UpdatePatrimonyByIdData implements UpdatePatrimonyById {
       await this.insertNewItens.insertItens(patrimony.id, newItens)
     }
     if (deletedItens && deletedItens.length > 0) {
-      await this.dbDeleteItensById.deleteById(deletedItens)
+      await this.dbDeleteItensById.deleteItensById(deletedItens)
     }
     if (updateSucceeds === null) {
       return true
