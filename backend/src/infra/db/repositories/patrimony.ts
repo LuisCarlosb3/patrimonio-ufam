@@ -1,5 +1,6 @@
 import { DbCheckIfPatrimonyExists } from '@/data/protocols/db/patrimony/db-check-if-patrimony-exists-by-id'
 import { DbCreateNewPatrimony } from '@/data/protocols/db/patrimony/db-create-new-patrimony'
+import { DbDeletePatrimonyById } from '@/data/protocols/db/patrimony/db-delete-patrimony-by-id'
 import { DbDeletePatrimonyItenById } from '@/data/protocols/db/patrimony/db-delete-patrimony-itens-by-id'
 import { DbInsertNewItensToPatrimony } from '@/data/protocols/db/patrimony/db-insert-new-itens-to-patrimony'
 import { DbCheckPatrimonyByCode } from '@/data/protocols/db/patrimony/db-load-patrimony-by-code'
@@ -12,7 +13,7 @@ import { NewItenToInsert } from '@/domain/usecase/patrimony/update-patrimony-by-
 import knex from '@/infra/db/helper/index'
 export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewPatrimony,
    DbLoadPatrimonyList, DbUpdatePatrimonyById, DbCheckIfPatrimonyExists, DbInsertNewItensToPatrimony,
-   DbDeletePatrimonyItenById, DbLoadPatrimonyById {
+   DbDeletePatrimonyItenById, DbLoadPatrimonyById, DbDeletePatrimonyById {
   private readonly patrimonyTable = 'patrimony'
   private readonly itensTable = 'patrimony-itens'
   private readonly columnNameParser = {
@@ -144,11 +145,15 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
     await knex(this.itensTable).insert(itensToInsert)
   }
 
-  async deleteById (itenId: string | string[]): Promise<void> {
+  async deleteItensById (itenId: string | string[]): Promise<void> {
     if (Array.isArray(itenId)) {
       await knex(this.itensTable).whereIn('id', itenId).del()
     } else {
       await knex(this.itensTable).where({ id: itenId }).del()
     }
+  }
+
+  async deleteById (patrimonyId: string): Promise<void> {
+    await knex(this.patrimonyTable).where('id', patrimonyId).del()
   }
 }

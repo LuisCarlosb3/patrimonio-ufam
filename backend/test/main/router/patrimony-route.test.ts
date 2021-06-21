@@ -4,8 +4,8 @@ import Env from '@/main/config/env'
 import knex from '@/infra/db/helper/index'
 import { User, UserPermission } from '@/domain/model/user'
 import { sign } from 'jsonwebtoken'
-const makeUser = (): Omit<User, 'id' | 'password'> => {
-  const perm = UserPermission.ADMINISTRATOR
+const makeUser = (isAdmin = true): Omit<User, 'id' | 'password'> => {
+  const perm = isAdmin ? UserPermission.ADMINISTRATOR : UserPermission.INVENTORIOUS
   return {
     name: 'any_name',
     registration: 'myregistration',
@@ -13,15 +13,15 @@ const makeUser = (): Omit<User, 'id' | 'password'> => {
     permission: perm
   }
 }
-const insertPayload = async (): Promise<string> => {
+const insertPayload = async (isAdmin = true): Promise<string> => {
   const password = '123456'
-  const user = makeUser()
+  const user = makeUser(isAdmin)
   const userId = await knex('users').insert({ ...user, password }).returning('id')
   return userId[0]
 }
-const generateUserAndToken = async (): Promise<string> => {
-  const id = await insertPayload()
-  const permission = UserPermission.ADMINISTRATOR
+const generateUserAndToken = async (isAdmin = true): Promise<string> => {
+  const id = await insertPayload(isAdmin)
+  const permission = isAdmin ? UserPermission.ADMINISTRATOR : UserPermission.INVENTORIOUS
   const accessToken = sign({ id, permission }, Env.jwtSecret)
   await knex('user-access-token').insert({
     user_id: id,
@@ -176,6 +176,26 @@ describe('Patrimony Routes', () => {
     test('ensure patrimony list return 404 with patrimony not found', async () => {
       const accessToken = await generateUserAndToken()
       await request(server).get('/patrimony/1234').set('x-access-token', accessToken).expect(404)
+    })
+  })
+  describe('DELETE /patrimony', () => {
+    test('ensure patrimony delete return 204 patrimony deleted', async () => {
+      const accessToken = await generateUserAndToken()
+      const id = await insertNewPatrimony('1234')
+      await insertItens(id)
+      await request(server).delete(`/patrimony/${id}`).set('x-access-token', accessToken).expect(204)
+      const patrimony = await knex('patrimony').where({ id })
+      const patrimonyItens = await knex('patrimony-itens').where({ patrimony_id: id })
+      expect(patrimony.length).toBe(0)
+      expect(patrimonyItens.length).toBe(0)
+    })
+    test('ensure patrimony list return 404 with patrimony not found', async () => {
+      const accessToken = await generateUserAndToken()
+      await request(server).delete('/patrimony/7e2b6994-840d-42f5-b730-33bb5d10a68e').set('x-access-token', accessToken).expect(404)
+    })
+    test('ensure patrimony list return 403 on user dont have permission', async () => {
+      const accessToken = await generateUserAndToken(false)
+      await request(server).delete('/patrimony/1234').set('x-access-token', accessToken).expect(403)
     })
   })
   describe('/patrimony/update', () => {

@@ -1,3 +1,3 @@
 export interface DbDeletePatrimonyItenById {
-  deleteById(itenId: string | string[]): Promise<void>
+  deleteItensById(itemId: string | string[]): Promise<void>
 }

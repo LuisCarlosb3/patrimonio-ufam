@@ -23,7 +23,7 @@ function makeDbInsertNewItensToPatrimony (): DbInsertNewItensToPatrimony {
 }
 function makeDbDeletePatrimonyItenById (): DbDeletePatrimonyItenById {
   class DbDeletePatrimonyItenByIdStub implements DbDeletePatrimonyItenById {
-    async deleteById (itenId: string | string[]): Promise<void> {
+    async deleteItensById (itenId: string | string[]): Promise<void> {
       return await Promise.resolve(null)
     }
   }
@@ -103,7 +103,7 @@ describe('UpdatePatrimonyByIdData', () => {
   })
   test('Should call DbDeletePatrimonyItenById with patrimony id and new itens', async () => {
     const { sut, deletedById } = makeSut()
-    const deleteSpy = jest.spyOn(deletedById, 'deleteById')
+    const deleteSpy = jest.spyOn(deletedById, 'deleteItensById')
     const patrimony = makeFakePatrimony()
     patrimony.patrimonyItens.push(newIten())
     await sut.updateById(UserPermission.INVENTORIOUS, patrimony)
@@ -111,7 +111,7 @@ describe('UpdatePatrimonyByIdData', () => {
   })
   test('Shouldn\'t call DbDeletePatrimonyItenById if itens to delete array is empty', async () => {
     const { sut, deletedById } = makeSut()
-    const deleteSpy = jest.spyOn(deletedById, 'deleteById')
+    const deleteSpy = jest.spyOn(deletedById, 'deleteItensById')
     const patrimony = makeFakePatrimony()
     patrimony.deletedItens = null
     await sut.updateById(UserPermission.INVENTORIOUS, patrimony)
