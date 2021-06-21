@@ -264,6 +264,35 @@ paths:
           description: User don't have administrator permission to update patrimony info
         "500":
           description: Server Error
+  /patrimony/{id}:
+    delete:
+      tags: 
+        - Patrimony
+        - Admin Functions
+      description: Route used to delete patrimonies by id
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+        - in: path
+          required: true
+          name: patrimony id
+          schema:
+            type: string
+            format: uuid
+          description: patrimonies id register
+      responses:
+          "204":
+            description: Confirmation that patrimony was deleted
+          "403":
+            description: User don't have permission to delete patrimony
+          "404":
+            description: Patrimony not found with informed id
+          "500":
+            description: Server Error
+
 components:
   schemas:
     LoginRequest:
