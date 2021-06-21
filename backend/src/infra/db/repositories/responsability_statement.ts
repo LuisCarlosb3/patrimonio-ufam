@@ -1,7 +1,7 @@
-import { DbCreateStatementResponsability, InsertNewStatementModel } from '@/data/protocols/db/statement-responsability/db-create-statement'
+import { DbCreateResponsabilityStatement, InsertNewStatementModel } from '@/data/protocols/db/responsability-statement/db-create-statement'
 import knex from '@/infra/db/helper/index'
 
-export class ResponsabilityStatementRespositoy implements DbCreateStatementResponsability {
+export class ResponsabilityStatementRespositoy implements DbCreateResponsabilityStatement {
   private readonly tableName = 'responsability_statement'
   private readonly itensTableName = 'responsability_statement_itens'
   async create (newStatement: InsertNewStatementModel): Promise<void> {

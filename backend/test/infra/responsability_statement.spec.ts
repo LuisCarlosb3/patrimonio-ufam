@@ -1,4 +1,4 @@
-import { InsertNewStatementModel } from '@/data/protocols/db/statement-responsability/db-create-statement'
+import { InsertNewStatementModel } from '@/data/protocols/db/responsability-statement/db-create-statement'
 import { ResponsabilityStatementRespositoy } from '@/infra/db/repositories/responsability_statement'
 import { PatrimonyState } from '@/domain/model/patrimony'
 import MockDate from 'mockdate'

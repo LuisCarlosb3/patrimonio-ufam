@@ -1,11 +1,11 @@
+import { DbCreateResponsabilityStatement, InsertNewStatementModel } from '@/data/protocols/db/responsability-statement/db-create-statement'
+import { CreateStatementModel, CreateResponsabilityStatement } from '@/domain/usecase/responsability-statement/create-responsability-statement'
 import { DbLoadPatrimonyIdsByCodes } from '@/data/protocols/db/patrimony/db-load-patrimony-ids-by-codes'
-import { DbCreateStatementResponsability, InsertNewStatementModel } from '@/data/protocols/db/statement-responsability/db-create-statement'
-import { CreateStatementModel, CreateStatementResponsability } from '@/domain/usecase/statement-responsability/create-statement-responsability'
 
-export class CreateStatatementResponsabilityData implements CreateStatementResponsability {
+export class CreateStatatementResponsabilityData implements CreateResponsabilityStatement {
   constructor (
     private readonly dbLoadCodes: DbLoadPatrimonyIdsByCodes,
-    private readonly createStatement: DbCreateStatementResponsability
+    private readonly createStatement: DbCreateResponsabilityStatement
   ) {}
 
   async create (newStatement: CreateStatementModel): Promise<void> {

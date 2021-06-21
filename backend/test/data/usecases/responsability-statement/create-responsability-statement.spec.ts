@@ -1,15 +1,15 @@
-import { DbCreateStatementResponsability, InsertNewStatementModel } from '@/data/protocols/db/statement-responsability/db-create-statement'
-import { CreateStatementModel, CreateStatementResponsability } from '@/domain/usecase/statement-responsability/create-statement-responsability'
-import { CreateStatatementResponsabilityData } from '@/data/usecases/statement-responsability/create-statement-responsability'
+import { DbCreateResponsabilityStatement, InsertNewStatementModel } from '@/data/protocols/db/responsability-statement/db-create-statement'
+import { CreateStatementModel, CreateResponsabilityStatement } from '@/domain/usecase/responsability-statement/create-responsability-statement'
+import { CreateStatatementResponsabilityData } from '@/data/usecases/responsability-statement/create-responsability-statement'
 import { DbLoadPatrimonyIdsByCodes } from '@/data/protocols/db/patrimony/db-load-patrimony-ids-by-codes'
 import Mockdate from 'mockdate'
-const makeCreateStatement = (): DbCreateStatementResponsability => {
-  class DbCreateStatementResponsabilityStub implements DbCreateStatementResponsability {
+const makeCreateStatement = (): DbCreateResponsabilityStatement => {
+  class DbCreateResponsabilityStatementStub implements DbCreateResponsabilityStatement {
     async create (newStatement: InsertNewStatementModel): Promise<void> {
       return await Promise.resolve()
     }
   }
-  return new DbCreateStatementResponsabilityStub()
+  return new DbCreateResponsabilityStatementStub()
 }
 const makeLoadCodes = (): DbLoadPatrimonyIdsByCodes => {
   class DbLoadPatrimonyIdsByCodesStub implements DbLoadPatrimonyIdsByCodes {
@@ -33,8 +33,8 @@ const makeCreateStatementModel = (): CreateStatementModel => ({
 })
 
 interface Sut {
-  sut: CreateStatementResponsability
-  createStatement: DbCreateStatementResponsability
+  sut: CreateResponsabilityStatement
+  createStatement: DbCreateResponsabilityStatement
   dbLoadCodes: DbLoadPatrimonyIdsByCodes
 }
 
@@ -48,7 +48,7 @@ const makeSut = (): Sut => {
     dbLoadCodes
   }
 }
-describe('CreateStatementResponsability', () => {
+describe('CreateResponsabilityStatement', () => {
   beforeAll(() => {
     Mockdate.set(new Date())
   })

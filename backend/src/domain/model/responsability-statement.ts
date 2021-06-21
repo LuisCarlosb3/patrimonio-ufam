@@ -1,6 +1,6 @@
 import { Patrimony } from './patrimony'
 
-export interface StatementResponsability {
+export interface ResponsabilityStatement {
   id: string
   responsibleName: string
   siapeCode: string
