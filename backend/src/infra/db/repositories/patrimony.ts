@@ -5,6 +5,7 @@ import { DbDeletePatrimonyItenById } from '@/data/protocols/db/patrimony/db-dele
 import { DbInsertNewItensToPatrimony } from '@/data/protocols/db/patrimony/db-insert-new-itens-to-patrimony'
 import { DbCheckPatrimonyByCode } from '@/data/protocols/db/patrimony/db-load-patrimony-by-code'
 import { DbLoadPatrimonyById } from '@/data/protocols/db/patrimony/db-load-patrimony-by-id'
+import { DbLoadPatrimonyIdsByCodes } from '@/data/protocols/db/patrimony/db-load-patrimony-ids-by-codes'
 import { DbLoadPatrimonyList } from '@/data/protocols/db/patrimony/db-load-patrimony-list'
 import { DbUpdatePatrimonyById } from '@/data/protocols/db/patrimony/db-update-patrimony-by-id'
 import { Patrimony } from '@/domain/model/patrimony'
@@ -13,7 +14,7 @@ import { NewItenToInsert } from '@/domain/usecase/patrimony/update-patrimony-by-
 import knex from '@/infra/db/helper/index'
 export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewPatrimony,
    DbLoadPatrimonyList, DbUpdatePatrimonyById, DbCheckIfPatrimonyExists, DbInsertNewItensToPatrimony,
-   DbDeletePatrimonyItenById, DbLoadPatrimonyById, DbDeletePatrimonyById {
+   DbDeletePatrimonyItenById, DbLoadPatrimonyById, DbDeletePatrimonyById, DbLoadPatrimonyIdsByCodes {
   private readonly patrimonyTable = 'patrimony'
   private readonly itensTable = 'patrimony-itens'
   private readonly columnNameParser = {
@@ -155,5 +156,11 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
 
   async deleteById (patrimonyId: string): Promise<void> {
     await knex(this.patrimonyTable).where('id', patrimonyId).del()
+  }
+
+  async loadByCodes (codes: string[]): Promise<string[]> {
+    const patrimonies = await knex(this.patrimonyTable).select('id').whereIn('code', codes)
+    const ids = patrimonies.map(item => item.id)
+    return ids
   }
 }
