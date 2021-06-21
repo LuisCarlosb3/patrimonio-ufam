@@ -22,7 +22,6 @@ export class ResponsabilityStatementRespositoy implements DbCreateResponsability
         await trx.commit()
       } catch (error) {
         await trx.rollback()
-        console.log(error)
         throw error
       }
     })
