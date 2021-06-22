@@ -21,7 +21,7 @@ async function insertPatrimony (code?: String): Promise<string> {
   const [id] = await knex('patrimony').insert(patrimony).returning('id')
   return id
 }
-async function insertSatement (patrimonyId: string): Promise<void> {
+async function insertSatement (patrimonyId: string): Promise<string> {
   const [newId] = await knex('responsability_statement').insert({
     responsible_name: 'any_name',
     siape: 'any_code',
@@ -32,6 +32,7 @@ async function insertSatement (patrimonyId: string): Promise<void> {
     statement_id: newId
   }
   await knex('responsability_statement_itens').insert(item)
+  return newId
 }
 const makeSut = (): ResponsabilityStatementRespositoy => {
   return new ResponsabilityStatementRespositoy()
@@ -78,6 +79,22 @@ describe('ResponsabilityStatementRespositoy', () => {
       const itens = await knex('responsability_statement_itens')
       expect(itens.length).toBe(1)
       expect(statement.length).toBe(1)
+    })
+  })
+  describe('loadByPatrimonyId', () => {
+    test('ensure loadByPatrimonyId returns StatementItem on exists', async () => {
+      const sut = makeSut()
+      const patrimonyId = await insertPatrimony()
+      const statementId = await insertSatement(patrimonyId)
+      const item = await sut.loadByPatrimonyId(patrimonyId)
+      expect(item.patrimonyId).toBe(patrimonyId)
+      expect(item.responsabilityStatementId).toBe(statementId)
+    })
+    test('ensure loadByPatrimonyId returns null on StatementItem not exists', async () => {
+      const sut = makeSut()
+      const patrimonyId = await insertPatrimony()
+      const item = await sut.loadByPatrimonyId(patrimonyId)
+      expect(item).toBeNull()
     })
   })
 })
