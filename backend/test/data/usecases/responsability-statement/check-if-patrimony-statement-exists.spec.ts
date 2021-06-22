@@ -1,16 +1,20 @@
-import { CheckIfPatrimonyStatementExists, StatementItem } from '@/domain/usecase/responsability-statement/check-patrimony-statement-exists'
+import { CheckIfPatrimonyStatementExists, PatrimonyStatementItem } from '@/domain/usecase/responsability-statement/check-patrimony-statement-exists'
 import { CheckIfPatrimonyStatementExistsData } from '@/data/usecases/responsability-statement/check-if-patrimony-statement-exists'
 import { DbLoadStatementItem } from '@/data/protocols/db/responsability-statement/db-load-statement-item'
-function makeStatementItem (): StatementItem {
+import Mockdate from 'mockdate'
+function makeStatementItem (): PatrimonyStatementItem {
   return {
+    id: 'any_id',
     patrimonyId: 'any_id',
-    responsabilityStatementId: 'any_id'
+    responsibleName: 'any_name',
+    siapeCode: 'siape',
+    emissionDate: new Date()
   }
 }
 
 function makeLoadStatementItem (): DbLoadStatementItem {
   class DbLoadStatementItemStub implements DbLoadStatementItem {
-    async loadByPatrimonyId (patrimonyId: string): Promise<StatementItem> {
+    async loadByPatrimonyId (patrimonyId: string): Promise<PatrimonyStatementItem> {
       return await Promise.resolve(makeStatementItem())
     }
   }
@@ -29,6 +33,12 @@ const makeSut = (): Sut => {
   }
 }
 describe('CheckIfPatrimonyStatementExists', () => {
+  beforeAll(() => {
+    Mockdate.set(new Date())
+  })
+  afterAll(() => {
+    Mockdate.reset()
+  })
   test('Ensure loadStatement calls local statement by patrimony id', async () => {
     const { sut, loadStatementItem } = makeSut()
     const loadSpy = jest.spyOn(loadStatementItem, 'loadByPatrimonyId')

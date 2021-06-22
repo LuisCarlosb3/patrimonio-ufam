@@ -1,6 +1,6 @@
 import { Patrimony, PatrimonyState } from '@/domain/model/patrimony'
 import { LoadPatrimonyByCode } from '@/domain/usecase/patrimony/load-patrimony-by-code'
-import { CheckIfPatrimonyStatementExists, StatementItem } from '@/domain/usecase/responsability-statement/check-patrimony-statement-exists'
+import { CheckIfPatrimonyStatementExists, PatrimonyStatementItem } from '@/domain/usecase/responsability-statement/check-patrimony-statement-exists'
 import { CreateResponsabilityStatement, CreateStatementModel } from '@/domain/usecase/responsability-statement/create-responsability-statement'
 import { CreateResponsabilityStatementController } from '@/presentation/controllers/responsability-statement/create-responsability-statement-controller'
 import { PatrimonyHasStatement, PatrimonyNotFound } from '@/presentation/protocols/helpers/errors'
@@ -15,10 +15,13 @@ function makeFakeValidator (): Validation {
   }
   return new ValidationStub()
 }
-function makeStatementItem (): StatementItem {
+function makeStatementItem (): PatrimonyStatementItem {
   return {
+    id: 'any_id',
     patrimonyId: 'any_id',
-    responsabilityStatementId: 'any_id'
+    responsibleName: 'any_name',
+    siapeCode: 'siape',
+    emissionDate: new Date()
   }
 }
 const makePatrimony = (): Patrimony => {
@@ -52,7 +55,7 @@ const makeCreateResponsabilityStatement = (): CreateResponsabilityStatement => {
 }
 const makeCheckIfPatrimonyStatementExists = (): CheckIfPatrimonyStatementExists => {
   class CheckIfPatrimonyStatementExistsStub implements CheckIfPatrimonyStatementExists {
-    async loadStatement (patrimonyId: string): Promise<StatementItem> {
+    async loadStatement (patrimonyId: string): Promise<PatrimonyStatementItem> {
       return await Promise.resolve(null)
     }
   }

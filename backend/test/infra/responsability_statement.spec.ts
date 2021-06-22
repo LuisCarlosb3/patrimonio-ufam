@@ -88,7 +88,7 @@ describe('ResponsabilityStatementRespositoy', () => {
       const statementId = await insertSatement(patrimonyId)
       const item = await sut.loadByPatrimonyId(patrimonyId)
       expect(item.patrimonyId).toBe(patrimonyId)
-      expect(item.responsabilityStatementId).toBe(statementId)
+      expect(item.id).toBe(statementId)
     })
     test('ensure loadByPatrimonyId returns null on StatementItem not exists', async () => {
       const sut = makeSut()

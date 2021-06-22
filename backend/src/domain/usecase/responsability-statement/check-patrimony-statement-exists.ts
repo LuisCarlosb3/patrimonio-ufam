@@ -1,8 +1,9 @@
-export interface StatementItem {
+import { ResponsabilityStatement } from '@/domain/model/responsability-statement'
+
+export interface PatrimonyStatementItem extends Omit<ResponsabilityStatement, 'patrimonies'>{
   patrimonyId: string
-  responsabilityStatementId: string
 }
 
 export interface CheckIfPatrimonyStatementExists {
-  loadStatement(patrimonyId: string): Promise<StatementItem>
+  loadStatement(patrimonyId: string): Promise<PatrimonyStatementItem>
 }
