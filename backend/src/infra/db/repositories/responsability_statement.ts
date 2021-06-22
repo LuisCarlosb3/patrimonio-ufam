@@ -14,6 +14,7 @@ export class ResponsabilityStatementRespositoy implements DbCreateResponsability
 
   private readonly statementTableNameMapper = {
     id: 'id',
+    code: 'code',
     responsibleName: 'responsible_name',
     siapeCode: 'siape',
     emissionDate: 'emission_date'
@@ -32,12 +33,13 @@ export class ResponsabilityStatementRespositoy implements DbCreateResponsability
   }
 
   async create (newStatement: InsertNewStatementModel): Promise<void> {
-    const { responsibleName, siapeCode, emissionDate, patrimoniesIds } = newStatement
+    const { responsibleName, siapeCode, emissionDate, code, patrimoniesIds } = newStatement
 
     await knex.transaction(async trx => {
       try {
         const [newId] = await knex(this.tableName).transacting(trx).insert({
           responsible_name: responsibleName,
+          code,
           siape: siapeCode,
           emission_date: emissionDate
         }).returning('id')

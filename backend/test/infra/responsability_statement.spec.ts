@@ -5,6 +5,7 @@ import MockDate from 'mockdate'
 import knex from '@/infra/db/helper/index'
 const makeFakeInsertNewStatementModel = (): InsertNewStatementModel => ({
   responsibleName: 'any_name',
+  code: 'any_code',
   siapeCode: 'any_code',
   emissionDate: new Date(),
   patrimoniesIds: []
@@ -25,6 +26,7 @@ async function insertSatement (patrimonyId: string): Promise<string> {
   const [newId] = await knex('responsability_statement').insert({
     responsible_name: 'any_name',
     siape: 'any_code',
+    code: 'any_code',
     emission_date: new Date()
   }).returning('id')
   const item = {
