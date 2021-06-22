@@ -38,6 +38,13 @@ export class PatrimonyNotFound extends Error {
     this.name = 'PatrimonyNotFound'
   }
 }
+export class PatrimonyHasStatement extends Error {
+  constructor (code: string) {
+    const superMessage = `Patrimony ${code} already has statement`
+    super(superMessage)
+    this.name = 'PatrimonyHasStatement'
+  }
+}
 export class CodeAlreadyRegistered extends Error {
   constructor () {
     super('Code already registered')

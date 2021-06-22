@@ -1,6 +1,7 @@
 import { LoadPatrimonyByCode } from '@/domain/usecase/patrimony/load-patrimony-by-code'
+import { CheckIfPatrimonyStatementExists } from '@/domain/usecase/responsability-statement/check-patrimony-statement-exists'
 import { CreateResponsabilityStatement } from '@/domain/usecase/responsability-statement/create-responsability-statement'
-import { PatrimonyNotFound } from '@/presentation/protocols/helpers/errors'
+import { PatrimonyHasStatement, PatrimonyNotFound } from '@/presentation/protocols/helpers/errors'
 import { badRequest, serverError } from '@/presentation/protocols/helpers/http-helpers'
 import { HttpRequest, HttpResponse } from '@/presentation/protocols/http'
 import { HttpController } from '@/presentation/protocols/http-controller'
@@ -10,6 +11,7 @@ export class CreateResponsabilityStatementController implements HttpController {
   constructor (
     private readonly validator: Validation,
     private readonly loadByCode: LoadPatrimonyByCode,
+    private readonly loadStatementItem: CheckIfPatrimonyStatementExists,
     private readonly createStatement: CreateResponsabilityStatement
   ) {}
 
@@ -24,6 +26,10 @@ export class CreateResponsabilityStatementController implements HttpController {
         const patrimony = await this.loadByCode.loadByCode(code)
         if (!patrimony) {
           return badRequest(new PatrimonyNotFound(code))
+        }
+        const item = await this.loadStatementItem.loadStatement(patrimony.id)
+        if (item) {
+          return badRequest(new PatrimonyHasStatement(code))
         }
       }
       await this.createStatement.create({ responsibleName, siapeCode, emissionDate, patrimoniesCode })

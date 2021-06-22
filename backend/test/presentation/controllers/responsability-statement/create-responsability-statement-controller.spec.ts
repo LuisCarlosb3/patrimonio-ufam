@@ -1,8 +1,9 @@
 import { Patrimony, PatrimonyState } from '@/domain/model/patrimony'
 import { LoadPatrimonyByCode } from '@/domain/usecase/patrimony/load-patrimony-by-code'
+import { CheckIfPatrimonyStatementExists, StatementItem } from '@/domain/usecase/responsability-statement/check-patrimony-statement-exists'
 import { CreateResponsabilityStatement, CreateStatementModel } from '@/domain/usecase/responsability-statement/create-responsability-statement'
 import { CreateResponsabilityStatementController } from '@/presentation/controllers/responsability-statement/create-responsability-statement-controller'
-import { PatrimonyNotFound } from '@/presentation/protocols/helpers/errors'
+import { PatrimonyHasStatement, PatrimonyNotFound } from '@/presentation/protocols/helpers/errors'
 import { badRequest, serverError } from '@/presentation/protocols/helpers/http-helpers'
 import { HttpRequest } from '@/presentation/protocols/http'
 import { Validation } from '@/presentation/protocols/validation'
@@ -13,6 +14,12 @@ function makeFakeValidator (): Validation {
     }
   }
   return new ValidationStub()
+}
+function makeStatementItem (): StatementItem {
+  return {
+    patrimonyId: 'any_id',
+    responsabilityStatementId: 'any_id'
+  }
 }
 const makePatrimony = (): Patrimony => {
   const data = {
@@ -43,6 +50,14 @@ const makeCreateResponsabilityStatement = (): CreateResponsabilityStatement => {
   }
   return new CreateResponsabilityStatementStub()
 }
+const makeCheckIfPatrimonyStatementExists = (): CheckIfPatrimonyStatementExists => {
+  class CheckIfPatrimonyStatementExistsStub implements CheckIfPatrimonyStatementExists {
+    async loadStatement (patrimonyId: string): Promise<StatementItem> {
+      return await Promise.resolve(null)
+    }
+  }
+  return new CheckIfPatrimonyStatementExistsStub()
+}
 const makeFakeHttpRequest = (): HttpRequest => {
   return {
     body: {
@@ -60,17 +75,20 @@ interface SutType {
   validator: Validation
   loadByCode: LoadPatrimonyByCode
   createStatement: CreateResponsabilityStatement
+  loadStatement: CheckIfPatrimonyStatementExists
 }
 const makeSut = (): SutType => {
   const validator = makeFakeValidator()
   const loadByCode = makeLoadPatrimonyByCode()
   const createStatement = makeCreateResponsabilityStatement()
-  const sut = new CreateResponsabilityStatementController(validator, loadByCode, createStatement)
+  const loadStatement = makeCheckIfPatrimonyStatementExists()
+  const sut = new CreateResponsabilityStatementController(validator, loadByCode, loadStatement, createStatement)
   return {
     sut,
     validator,
     loadByCode,
-    createStatement
+    createStatement,
+    loadStatement
   }
 }
 
@@ -104,6 +122,22 @@ describe('CreateResponsabilityStatementController', () => {
     const response = await sut.handle(request)
     const firstCode = request.body.newStatement.patrimoniesCode[0]
     expect(response).toEqual(badRequest(new PatrimonyNotFound(firstCode)))
+  })
+  test('Ensure CreateResponsabilityStatementController calls loadStatement with patrimony id ', async () => {
+    const { sut, loadStatement } = makeSut()
+    const loadSpy = jest.spyOn(loadStatement, 'loadStatement')
+    const request = makeFakeHttpRequest()
+    await sut.handle(request)
+    expect(loadSpy).toHaveBeenNthCalledWith(1, 'any_id')
+    expect(loadSpy).toHaveBeenNthCalledWith(2, 'any_id')
+  })
+  test('Ensure CreateResponsabilityStatementController return bad request on loadStatement returns an item', async () => {
+    const { sut, loadStatement } = makeSut()
+    jest.spyOn(loadStatement, 'loadStatement').mockResolvedValueOnce(makeStatementItem())
+    const request = makeFakeHttpRequest()
+    const response = await sut.handle(request)
+    const firstCode = request.body.newStatement.patrimoniesCode[0]
+    expect(response).toEqual(badRequest(new PatrimonyHasStatement(firstCode)))
   })
   test('Ensure CreateResponsabilityStatementController calls createStatement with body request', async () => {
     const { sut, createStatement } = makeSut()
