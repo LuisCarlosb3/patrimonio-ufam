@@ -99,4 +99,20 @@ describe('ResponsabilityStatementRespositoy', () => {
       expect(item).toBeNull()
     })
   })
+  describe('verifyCode', () => {
+    test('ensure verifyCode returns true if code exists', async () => {
+      const sut = makeSut()
+      const patrimonyId = await insertPatrimony()
+      await insertSatement(patrimonyId)
+      const item = await sut.verifyCode('any_code')
+      expect(item).toBeTruthy()
+    })
+    test('ensure verifyCode returns false if code not exists', async () => {
+      const sut = makeSut()
+      const patrimonyId = await insertPatrimony()
+      await insertSatement(patrimonyId)
+      const item = await sut.verifyCode('any_other_code')
+      expect(item).toBeFalsy()
+    })
+  })
 })
