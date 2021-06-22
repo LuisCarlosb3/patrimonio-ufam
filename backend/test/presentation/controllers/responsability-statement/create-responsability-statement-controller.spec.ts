@@ -4,7 +4,7 @@ import { CheckIfPatrimonyStatementExists, PatrimonyStatementItem } from '@/domai
 import { CreateResponsabilityStatement, CreateStatementModel } from '@/domain/usecase/responsability-statement/create-responsability-statement'
 import { CreateResponsabilityStatementController } from '@/presentation/controllers/responsability-statement/create-responsability-statement-controller'
 import { PatrimonyHasStatement, PatrimonyNotFound } from '@/presentation/protocols/helpers/errors'
-import { badRequest, serverError } from '@/presentation/protocols/helpers/http-helpers'
+import { badRequest, noContent, serverError } from '@/presentation/protocols/helpers/http-helpers'
 import { HttpRequest } from '@/presentation/protocols/http'
 import { Validation } from '@/presentation/protocols/validation'
 function makeFakeValidator (): Validation {
@@ -18,6 +18,7 @@ function makeFakeValidator (): Validation {
 function makeStatementItem (): PatrimonyStatementItem {
   return {
     id: 'any_id',
+    code: 'any_code',
     patrimonyId: 'any_id',
     responsibleName: 'any_name',
     siapeCode: 'siape',
@@ -155,5 +156,11 @@ describe('CreateResponsabilityStatementController', () => {
     const request = makeFakeHttpRequest()
     const response = await sut.handle(request)
     expect(response).toEqual(serverError(new Error()))
+  })
+  test('Ensure CreateResponsabilityStatementController return noContent on success', async () => {
+    const { sut } = makeSut()
+    const request = makeFakeHttpRequest()
+    const response = await sut.handle(request)
+    expect(response).toEqual(noContent())
   })
 })

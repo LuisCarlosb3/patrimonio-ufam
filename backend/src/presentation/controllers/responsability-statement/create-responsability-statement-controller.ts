@@ -2,7 +2,7 @@ import { LoadPatrimonyByCode } from '@/domain/usecase/patrimony/load-patrimony-b
 import { CheckIfPatrimonyStatementExists } from '@/domain/usecase/responsability-statement/check-patrimony-statement-exists'
 import { CreateResponsabilityStatement } from '@/domain/usecase/responsability-statement/create-responsability-statement'
 import { PatrimonyHasStatement, PatrimonyNotFound } from '@/presentation/protocols/helpers/errors'
-import { badRequest, serverError } from '@/presentation/protocols/helpers/http-helpers'
+import { badRequest, noContent, serverError } from '@/presentation/protocols/helpers/http-helpers'
 import { HttpRequest, HttpResponse } from '@/presentation/protocols/http'
 import { HttpController } from '@/presentation/protocols/http-controller'
 import { Validation } from '@/presentation/protocols/validation'
@@ -33,6 +33,7 @@ export class CreateResponsabilityStatementController implements HttpController {
         }
       }
       await this.createStatement.create({ responsibleName, siapeCode, emissionDate, patrimoniesCode })
+      return noContent()
     } catch (error) {
       return serverError(error)
     }
