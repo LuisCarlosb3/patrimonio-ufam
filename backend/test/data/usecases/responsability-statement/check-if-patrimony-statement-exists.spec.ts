@@ -5,6 +5,7 @@ import Mockdate from 'mockdate'
 function makeStatementItem (): PatrimonyStatementItem {
   return {
     id: 'any_id',
+    code: 'any_code',
     patrimonyId: 'any_id',
     responsibleName: 'any_name',
     siapeCode: 'siape',
