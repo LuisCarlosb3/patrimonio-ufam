@@ -292,7 +292,33 @@ paths:
             description: Patrimony not found with informed id
           "500":
             description: Server Error
-
+  /statement/create:
+    post:
+      tags:
+        - Admin Functions
+        - Responsability Statement
+      description: Route used by administrator to create an responsability statement
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/CreateNewStatementRequest"
+      responses:
+        "204":
+          description: Responsability Statement created with success
+        "400":
+          description: Patrimony already registered, patrimony not found or any params missing
+        "403":
+          description: User don't have administrator permission to create new responsability statement
+        "500":
+          description: Server Error
 components:
   schemas:
     LoginRequest:
@@ -500,6 +526,24 @@ components:
               items:
                 type: string
                 format: uuid
+    CreateNewStatementRequest:
+      type: object
+      properties:
+        patrimony: 
+          type: object
+          properties:
+            responsibleName:
+              type: string
+            siapeCode:
+              type: string
+            emissionDate:
+              type: string
+              format: date
+            patrimoniesCode:
+              type: array
+              items:
+                type: string
+            
 
                 
 

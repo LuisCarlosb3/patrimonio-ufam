@@ -32,9 +32,17 @@ export class AccessDeniedError extends Error {
   }
 }
 export class PatrimonyNotFound extends Error {
-  constructor () {
-    super('Patrimony not found')
+  constructor (code?: string) {
+    const superMessage = code ? `Patrimony not found: ${code}` : 'Patrimony not found'
+    super(superMessage)
     this.name = 'PatrimonyNotFound'
+  }
+}
+export class PatrimonyHasStatement extends Error {
+  constructor (code: string) {
+    const superMessage = `Patrimony ${code} already has statement`
+    super(superMessage)
+    this.name = 'PatrimonyHasStatement'
   }
 }
 export class CodeAlreadyRegistered extends Error {

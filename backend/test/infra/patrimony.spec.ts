@@ -257,4 +257,15 @@ describe('PatrimonyRepository', () => {
       expect(itens.length).toBe(1)
     })
   })
+  describe('DbLoadPatrimonyIdsByCodes', () => {
+    test('ensure loadByCodes returns patrimony ids', async () => {
+      const sut = makeSut()
+      const id1 = await insertPatrimony('code1')
+      const id2 = await insertPatrimony('code2')
+      const patrimonies = await sut.loadByCodes(['code1', 'code2'])
+      expect(patrimonies.length).toEqual(2)
+      expect(patrimonies[0]).toEqual(id1)
+      expect(patrimonies[1]).toEqual(id2)
+    })
+  })
 })
