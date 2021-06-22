@@ -3,6 +3,8 @@ import { CreateStatementModel, CreateResponsabilityStatement } from '@/domain/us
 import { CreateStatatementResponsabilityData } from '@/data/usecases/responsability-statement/create-responsability-statement'
 import { DbLoadPatrimonyIdsByCodes } from '@/data/protocols/db/patrimony/db-load-patrimony-ids-by-codes'
 import Mockdate from 'mockdate'
+const mockRandomValue = 0.123456789
+const mockStringRandomValue = mockRandomValue.toString(36).slice(2)
 const makeCreateStatement = (): DbCreateResponsabilityStatement => {
   class DbCreateResponsabilityStatementStub implements DbCreateResponsabilityStatement {
     async create (newStatement: InsertNewStatementModel): Promise<void> {
@@ -21,6 +23,7 @@ const makeLoadCodes = (): DbLoadPatrimonyIdsByCodes => {
 }
 const makeInsertStatementModel = (): InsertNewStatementModel => ({
   responsibleName: 'any_name',
+  code: mockStringRandomValue,
   siapeCode: 'any_code',
   emissionDate: new Date(),
   patrimoniesIds: ['id1', 'id2']
@@ -51,9 +54,11 @@ const makeSut = (): Sut => {
 describe('CreateResponsabilityStatement', () => {
   beforeAll(() => {
     Mockdate.set(new Date())
+    jest.spyOn(global.Math, 'random').mockReturnValue(mockRandomValue)
   })
   afterAll(() => {
     Mockdate.reset()
+    jest.spyOn(global.Math, 'random').mockRestore()
   })
   test('ensure create call loadIdsByCode with CreateStatementModel code list', async () => {
     const { sut, dbLoadCodes } = makeSut()

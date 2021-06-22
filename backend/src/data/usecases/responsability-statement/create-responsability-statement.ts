@@ -11,10 +11,12 @@ export class CreateStatatementResponsabilityData implements CreateResponsability
   async create (newStatement: CreateStatementModel): Promise<void> {
     const codes = newStatement.patrimoniesCode
     const ids = await this.dbLoadCodes.loadByCodes(codes)
+    const code = Math.random().toString(36).slice(2)
     const newInsertModel: InsertNewStatementModel = {
       responsibleName: newStatement.responsibleName,
       siapeCode: newStatement.siapeCode,
       emissionDate: newStatement.emissionDate,
+      code,
       patrimoniesIds: ids
     }
     await this.createStatement.create(newInsertModel)
