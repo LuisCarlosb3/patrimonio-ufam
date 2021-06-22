@@ -3,6 +3,7 @@ import { CreateStatementModel, CreateResponsabilityStatement } from '@/domain/us
 import { CreateStatatementResponsabilityData } from '@/data/usecases/responsability-statement/create-responsability-statement'
 import { DbLoadPatrimonyIdsByCodes } from '@/data/protocols/db/patrimony/db-load-patrimony-ids-by-codes'
 import Mockdate from 'mockdate'
+import { DbCheckIfCodeExists } from '@/data/protocols/db/responsability-statement/db-check-if-code-exists'
 const mockRandomValue = 0.123456789
 const mockStringRandomValue = mockRandomValue.toString(36).slice(2)
 const makeCreateStatement = (): DbCreateResponsabilityStatement => {
@@ -20,6 +21,14 @@ const makeLoadCodes = (): DbLoadPatrimonyIdsByCodes => {
     }
   }
   return new DbLoadPatrimonyIdsByCodesStub()
+}
+const makeDbCheckIfCodeExists = (): DbCheckIfCodeExists => {
+  class DbCheckIfCodeExistsStub implements DbCheckIfCodeExists {
+    async verifyCode (code: string): Promise<boolean> {
+      return await Promise.resolve(false)
+    }
+  }
+  return new DbCheckIfCodeExistsStub()
 }
 const makeInsertStatementModel = (): InsertNewStatementModel => ({
   responsibleName: 'any_name',
@@ -39,16 +48,19 @@ interface Sut {
   sut: CreateResponsabilityStatement
   createStatement: DbCreateResponsabilityStatement
   dbLoadCodes: DbLoadPatrimonyIdsByCodes
+  codeExists: DbCheckIfCodeExists
 }
 
 const makeSut = (): Sut => {
   const createStatement = makeCreateStatement()
   const dbLoadCodes = makeLoadCodes()
-  const sut = new CreateStatatementResponsabilityData(dbLoadCodes, createStatement)
+  const codeExists = makeDbCheckIfCodeExists()
+  const sut = new CreateStatatementResponsabilityData(dbLoadCodes, createStatement, codeExists)
   return {
     sut,
     createStatement,
-    dbLoadCodes
+    dbLoadCodes,
+    codeExists
   }
 }
 describe('CreateResponsabilityStatement', () => {
@@ -80,6 +92,22 @@ describe('CreateResponsabilityStatement', () => {
     const model = makeCreateStatementModel()
     await sut.create(model)
     expect(createSpy).toHaveBeenCalledWith(makeInsertStatementModel())
+  })
+  test('ensure create call checkIfCodeExists with generated code', async () => {
+    const { sut, codeExists } = makeSut()
+    const verifySpy = jest.spyOn(codeExists, 'verifyCode')
+    const model = makeCreateStatementModel()
+    await sut.create(model)
+    expect(verifySpy).toHaveBeenCalledWith(mockStringRandomValue)
+  })
+  test('ensure create call checkIfCodeExists two times if verifyCode returns true', async () => {
+    const { sut, codeExists } = makeSut()
+    const verifySpy = jest.spyOn(codeExists, 'verifyCode')
+    jest.spyOn(codeExists, 'verifyCode').mockResolvedValueOnce(true)
+    const model = makeCreateStatementModel()
+    await sut.create(model)
+    expect(verifySpy).toHaveBeenNthCalledWith(1, mockStringRandomValue)
+    expect(verifySpy).toHaveBeenNthCalledWith(2, mockStringRandomValue)
   })
   test('Should throws if createStatement throws', async () => {
     const { sut, createStatement } = makeSut()
