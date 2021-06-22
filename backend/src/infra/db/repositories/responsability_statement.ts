@@ -1,9 +1,10 @@
+import { DbCheckIfCodeExists } from '@/data/protocols/db/responsability-statement/db-check-if-code-exists'
 import { DbCreateResponsabilityStatement, InsertNewStatementModel } from '@/data/protocols/db/responsability-statement/db-create-statement'
 import { DbLoadStatementItem } from '@/data/protocols/db/responsability-statement/db-load-statement-item'
 import { PatrimonyStatementItem } from '@/domain/usecase/responsability-statement/check-patrimony-statement-exists'
 import knex from '@/infra/db/helper/index'
 
-export class ResponsabilityStatementRespositoy implements DbCreateResponsabilityStatement, DbLoadStatementItem {
+export class ResponsabilityStatementRespositoy implements DbCreateResponsabilityStatement, DbLoadStatementItem, DbCheckIfCodeExists {
   private readonly tableName = 'responsability_statement'
   private readonly itensTableName = 'responsability_statement_itens'
   private readonly itensTableNameMapper = {
@@ -18,6 +19,11 @@ export class ResponsabilityStatementRespositoy implements DbCreateResponsability
     responsibleName: 'responsible_name',
     siapeCode: 'siape',
     emissionDate: 'emission_date'
+  }
+
+  async verifyCode (code: string): Promise<boolean> {
+    const [{ count }] = await knex(this.tableName).where({ code }).count('id')
+    return (count > 0)
   }
 
   async loadByPatrimonyId (patrimonyId: string): Promise<PatrimonyStatementItem> {
