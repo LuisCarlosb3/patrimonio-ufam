@@ -27,6 +27,12 @@ async function insertStatement (code?: string): Promise<string> {
   }).returning('id')
   return newId
 }
+const insertStatementList = async (quantity: number): Promise<void> => {
+  for await (const i of Array(quantity).keys()) {
+    const id = await insertStatement(`${i}`)
+    await insertNewPatrimony(`${i}`, id)
+  }
+}
 const makeStatementPayload = (patrimonyCode: string): CreateStatementModel => ({
   responsibleName: 'any name',
   siapeCode: 'siape code',
@@ -44,6 +50,7 @@ describe('Statement Routes', () => {
     await knex('patrimony').del()
     await knex('responsability_statement').del()
     await knex('user-access-token').del()
+    await knex('new-user-link').del()
     await knex('users').del()
   })
   afterAll(async done => {
@@ -89,6 +96,30 @@ describe('Statement Routes', () => {
       await request(server).post('/statement/create')
         .set('x-access-token', accessToken)
         .send({ newStatement: payload }).expect(400, { error: 'Patrimony my_code already has statement' })
+    })
+  })
+  describe('/statement-list/:page?', () => {
+    test('ensure statement list return 200 with responsability statements list', async () => {
+      const accessToken = await generateUserAndToken()
+      await insertStatementList(20)
+      let response = await request(server).get('/statement-list').set('x-access-token', accessToken).expect(200)
+      let { statementList } = response.body
+      expect(statementList.length).toEqual(10)
+      expect(statementList[0].code).toEqual('0')
+      expect(statementList[0].patrimonies).toEqual(expect.any(Array))
+      expect(statementList[0].patrimonies[0].code).toEqual('0')
+      response = await request(server).get('/statement-list/2').set('x-access-token', accessToken).expect(200)
+      statementList = response.body.statementList
+      expect(statementList.length).toEqual(10)
+      expect(statementList[0].code).toEqual('10')
+    })
+    test('ensure patrimony list return 200 with first page of patrimony list on page is lower than 1', async () => {
+      const accessToken = await generateUserAndToken()
+      await insertStatementList(20)
+      const response = await request(server).get('/statement-list/-1').set('x-access-token', accessToken).expect(200)
+      const { statementList } = response.body
+      expect(statementList.length).toEqual(10)
+      expect(statementList[0].code).toEqual('0')
     })
   })
 })
