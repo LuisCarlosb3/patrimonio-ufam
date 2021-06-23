@@ -219,6 +219,8 @@ describe('Authentication Routes', () => {
       const user = await knex('users').where({ email: 'new@email.com' })
       expect(user[0]).toBeTruthy()
       expect(user[0].registration).toEqual('new_registration')
+      const isEqual = await bcrypt.compare('any_password', user[0].password)
+      expect(isEqual).toBeTruthy()
     })
   })
   describe('Auth middleware', () => {
