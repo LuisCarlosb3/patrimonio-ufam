@@ -5,17 +5,27 @@ import knex from '@/infra/db/helper/index'
 import { generateUserAndToken } from './util/user-payload'
 import { CreateStatementModel } from '@/domain/usecase/responsability-statement/create-responsability-statement'
 
-const insertNewPatrimony = async (code?: string): Promise<string> => {
+async function insertNewPatrimony (code?: String, statementId?: string): Promise<string> {
   const patrimony = {
     code: code || 'any_code',
-    description: 'any_desc',
+    description: 'any_description',
     state: 'NOVO',
-    entry_date: new Date(),
-    last_conference_date: new Date(),
-    value: 500.99
+    entry_date: new Date('1/1/2021'),
+    last_conference_date: new Date('1/1/2021'),
+    value: 200,
+    statement_id: statementId
   }
   const [id] = await knex('patrimony').insert(patrimony).returning('id')
   return id
+}
+async function insertStatement (code?: string): Promise<string> {
+  const [newId] = await knex('responsability_statement').insert({
+    responsible_name: 'any_name',
+    siape: 'any_code',
+    code: code || 'any_code',
+    emission_date: new Date()
+  }).returning('id')
+  return newId
 }
 const makeStatementPayload = (patrimonyCode: string): CreateStatementModel => ({
   responsibleName: 'any name',
@@ -23,20 +33,6 @@ const makeStatementPayload = (patrimonyCode: string): CreateStatementModel => ({
   emissionDate: new Date(),
   patrimoniesCode: [patrimonyCode]
 })
-const insertStatement = async (patrimonyId: string): Promise<string> => {
-  const [newId] = await knex('responsability_statement').insert({
-    responsible_name: 'any_name',
-    siape: 'any_code',
-    code: 'any_code',
-    emission_date: new Date()
-  }).returning('id')
-  const item = {
-    patrimony_id: patrimonyId,
-    statement_id: newId
-  }
-  await knex('responsability_statement_itens').insert(item)
-  return newId
-}
 
 describe('Statement Routes', () => {
   beforeAll(async done => {
@@ -45,9 +41,8 @@ describe('Statement Routes', () => {
     done()
   })
   beforeEach(async () => {
-    await knex('responsability_statement_itens').del()
-    await knex('responsability_statement').del()
     await knex('patrimony').del()
+    await knex('responsability_statement').del()
     await knex('user-access-token').del()
     await knex('users').del()
   })
@@ -65,11 +60,11 @@ describe('Statement Routes', () => {
         .set('x-access-token', accessToken)
         .send({ newStatement: payload }).expect(204)
       const [data] = await knex('responsability_statement')
-      const [item] = await knex('responsability_statement_itens')
+      const [patrimony] = await knex('patrimony')
       expect(data.siape).toEqual(payload.siapeCode)
       expect(data.responsible_name).toEqual(payload.responsibleName)
-      expect(item.patrimony_id).toBe(patrimonyId)
-      expect(item.statement_id).toBe(data.id)
+      expect(patrimony.id).toBe(patrimonyId)
+      expect(patrimony.statement_id).toBe(data.id)
     })
     test('ensure statement create return 400 on invalid body request (code)', async () => {
       const accessToken = await generateUserAndToken()
@@ -89,8 +84,8 @@ describe('Statement Routes', () => {
     test('ensure patrimony create return 400 on patrimony already registered to statement', async () => {
       const accessToken = await generateUserAndToken()
       const payload = makeStatementPayload('my_code')
-      const patrimonyId = await insertNewPatrimony('my_code')
-      await insertStatement(patrimonyId)
+      const id = await insertStatement()
+      await insertNewPatrimony('my_code', id)
       await request(server).post('/statement/create')
         .set('x-access-token', accessToken)
         .send({ newStatement: payload }).expect(400, { error: 'Patrimony my_code already has statement' })
