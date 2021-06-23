@@ -1,7 +1,7 @@
 import { PatrimonyState } from '@/domain/model/patrimony'
 import { ValidatorJsAdapter } from '@/infra/validation/validatorjs-adapter'
 import { CreateNewpatrimonyController } from '@/presentation/controllers/patrimony/create-new-patrimony-controller'
-import { makeCreateNewPatrimonyData } from '../../usecases/create-new-patrimony/create-new-patrimony-data-factory'
+import { makeCreateNewPatrimonyData } from '../../usecases/patrimony/create-new-patrimony/create-new-patrimony-data-factory'
 
 export function makeCreateNewPatrimony (): CreateNewpatrimonyController {
   const rules = {

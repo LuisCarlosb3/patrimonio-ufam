@@ -1,4 +1,4 @@
-import { makeListResponsabilityStatementData } from '../../usecases/list-responsability-statement/list-statements-factory'
+import { makeListResponsabilityStatementData } from '../../usecases/responsability-statement/list-responsability-statement/list-statements-factory'
 import { ListResponsabilityStatementController } from '@/presentation/controllers/responsability-statement/list-resposability-statement-controller'
 import { HttpController } from '@/presentation/protocols/http-controller'
 

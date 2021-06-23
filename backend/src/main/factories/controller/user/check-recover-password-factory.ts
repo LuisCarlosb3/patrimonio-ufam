@@ -1,7 +1,7 @@
 import { ValidatorJsAdapter } from '@/infra/validation/validatorjs-adapter'
 import { CheckRecoverLinkController } from '@/presentation/controllers/user/check-recover-password-controller'
 import { HttpController } from '@/presentation/protocols/http-controller'
-import { buildCheckRecoverPasswordData } from '../../usecases/recover-password/check-user-recover-password'
+import { buildCheckRecoverPasswordData } from '../../usecases/user/recover-password/check-user-recover-password'
 
 export function CheckRecoverPasswordControllerFactory (): HttpController {
   const checkUserByLink = buildCheckRecoverPasswordData()

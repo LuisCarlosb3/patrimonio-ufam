@@ -2,8 +2,8 @@ import { UserPermission } from '@/domain/model/user'
 import { EmailSender } from '@/infra/email/email-adapter'
 import { ValidatorJsAdapter } from '@/infra/validation/validatorjs-adapter'
 import { AdminCreateNewUserController } from '@/presentation/controllers/user/admin-create-new-user-controller'
-import { makeCreateNewUser } from '../../usecases/admin-create-user/create-new-user-factory'
-import { makeCreateNewUserLinkFactory } from '../../usecases/admin-create-user/create-new-user-link-factory'
+import { makeCreateNewUser } from '../../usecases/user/admin-create-user/create-new-user-factory'
+import { makeCreateNewUserLinkFactory } from '../../usecases/user/admin-create-user/create-new-user-link-factory'
 
 export function makeAdminCreateNewUserController (): AdminCreateNewUserController {
   const rules = {
