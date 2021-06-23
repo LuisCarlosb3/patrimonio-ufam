@@ -2,7 +2,7 @@ import { ListResponsabilityStatements } from '@/domain/usecase/responsability-st
 import { ListResponsabilityStatementsData } from '@/data/usecases/responsability-statement/list-responsability-statements'
 import { DbLoadResponsabilityStatementList } from '@/data/protocols/db/responsability-statement/db-load-statements-list'
 import { ResponsabilityStatement } from '@/domain/model/responsability-statement'
-
+import Mockdate from 'mockdate'
 const makePatrimonyList = (): ResponsabilityStatement[] => {
   const data = [
     {
@@ -41,6 +41,12 @@ const makeSut = (): Sut => {
 }
 
 describe('ListResponsabilityStatementsData', () => {
+  beforeAll(() => {
+    Mockdate.set(new Date())
+  })
+  afterAll(() => {
+    Mockdate.reset()
+  })
   test('Ensure LoadStatements calls load patrimony repository with quantity and page', async () => {
     const { sut, dbLoadStatementList } = makeSut()
     const loadSpy = jest.spyOn(dbLoadStatementList, 'load')
