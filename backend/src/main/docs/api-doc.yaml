@@ -161,12 +161,6 @@ paths:
           schema:
             type: string
           required: true
-        - in: path
-          required: true
-          name: page
-          schema:
-            type: number
-          description: patrimonies list page number 
       responses:
           "200":
             description: Patrimony list
@@ -319,6 +313,28 @@ paths:
           description: User don't have administrator permission to create new responsability statement
         "500":
           description: Server Error
+  /statement-list:
+    get:
+      tags: 
+        - Responsability Statement
+      description: Route used to list responsability statement in pages
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+      responses:
+          "200":
+            description: Responsability Statement list
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/StatementListResponse"
+          "403":
+            description: User don't have permission to see page
+          "500":
+            description: Server Error
 components:
   schemas:
     LoginRequest:
@@ -543,6 +559,50 @@ components:
               type: array
               items:
                 type: string
+    StatementListResponse:
+      type: object
+      properties:
+        statementList: 
+          type: array
+          items:
+            type: object
+            properties:
+              id: 
+                type: string
+                format: uuid
+              code:
+                type: string
+              responsibleName:
+                type: string
+              siapeCode:
+                type: string
+              emissionDate: 
+                type: string
+                format: date
+              patrimonies:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    code:
+                      type: string
+                    description:
+                      type: string
+                    state:
+                      type: string
+                      enum: ['NOVO', 'BOM', 'INSERVIVEl', 'RECUPERAVEL', 'ANTIECONOMICO']
+                    entryDate:
+                      type: string
+                      format: date 
+                    lastConferenceDate:
+                      type: string
+                      format: date 
+                    value:
+                      type: number
+                      format: double
             
 
                 
