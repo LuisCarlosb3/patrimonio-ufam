@@ -20,7 +20,8 @@ const makeFakeUserModel = (): NewUserModel => {
     name: 'any_name',
     registration: 'any_registration',
     email: 'any@email.com',
-    permission: UserPermission.INVENTORIOUS
+    permission: UserPermission.INVENTORIOUS,
+    password: 'password'
   }
 }
 function makeFakeDbLoadUserByEmail (): DbLoadUserByEmailAndRegistration {
@@ -86,13 +87,6 @@ describe('AdminCreateNewUserData', () => {
     res = await sut.create(user)
     expect(res).toEqual(['registration'])
     jest.spyOn(dbLoadUserByEmail, 'loadByEmailAndRegistration').mockReset()
-  })
-  test('ensure AdminCreateNewUserData calls hasher with random hash', async () => {
-    const { sut, hasher } = makeSut()
-    const hashSpy = jest.spyOn(hasher, 'hash')
-    const user = makeFakeUserModel()
-    await sut.create(user)
-    expect(hashSpy).toHaveBeenCalledWith((new Date().getTime()).toString())
   })
   test('ensure AdminCreateNewUserData calls create new user user data', async () => {
     const { sut, dbCreateNewUser } = makeSut()

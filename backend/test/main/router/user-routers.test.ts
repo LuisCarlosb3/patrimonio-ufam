@@ -162,8 +162,22 @@ describe('Authentication Routes', () => {
         .send({
           registration: 'valid_registration',
           email: 'newuser@email.com',
-          permission: UserPermission.INVENTORIOUS
+          permission: UserPermission.INVENTORIOUS,
+          password: 'any_password'
         }).expect(400, { error: 'Invalid param: name' })
+    })
+    test('Should return 400 on crate user with small password', async () => {
+      const userId = await insertPayload(true)
+      const accessToken = await makeAccessToken(userId, UserPermission.ADMINISTRATOR)
+      await request(server).post('/users/create')
+        .set('x-access-token', accessToken)
+        .send({
+          registration: 'valid_registration',
+          email: 'newuser@email.com',
+          name: 'any_name',
+          permission: UserPermission.INVENTORIOUS,
+          password: '1234'
+        }).expect(400, { error: 'Invalid param: password' })
     })
     test('Should return 400 on crate user with invalid permission ', async () => {
       const userId = await insertPayload(true)
@@ -174,7 +188,8 @@ describe('Authentication Routes', () => {
           name: 'any_name',
           registration: 'valid_registration',
           email: 'newuser@email.com',
-          permission: 5
+          permission: 5,
+          password: 'any_password'
         }).expect(400, { error: 'Invalid param: permission' })
     })
     test('Should return 400 on crate user with aready registered email or registration', async () => {
@@ -186,7 +201,8 @@ describe('Authentication Routes', () => {
           name: 'any_name',
           registration: 'myregistration',
           email: 'any@email.com',
-          permission: UserPermission.INVENTORIOUS
+          permission: UserPermission.INVENTORIOUS,
+          password: 'any_password'
         }).expect(400, { error: 'The received registration, email is already in use' })
     })
     test('Should return 203 on crate user on success', async () => {
@@ -198,7 +214,8 @@ describe('Authentication Routes', () => {
           name: 'new_name',
           registration: 'new_registration',
           email: 'new@email.com',
-          permission: UserPermission.INVENTORIOUS
+          permission: UserPermission.INVENTORIOUS,
+          password: 'any_password'
         }).expect(204)
       const user = await knex('users').where({ email: 'new@email.com' })
       expect(user[0]).toBeTruthy()

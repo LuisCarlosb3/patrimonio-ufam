@@ -44,7 +44,8 @@ const makeFakeHttpRequest = (): HttpRequest => {
       name: 'any_name',
       registration: 'any_registration',
       email: 'any@email',
-      permission: UserPermission.INVENTORIOUS
+      permission: UserPermission.INVENTORIOUS,
+      password: 'new_password'
     }
   }
 }
@@ -55,7 +56,7 @@ const makeFakeUserData = (): User => {
     registration: 'any_registration',
     email: 'any@email.com',
     permission: UserPermission.INVENTORIOUS,
-    password: null
+    password: 'new_password'
   }
 }
 interface Sut {

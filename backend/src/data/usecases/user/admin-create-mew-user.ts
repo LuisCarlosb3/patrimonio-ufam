@@ -19,8 +19,7 @@ export class CreateNewUserData implements CreateNewUser {
       if (newUser.email === userData.email) { parametersName.push('email') }
       return parametersName
     }
-    const dummyPassword = new Date().getTime().toString()
-    const passwordHash = await this.hasher.hash(dummyPassword)
+    const passwordHash = await this.hasher.hash(newUser.password)
     const newUserCreated = await this.dbCreateNewUser.create({ ...newUser, password: passwordHash })
     return newUserCreated
   }

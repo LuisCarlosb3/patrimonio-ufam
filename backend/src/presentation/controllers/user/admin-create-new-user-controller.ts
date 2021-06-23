@@ -19,8 +19,8 @@ export class AdminCreateNewUserController implements HttpController {
       if (validationError) {
         return badRequest(validationError)
       }
-      const { name, registration, email, permission } = httpRequest.body
-      const createResponse = await this.createNewUser.create({ name, registration, email, permission })
+      const { name, registration, email, permission, password } = httpRequest.body
+      const createResponse = await this.createNewUser.create({ name, registration, email, permission, password })
       if (Array.isArray(createResponse)) {
         return badRequest(new ValueInUseError(createResponse))
       }
