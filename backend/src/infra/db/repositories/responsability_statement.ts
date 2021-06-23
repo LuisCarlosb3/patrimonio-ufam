@@ -4,18 +4,15 @@ import { DbLoadStatementItem } from '@/data/protocols/db/responsability-statemen
 import { DbLoadResponsabilityStatementList } from '@/data/protocols/db/responsability-statement/db-load-statements-list'
 import { ResponsabilityStatement } from '@/domain/model/responsability-statement'
 import { PatrimonyStatementItem } from '@/domain/usecase/responsability-statement/check-patrimony-statement-exists'
+import { PatrimonyRepository } from './patrimony'
 import knex from '@/infra/db/helper/index'
+import { PatrimonyHasStatement } from '@/presentation/protocols/helpers/errors'
 
 export class ResponsabilityStatementRespositoy implements DbCreateResponsabilityStatement,
    DbLoadStatementItem, DbCheckIfCodeExists, DbLoadResponsabilityStatementList {
   private readonly tableName = 'responsability_statement'
-  private readonly itensTableName = 'responsability_statement_itens'
-  private readonly itensTableNameMapper = {
-    id: 'id',
-    patrimonyId: 'patrimony_id',
-    responsabilityStatementId: 'statement_id'
-  }
-
+  private readonly patrimonyRepository = new PatrimonyRepository()
+  private readonly patrimonyTable = 'patrimony'
   private readonly statementTableNameMapper = {
     id: 'id',
     code: 'code',
@@ -35,21 +32,8 @@ export class ResponsabilityStatementRespositoy implements DbCreateResponsability
     const statements = []
     for await (const item of baseData) {
       const id = item.id
-      const patrimonies = []
-      const data = await knex(this.itensTableName).where({ statement_id: id })
-        .rightJoin('patrimony', `${this.itensTableName}.patrimony_id`, 'patrimony.id')
-      for (const item of data) {
-        patrimonies.push({
-          id: item.patrimony_id,
-          code: item.code,
-          description: item.description,
-          state: item.state,
-          entryDate: item.entry_date,
-          lastConferenceDate: item.last_conference_date,
-          value: item.value
-        })
-      }
-      const payload = {
+      const patrimonies = await this.patrimonyRepository.loadByStatementId(id)
+      const payload: ResponsabilityStatement = {
         ...item,
         patrimonies
       }
@@ -59,12 +43,15 @@ export class ResponsabilityStatementRespositoy implements DbCreateResponsability
   }
 
   async loadByPatrimonyId (patrimonyId: string): Promise<PatrimonyStatementItem> {
-    const [item] = await knex(this.itensTableName).select(this.itensTableNameMapper).where({ patrimony_id: patrimonyId })
-    if (item) {
-      const [statement] = await knex(this.tableName).select(this.statementTableNameMapper).where({ id: item.responsabilityStatementId })
+    const [{ statementId }] = await knex(this.patrimonyTable)
+      .select({ statementId: 'statement_id' }).where({ id: patrimonyId })
+    if (statementId) {
+      const [statement] = await knex(this.tableName)
+        .select(this.statementTableNameMapper)
+        .where({ id: statementId })
       return {
         ...statement,
-        patrimonyId: item.patrimonyId
+        patrimonyId: patrimonyId
       }
     }
     return null
@@ -72,25 +59,19 @@ export class ResponsabilityStatementRespositoy implements DbCreateResponsability
 
   async create (newStatement: InsertNewStatementModel): Promise<void> {
     const { responsibleName, siapeCode, emissionDate, code, patrimoniesIds } = newStatement
-
-    await knex.transaction(async trx => {
-      try {
-        const [newId] = await knex(this.tableName).transacting(trx).insert({
-          responsible_name: responsibleName,
-          code,
-          siape: siapeCode,
-          emission_date: emissionDate
-        }).returning('id')
-        const itens = patrimoniesIds.map(item => ({
-          patrimony_id: item,
-          statement_id: newId
-        }))
-        await knex(this.itensTableName).transacting(trx).insert(itens)
-        await trx.commit()
-      } catch (error) {
-        await trx.rollback()
-        throw error
+    for await (const patrimonyId of patrimoniesIds) {
+      const patrimony = await this.patrimonyRepository.loadById(patrimonyId)
+      if (patrimony.statementCode) {
+        throw new PatrimonyHasStatement(patrimony.code)
       }
-    })
+    }
+    const [statementId] = await knex(this.tableName).insert({
+      responsible_name: responsibleName,
+      code,
+      siape: siapeCode,
+      emission_date: emissionDate
+    }).returning('id')
+
+    await this.patrimonyRepository.updateStatement(patrimoniesIds, statementId)
   }
 }
