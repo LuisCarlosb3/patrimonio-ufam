@@ -17,14 +17,15 @@ const makeNewPatrimony = (): NewPatrimonyModel => ({
     { name: 'item2', localization: 'any_localization' }
   ]
 })
-async function insertPatrimony (code?: String): Promise<string> {
+async function insertPatrimony (code?: String, statementId?: string): Promise<string> {
   const patrimony = {
     code: code || 'any_code',
     description: 'any_description',
     state: PatrimonyState.GOOD,
     entry_date: new Date('1/1/2021'),
     last_conference_date: new Date('1/1/2021'),
-    value: 200
+    value: 200,
+    statement_id: statementId
   }
   const [id] = await knex('patrimony').insert(patrimony).returning('id')
   return id
@@ -39,6 +40,15 @@ const makePatrimonyToUpdate = (patrimonyId: string, itemid: string): Patrimony =
   value: 220,
   patrimonyItens: [{ id: itemid, name: 'item1_updated', localization: 'updated_localization', observation: 'any_description' }]
 })
+async function insertSatement (): Promise<string> {
+  const [newId] = await knex('responsability_statement').insert({
+    responsible_name: 'any_name',
+    siape: 'any_code',
+    code: 'statement_code',
+    emission_date: new Date()
+  }).returning('id')
+  return newId
+}
 async function insertItens (id: string): Promise<string> {
   const item = { patrimony_id: id, name: 'item1', localization: 'any_localization' }
   const [itemid] = await knex('patrimony-itens').insert(item).returning('id')
@@ -53,6 +63,7 @@ describe('PatrimonyRepository', () => {
   beforeEach(async () => {
     await knex('patrimony-itens').del()
     await knex('patrimony').del()
+    await knex('responsability_statement').del()
   })
   afterAll(async done => {
     await knex.migrate.down()
@@ -266,6 +277,36 @@ describe('PatrimonyRepository', () => {
       expect(patrimonies.length).toEqual(2)
       expect(patrimonies[0]).toEqual(id1)
       expect(patrimonies[1]).toEqual(id2)
+    })
+  })
+  describe('DbLoadPatrimonyByStatementId', () => {
+    test('ensure loadByStatementId returns patrimony data if exists', async () => {
+      const sut = makeSut()
+      const statementId = await insertSatement()
+      const id = await insertPatrimony(undefined, statementId)
+      const patrimony = await sut.loadByStatementId(statementId)
+      expect(patrimony[0].code).toEqual('any_code')
+      expect(patrimony[0].id).toEqual(id)
+    })
+    test('ensure loadById returns empty array if not exists', async () => {
+      const sut = makeSut()
+      const patrimonyCode = await sut.loadByStatementId('4a189ed2-373d-42a2-80b7-8def350f56a0')
+      expect(patrimonyCode.length).toBe(0)
+    })
+  })
+  describe('DbUpdateStatementIdOnPatrimonyById', () => {
+    test('Ensure repository update patrimony by id with statement id', async () => {
+      const sut = makeSut()
+      const statementId = await insertSatement()
+      const id = await insertPatrimony()
+      const id2 = await insertPatrimony('any_code2')
+      await sut.updateStatement([id, id2], statementId)
+      const patrimony = await knex('patrimony').whereIn('id', [id, id2])
+      expect(patrimony).toBeTruthy()
+      expect(patrimony[0].id).toEqual(id)
+      expect(patrimony[1].id).toEqual(id2)
+      expect(patrimony[0].statement_id).toEqual(statementId)
+      expect(patrimony[1].statement_id).toEqual(statementId)
     })
   })
 })

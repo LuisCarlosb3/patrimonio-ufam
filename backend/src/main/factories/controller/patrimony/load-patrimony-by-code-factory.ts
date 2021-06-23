@@ -1,6 +1,6 @@
 import { ValidatorJsAdapter } from '@/infra/validation/validatorjs-adapter'
 import { GetPatrimonyByCodeController } from '@/presentation/controllers/patrimony/get-patrimony-by-code-controller'
-import { makeLoadPatrimonyByCode } from '../../usecases/load-patrimony-by-code/load-patrimony-by-code'
+import { makeLoadPatrimonyByCode } from '../../usecases/patrimony/load-patrimony-by-code/load-patrimony-by-code'
 
 export function makeLoadPatrimonyByCodeController (): GetPatrimonyByCodeController {
   const rules = {

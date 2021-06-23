@@ -10,30 +10,26 @@ const makeFakeInsertNewStatementModel = (): InsertNewStatementModel => ({
   emissionDate: new Date(),
   patrimoniesIds: []
 })
-async function insertPatrimony (code?: String): Promise<string> {
+async function insertPatrimony (code?: String, statementId?: string): Promise<string> {
   const patrimony = {
     code: code || 'any_code',
     description: 'any_description',
     state: PatrimonyState.GOOD,
     entry_date: new Date('1/1/2021'),
     last_conference_date: new Date('1/1/2021'),
-    value: 200
+    value: 200,
+    statement_id: statementId
   }
   const [id] = await knex('patrimony').insert(patrimony).returning('id')
   return id
 }
-async function insertSatement (patrimonyId: string): Promise<string> {
+async function insertSatement (code?: string): Promise<string> {
   const [newId] = await knex('responsability_statement').insert({
     responsible_name: 'any_name',
     siape: 'any_code',
-    code: 'any_code',
+    code: code || 'any_code',
     emission_date: new Date()
   }).returning('id')
-  const item = {
-    patrimony_id: patrimonyId,
-    statement_id: newId
-  }
-  await knex('responsability_statement_itens').insert(item)
   return newId
 }
 const makeSut = (): ResponsabilityStatementRespositoy => {
@@ -47,9 +43,8 @@ describe('ResponsabilityStatementRespositoy', () => {
     done()
   })
   beforeEach(async () => {
-    await knex('responsability_statement_itens').del()
-    await knex('responsability_statement').del()
     await knex('patrimony').del()
+    await knex('responsability_statement').del()
   })
   afterAll(async done => {
     await knex.migrate.down()
@@ -65,29 +60,28 @@ describe('ResponsabilityStatementRespositoy', () => {
       newStatement.patrimoniesIds.push(patrimonyId)
       await sut.create(newStatement)
       const [statement] = await knex('responsability_statement')
-      const [item] = await knex('responsability_statement_itens')
-      expect(item).toBeTruthy()
-      expect(item.patrimony_id).toEqual(patrimonyId)
-      expect(item.statement_id).toEqual(statement.id)
+      const [patrimony] = await knex('patrimony').where({ id: patrimonyId })
+      expect(patrimony).toBeTruthy()
+      expect(patrimony.statement_id).toEqual(statement.id)
     })
     test('Ensure create method don\'t insert new responsability if patrimony already alocated to another one', async () => {
       const sut = makeSut()
       const newStatement = makeFakeInsertNewStatementModel()
-      const patrimonyId = await insertPatrimony()
-      await insertSatement(patrimonyId)
+      const id = await insertSatement('any_statement')
+      const patrimonyId = await insertPatrimony(undefined, id)
       newStatement.patrimoniesIds.push(patrimonyId)
       await sut.create(newStatement)
-      const statement = await knex('responsability_statement')
-      const itens = await knex('responsability_statement_itens')
-      expect(itens.length).toBe(1)
-      expect(statement.length).toBe(1)
+      const [statement] = await knex('responsability_statement')
+      const [patrimony] = await knex('patrimony').where({ id: patrimonyId })
+      expect(patrimony).toBeTruthy()
+      expect(patrimony.statement_id).not.toEqual(statement.id)
     })
   })
   describe('loadByPatrimonyId', () => {
     test('ensure loadByPatrimonyId returns StatementItem on exists', async () => {
       const sut = makeSut()
-      const patrimonyId = await insertPatrimony()
-      const statementId = await insertSatement(patrimonyId)
+      const statementId = await insertSatement()
+      const patrimonyId = await insertPatrimony(undefined, statementId)
       const item = await sut.loadByPatrimonyId(patrimonyId)
       expect(item.patrimonyId).toBe(patrimonyId)
       expect(item.id).toBe(statementId)
@@ -102,17 +96,46 @@ describe('ResponsabilityStatementRespositoy', () => {
   describe('verifyCode', () => {
     test('ensure verifyCode returns true if code exists', async () => {
       const sut = makeSut()
-      const patrimonyId = await insertPatrimony()
-      await insertSatement(patrimonyId)
+      await insertSatement()
       const item = await sut.verifyCode('any_code')
       expect(item).toBeTruthy()
     })
     test('ensure verifyCode returns false if code not exists', async () => {
       const sut = makeSut()
-      const patrimonyId = await insertPatrimony()
-      await insertSatement(patrimonyId)
+      await insertSatement()
       const item = await sut.verifyCode('any_other_code')
       expect(item).toBeFalsy()
+    })
+  })
+  describe('load', () => {
+    test('ensure DbLoadPatrimonyList load statements itens', async () => {
+      const sut = makeSut()
+      const id = await insertSatement()
+      await insertPatrimony('1', id)
+      await insertPatrimony('2', id)
+      const statements = await sut.load(0, 10)
+      expect(statements.length).toBe(1)
+      expect(statements[0].id).toEqual(id)
+      expect(statements[0].responsibleName).toEqual('any_name')
+    })
+    test('ensure DbLoadPatrimonyList load statements itens paginated', async () => {
+      const sut = makeSut()
+      const ids = []
+      for await (const i of Array(5).keys()) {
+        const id = await insertSatement(`${i}`)
+        await insertPatrimony(`${i}`, id)
+        ids.push(id)
+      }
+      const firstPage = await sut.load(0, 2)
+      const secondPage = await sut.load(2, 2)
+      const thirdPage = await sut.load(4, 2)
+      expect(firstPage.length).toBe(2)
+      expect(secondPage.length).toBe(2)
+      expect(thirdPage.length).toBe(1)
+      expect(firstPage[0].id).toEqual(ids[0])
+      expect(firstPage[1].id).toEqual(ids[1])
+      expect(secondPage[0].id).toEqual(ids[2])
+      expect(secondPage[1].id).toEqual(ids[3])
     })
   })
 })

@@ -5,16 +5,19 @@ import { DbDeletePatrimonyItenById } from '@/data/protocols/db/patrimony/db-dele
 import { DbInsertNewItensToPatrimony } from '@/data/protocols/db/patrimony/db-insert-new-itens-to-patrimony'
 import { DbCheckPatrimonyByCode } from '@/data/protocols/db/patrimony/db-load-patrimony-by-code'
 import { DbLoadPatrimonyById } from '@/data/protocols/db/patrimony/db-load-patrimony-by-id'
+import { DbLoadPatrimonyByStatementId } from '@/data/protocols/db/patrimony/db-load-patrimony-by-statement-id'
 import { DbLoadPatrimonyIdsByCodes } from '@/data/protocols/db/patrimony/db-load-patrimony-ids-by-codes'
 import { DbLoadPatrimonyList } from '@/data/protocols/db/patrimony/db-load-patrimony-list'
 import { DbUpdatePatrimonyById } from '@/data/protocols/db/patrimony/db-update-patrimony-by-id'
+import { DbUpdateStatementIdOnPatrimonyById } from '@/data/protocols/db/patrimony/db-update-patrimony-with-statement-id'
 import { Patrimony } from '@/domain/model/patrimony'
 import { NewPatrimonyModel } from '@/domain/usecase/patrimony/create-patrimony'
 import { NewItenToInsert } from '@/domain/usecase/patrimony/update-patrimony-by-id'
 import knex from '@/infra/db/helper/index'
 export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewPatrimony,
    DbLoadPatrimonyList, DbUpdatePatrimonyById, DbCheckIfPatrimonyExists, DbInsertNewItensToPatrimony,
-   DbDeletePatrimonyItenById, DbLoadPatrimonyById, DbDeletePatrimonyById, DbLoadPatrimonyIdsByCodes {
+   DbDeletePatrimonyItenById, DbLoadPatrimonyById, DbDeletePatrimonyById, DbLoadPatrimonyIdsByCodes,
+   DbLoadPatrimonyByStatementId, DbUpdateStatementIdOnPatrimonyById {
   private readonly patrimonyTable = 'patrimony'
   private readonly itensTable = 'patrimony-itens'
   private readonly columnNameParser = {
@@ -24,7 +27,8 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
     state: 'state',
     entryDate: 'entry_date',
     lastConferenceDate: 'last_conference_date',
-    value: 'value'
+    value: 'value',
+    statementId: 'statement_id'
   }
 
   async checkByCode (code: string): Promise<Patrimony> {
@@ -162,5 +166,28 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
     const patrimonies = await knex(this.patrimonyTable).select('id').whereIn('code', codes)
     const ids = patrimonies.map(item => item.id)
     return ids
+  }
+
+  async loadByStatementId (statementId: string): Promise<Patrimony[]> {
+    const queryRes = await knex(this.patrimonyTable).select(this.columnNameParser).where({ statement_id: statementId })
+    if (queryRes.length > 0) {
+      const patrimonies = []
+      for await (const patrimony of queryRes) {
+        const patrimonyItens = await knex(this.itensTable).where({ patrimony_id: patrimony.id })
+        const patrimonyInstance = {
+          ...patrimony,
+          patrimonyItens
+        }
+        patrimonies.push(patrimonyInstance)
+      }
+      return patrimonies
+    }
+    return []
+  }
+
+  async updateStatement (patrimonyIds: string[], statementId: string): Promise<void> {
+    for await (const patrimonyId of patrimonyIds) {
+      await knex(this.patrimonyTable).update({ statement_id: statementId }).where({ id: patrimonyId })
+    }
   }
 }

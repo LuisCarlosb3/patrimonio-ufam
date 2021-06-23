@@ -2,7 +2,7 @@ import { EmailSender } from '@/infra/email/email-adapter'
 import { ValidatorJsAdapter } from '@/infra/validation/validatorjs-adapter'
 import { RecoverPasswordController } from '@/presentation/controllers/user/recover-password-controller'
 import { HttpController } from '@/presentation/protocols/http-controller'
-import { buildRecoverPasswordData } from '../../usecases/recover-password/recover-password-factory'
+import { buildRecoverPasswordData } from '../../usecases/user/recover-password/recover-password-factory'
 
 export function makeRecoverPasswordController (): HttpController {
   const validationRules = {

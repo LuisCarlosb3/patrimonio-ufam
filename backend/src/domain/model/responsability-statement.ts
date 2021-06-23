@@ -6,5 +6,5 @@ export interface ResponsabilityStatement {
   responsibleName: string
   siapeCode: string
   emissionDate: Date
-  patrimonies: Patrimony[]
+  patrimonies: Array<Omit<Patrimony, 'patrimonyItens'>>
 }
