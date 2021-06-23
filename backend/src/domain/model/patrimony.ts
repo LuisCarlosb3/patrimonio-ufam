@@ -1,3 +1,4 @@
+
 export interface Patrimony {
   id: string
   code: string
@@ -7,6 +8,7 @@ export interface Patrimony {
   lastConferenceDate: Date
   value: number
   patrimonyItens: PatrimonyItens[]
+  statementCode?: string
 }
 export interface PatrimonyItens {
   id: string
