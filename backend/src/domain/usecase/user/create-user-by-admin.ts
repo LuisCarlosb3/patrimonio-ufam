@@ -5,6 +5,3 @@ export interface NewUserModel extends Omit<User, 'id'> {}
 export interface CreateNewUser {
   create(newUser: NewUserModel): Promise<User | string[]>
 }
-export interface CreateNewUserLink{
-  create(userId: string): Promise<string>
-}

@@ -50,7 +50,6 @@ describe('Statement Routes', () => {
     await knex('patrimony').del()
     await knex('responsability_statement').del()
     await knex('user-access-token').del()
-    await knex('new-user-link').del()
     await knex('users').del()
   })
   afterAll(async done => {

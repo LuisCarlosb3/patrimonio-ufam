@@ -3,7 +3,7 @@ import { User, UserPermission } from '@/domain/model/user'
 import { badRequest, noContent, serverError } from '@/presentation/protocols/helpers/http-helpers'
 import { HttpRequest } from '@/presentation/protocols/http'
 import { Validation } from '@/presentation/protocols/validation'
-import { CreateNewUser, CreateNewUserLink, NewUserModel } from '@/domain/usecase/user/create-user-by-admin'
+import { CreateNewUser, NewUserModel } from '@/domain/usecase/user/create-user-by-admin'
 import { ValueInUseError } from '@/presentation/protocols/helpers/errors'
 import SendNewUserAccessLink from '@/data/protocols/email/send-new-user-link'
 function makeFakeValidator (): Validation {
@@ -22,17 +22,9 @@ function makeFakeDataCreateNewUser (): CreateNewUser {
   }
   return new CreateNewUserStub()
 }
-function makeFakeDataCreateNewUserLink (): CreateNewUserLink {
-  class CreateNewUserLinkStub implements CreateNewUserLink {
-    async create (userId: string): Promise<string> {
-      return await Promise.resolve('user_link')
-    }
-  }
-  return new CreateNewUserLinkStub()
-}
 function makeFakeDataSendNewUserAccessLink (): SendNewUserAccessLink {
   class SendNewUserAccessLinkStub implements SendNewUserAccessLink {
-    async sendNewAccessLink (email: string, link: string): Promise<void> {
+    async sendNewNewUserNotify (email: string): Promise<void> {
       return await Promise.resolve()
     }
   }
@@ -63,16 +55,14 @@ interface Sut {
   sut: AdminCreateNewUserController
   validator: Validation
   createNewUser: CreateNewUser
-  createNewUserLink: CreateNewUserLink
   sendNewUserAccessLink: SendNewUserAccessLink
 }
 const makeSut = (): Sut => {
   const validator = makeFakeValidator()
   const createNewUser = makeFakeDataCreateNewUser()
-  const createNewUserLink = makeFakeDataCreateNewUserLink()
   const sendNewUserAccessLink = makeFakeDataSendNewUserAccessLink()
-  const sut = new AdminCreateNewUserController(validator, createNewUser, createNewUserLink, sendNewUserAccessLink)
-  return { sut, validator, createNewUser, createNewUserLink, sendNewUserAccessLink }
+  const sut = new AdminCreateNewUserController(validator, createNewUser, sendNewUserAccessLink)
+  return { sut, validator, createNewUser, sendNewUserAccessLink }
 }
 
 describe('Uodate Password Controller', () => {
@@ -108,23 +98,12 @@ describe('Uodate Password Controller', () => {
     const res = await sut.handle(makeFakeHttpRequest())
     expect(res).toEqual(serverError(new Error()))
   })
-  test('Ensure AdminCreateNewUserController calls GenerateNewUserLink with new user id', async () => {
-    const { sut, createNewUserLink } = makeSut()
-    const createSpy = jest.spyOn(createNewUserLink, 'create')
-    await sut.handle(makeFakeHttpRequest())
-    expect(createSpy).toHaveBeenCalledWith('any_id')
-  })
-  test('Ensure AdminCreateNewUserController returns server error on GenerateNewUserLink', async () => {
-    const { sut, createNewUserLink } = makeSut()
-    jest.spyOn(createNewUserLink, 'create').mockRejectedValueOnce(new Error())
-    const res = await sut.handle(makeFakeHttpRequest())
-    expect(res).toEqual(serverError(new Error()))
-  })
+
   test('Ensure AdminCreateNewUserController returns calls sendNewUserLink', async () => {
     const { sut, sendNewUserAccessLink } = makeSut()
-    const sendLinkSpy = jest.spyOn(sendNewUserAccessLink, 'sendNewAccessLink')
+    const sendLinkSpy = jest.spyOn(sendNewUserAccessLink, 'sendNewNewUserNotify')
     await sut.handle(makeFakeHttpRequest())
-    expect(sendLinkSpy).toHaveBeenCalledWith('any@email', 'user_link')
+    expect(sendLinkSpy).toHaveBeenCalledWith('any@email')
   })
   test('Ensure AdminCreateNewUserController returns noContent on succeeds', async () => {
     const { sut } = makeSut()

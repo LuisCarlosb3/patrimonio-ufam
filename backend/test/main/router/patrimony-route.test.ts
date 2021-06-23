@@ -85,7 +85,6 @@ describe('Patrimony Routes', () => {
     await knex('patrimony-itens').del()
     await knex('patrimony').del()
     // await knex('user-recover-link').del()
-    await knex('new-user-link').del()
     await knex('user-access-token').del()
     await knex('users').del()
   })

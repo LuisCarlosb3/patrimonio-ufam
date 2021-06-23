@@ -1,3 +1,3 @@
-export default interface SendNewUserAccessLink {
-  sendNewAccessLink(email: string, link: string): Promise<void>
+export default interface SendNewUserNotification {
+  sendNewNewUserNotify(email: string): Promise<void>
 }

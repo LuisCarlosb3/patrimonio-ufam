@@ -28,11 +28,11 @@ describe('User Postgres Repository', () => {
     await knex.migrate.latest()
     done()
   })
-  beforeEach(async () => {
+  beforeEach(async (done) => {
     await knex('user-recover-link').del()
-    await knex('new-user-link').del()
     await knex('user-access-token').del()
     await knex('users').del()
+    done()
   })
   afterAll(async done => {
     await knex.migrate.down()
