@@ -9,6 +9,7 @@ import { DbLoadPatrimonyByStatementId } from '@/data/protocols/db/patrimony/db-l
 import { DbLoadPatrimonyIdsByCodes } from '@/data/protocols/db/patrimony/db-load-patrimony-ids-by-codes'
 import { DbLoadPatrimonyList } from '@/data/protocols/db/patrimony/db-load-patrimony-list'
 import { DbUpdatePatrimonyById } from '@/data/protocols/db/patrimony/db-update-patrimony-by-id'
+import { DbUpdateStatementIdOnPatrimonyById } from '@/data/protocols/db/patrimony/db-update-patrimony-with-statement-id'
 import { Patrimony } from '@/domain/model/patrimony'
 import { NewPatrimonyModel } from '@/domain/usecase/patrimony/create-patrimony'
 import { NewItenToInsert } from '@/domain/usecase/patrimony/update-patrimony-by-id'
@@ -16,7 +17,7 @@ import knex from '@/infra/db/helper/index'
 export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewPatrimony,
    DbLoadPatrimonyList, DbUpdatePatrimonyById, DbCheckIfPatrimonyExists, DbInsertNewItensToPatrimony,
    DbDeletePatrimonyItenById, DbLoadPatrimonyById, DbDeletePatrimonyById, DbLoadPatrimonyIdsByCodes,
-   DbLoadPatrimonyByStatementId {
+   DbLoadPatrimonyByStatementId, DbUpdateStatementIdOnPatrimonyById {
   private readonly patrimonyTable = 'patrimony'
   private readonly itensTable = 'patrimony-itens'
   private readonly columnNameParser = {
@@ -182,5 +183,11 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
       return patrimonies
     }
     return []
+  }
+
+  async updateStatement (patrimonyIds: string[], statementId: string): Promise<void> {
+    for await (const patrimonyId of patrimonyIds) {
+      await knex(this.patrimonyTable).update({ statement_id: statementId }).where({ id: patrimonyId })
+    }
   }
 }
