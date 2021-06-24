@@ -1,7 +1,7 @@
 import { DbCheckIfCodeExists } from '@/data/protocols/db/responsability-statement/db-check-if-code-exists'
 import { DbCreateResponsabilityStatement, InsertNewStatementModel } from '@/data/protocols/db/responsability-statement/db-create-statement'
 import { DbLoadStatementItem } from '@/data/protocols/db/responsability-statement/db-load-statement-item'
-import { DbLoadResponsabilityStatementList } from '@/data/protocols/db/responsability-statement/db-load-statements-list'
+import { DbLoadResponsabilityStatementList, DbLoadResponsabilityStatementListFiltered } from '@/data/protocols/db/responsability-statement/db-load-statements-list'
 import { ResponsabilityStatement } from '@/domain/model/responsability-statement'
 import { PatrimonyStatementItem } from '@/domain/usecase/responsability-statement/check-patrimony-statement-exists'
 import { PatrimonyRepository } from './patrimony'
@@ -9,7 +9,7 @@ import knex from '@/infra/db/helper/index'
 import { PatrimonyHasStatement } from '@/presentation/protocols/helpers/errors'
 
 export class ResponsabilityStatementRespositoy implements DbCreateResponsabilityStatement,
-   DbLoadStatementItem, DbCheckIfCodeExists, DbLoadResponsabilityStatementList {
+   DbLoadStatementItem, DbCheckIfCodeExists, DbLoadResponsabilityStatementList, DbLoadResponsabilityStatementListFiltered {
   private readonly tableName = 'responsability_statement'
   private readonly patrimonyRepository = new PatrimonyRepository()
   private readonly patrimonyTable = 'patrimony'
@@ -73,5 +73,23 @@ export class ResponsabilityStatementRespositoy implements DbCreateResponsability
     }).returning('id')
 
     await this.patrimonyRepository.updateStatement(patrimoniesIds, statementId)
+  }
+
+  async loadByCodeOrSiape (filter: string, page: number, quantityPeerPage: number): Promise<ResponsabilityStatement[]> {
+    const baseData = await knex(this.tableName).select(this.statementTableNameMapper)
+      .where('code', 'like', `%${filter}%`)
+      .orWhere('siape', 'like', `%${filter}%`)
+      .limit(quantityPeerPage).offset(page)
+    const statements = []
+    for await (const item of baseData) {
+      const id = item.id
+      const patrimonies = await this.patrimonyRepository.loadByStatementId(id)
+      const payload: ResponsabilityStatement = {
+        ...item,
+        patrimonies
+      }
+      statements.push(payload)
+    }
+    return statements
   }
 }

@@ -313,7 +313,7 @@ paths:
           description: User don't have administrator permission to create new responsability statement
         "500":
           description: Server Error
-  /statement-list:
+  /statement-list?filter=value:
     get:
       tags: 
         - Responsability Statement
@@ -324,6 +324,46 @@ paths:
           schema:
             type: string
           required: true
+        - in: query
+          name: filter
+          schema:
+            type: string
+          required: false
+          description: filter to search statement by SIAPE code or Statement code
+      responses:
+          "200":
+            description: Responsability Statement list
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/StatementListResponse"
+          "403":
+            description: User don't have permission to see page
+          "500":
+            description: Server Error
+  /statement-list/{page}?filter=value:
+    get:
+      tags: 
+        - Responsability Statement
+      description: Route used to list responsability statement in pages
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+        - in: path
+          required: true
+          name: page
+          schema:
+            type: number
+          description: statement list page number 
+        - in: query
+          name: filter
+          schema:
+            type: string
+          required: false
+          description: filter to search statement by SIAPE code or Statement code
       responses:
           "200":
             description: Responsability Statement list

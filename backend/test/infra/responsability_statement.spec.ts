@@ -26,7 +26,7 @@ async function insertPatrimony (code?: String, statementId?: string): Promise<st
 async function insertSatement (code?: string): Promise<string> {
   const [newId] = await knex('responsability_statement').insert({
     responsible_name: 'any_name',
-    siape: 'any_code',
+    siape: 'any_code' + code,
     code: code || 'any_code',
     emission_date: new Date()
   }).returning('id')
@@ -136,6 +136,41 @@ describe('ResponsabilityStatementRespositoy', () => {
       expect(firstPage[1].id).toEqual(ids[1])
       expect(secondPage[0].id).toEqual(ids[2])
       expect(secondPage[1].id).toEqual(ids[3])
+    })
+  })
+  describe('loadByCodeOrSiape', () => {
+    test('ensure DbLoadPatrimonyList load statements itens - check 1', async () => {
+      const sut = makeSut()
+      const id = await insertSatement('code_1')
+      await insertPatrimony('1', id)
+      const id2 = await insertSatement('code_2')
+      await insertPatrimony('2', id2)
+      const statements = await sut.loadByCodeOrSiape('1', 0, 10)
+      expect(statements.length).toBe(1)
+      expect(statements[0].id).toEqual(id)
+      expect(statements[0].code).toEqual('code_1')
+    })
+    test('ensure DbLoadPatrimonyList load statements itens -check 2', async () => {
+      const sut = makeSut()
+      const id = await insertSatement('code_1')
+      await insertPatrimony('1', id)
+      const id2 = await insertSatement('code_2')
+      await insertPatrimony('2', id2)
+      const statements = await sut.loadByCodeOrSiape('2', 0, 10)
+      expect(statements.length).toBe(1)
+      expect(statements[0].id).toEqual(id2)
+      expect(statements[0].code).toEqual('code_2')
+    })
+    test('ensure DbLoadPatrimonyList load statements itens -check code', async () => {
+      const sut = makeSut()
+      const id = await insertSatement('code_1')
+      await insertPatrimony('1', id)
+      const id2 = await insertSatement('code_2')
+      await insertPatrimony('2', id2)
+      const statements = await sut.loadByCodeOrSiape('code', 0, 10)
+      expect(statements.length).toBe(2)
+      expect(statements[0].id).toEqual(id)
+      expect(statements[1].id).toEqual(id2)
     })
   })
 })
