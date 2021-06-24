@@ -21,7 +21,7 @@ async function insertNewPatrimony (code?: String, statementId?: string): Promise
 async function insertStatement (code?: string): Promise<string> {
   const [newId] = await knex('responsability_statement').insert({
     responsible_name: 'any_name',
-    siape: 'any_code',
+    siape: 'any_code' + code,
     code: code || 'any_code',
     emission_date: new Date()
   }).returning('id')
@@ -119,6 +119,33 @@ describe('Statement Routes', () => {
       const { statementList } = response.body
       expect(statementList.length).toEqual(10)
       expect(statementList[0].code).toEqual('0')
+    })
+    test('ensure statement list return 200 with responsability statements list filtered', async () => {
+      const accessToken = await generateUserAndToken()
+      await insertStatementList(10)
+      const response = await request(server).get('/statement-list/1?filter=1').set('x-access-token', accessToken).expect(200)
+      const { statementList } = response.body
+      expect(statementList.length).toEqual(1)
+      expect(statementList[0].code).toEqual('1')
+      expect(statementList[0].patrimonies).toEqual(expect.any(Array))
+      expect(statementList[0].patrimonies[0].code).toEqual('1')
+    })
+    test('ensure statement list return 200 with responsability statements list filtered paginated', async () => {
+      const accessToken = await generateUserAndToken()
+      await insertStatementList(20)
+      const response = await request(server).get('/statement-list/2?filter=1').set('x-access-token', accessToken).expect(200)
+      const { statementList } = response.body
+      expect(statementList.length).toEqual(1)
+      expect(statementList[0].code).toEqual('19')
+      expect(statementList[0].patrimonies).toEqual(expect.any(Array))
+      expect(statementList[0].patrimonies[0].code).toEqual('19')
+    })
+    test('ensure statement list return 200 with responsability statements empty list when filtered with no match', async () => {
+      const accessToken = await generateUserAndToken()
+      await insertStatementList(5)
+      const response = await request(server).get('/statement-list/1?filter=10').set('x-access-token', accessToken).expect(200)
+      const { statementList } = response.body
+      expect(statementList.length).toEqual(0)
     })
   })
 })
