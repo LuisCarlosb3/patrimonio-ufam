@@ -8,8 +8,8 @@ const makeResponsabilityStatement = (): UpdateStatementModel => {
     responsibleName: 'any_name',
     siapeCode: 'any_siape',
     emissionDate: new Date(),
-    addedPatrimonies: [],
-    removedPatrimonies: []
+    addedPatrimonies: ['any_to_add'],
+    removedPatrimonies: ['any_to_remove']
   }
 }
 function makeDbUpdateStatementById (): DbUpdateStatementById {
@@ -82,6 +82,23 @@ describe('UpdateStatementByIdData', () => {
     const { removedPatrimonies } = statementToUpdate
     expect(updateSpy).toHaveBeenNthCalledWith(2, removedPatrimonies, null)
   })
+  test('Shouldn\'t call updatePatrimonyWithId if addedPatrimonies empty', async () => {
+    const { sut, updatePatrimonyWithId } = makeSut()
+    const updateSpy = jest.spyOn(updatePatrimonyWithId, 'updateStatement')
+    const statementToUpdate = makeResponsabilityStatement()
+    statementToUpdate.addedPatrimonies = []
+    await sut.updateById(statementToUpdate)
+    expect(updateSpy).not.toHaveBeenCalledWith([])
+  })
+  test('Shouldn\'t call updatePatrimonyWithId if removedPatrimonies empty', async () => {
+    const { sut, updatePatrimonyWithId } = makeSut()
+    const updateSpy = jest.spyOn(updatePatrimonyWithId, 'updateStatement')
+    const statementToUpdate = makeResponsabilityStatement()
+    statementToUpdate.removedPatrimonies = []
+    await sut.updateById(statementToUpdate)
+    expect(updateSpy).not.toHaveBeenCalledWith([])
+  })
+
   test('Should throws if updateStatement throws', async () => {
     const { sut, updatePatrimonyWithId } = makeSut()
     jest.spyOn(updatePatrimonyWithId, 'updateStatement').mockRejectedValueOnce(new Error())

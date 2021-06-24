@@ -11,7 +11,11 @@ export class UpdateStatementByIdData implements UpdateStatementById {
   async updateById (statement: UpdateStatementModel): Promise<void> {
     const { addedPatrimonies, removedPatrimonies, ...statementData } = statement
     await this.updateStatement.updateById(statementData)
-    await this.updatePatrimonyWithId.updateStatement(addedPatrimonies, statementData.id)
-    await this.updatePatrimonyWithId.updateStatement(addedPatrimonies, null)
+    if (addedPatrimonies.length > 0) {
+      await this.updatePatrimonyWithId.updateStatement(addedPatrimonies, statementData.id)
+    }
+    if (removedPatrimonies.length > 0) {
+      await this.updatePatrimonyWithId.updateStatement(removedPatrimonies, null)
+    }
   }
 }
