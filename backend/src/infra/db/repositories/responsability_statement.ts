@@ -7,9 +7,11 @@ import { PatrimonyStatementItem } from '@/domain/usecase/responsability-statemen
 import { PatrimonyRepository } from './patrimony'
 import knex from '@/infra/db/helper/index'
 import { PatrimonyHasStatement } from '@/presentation/protocols/helpers/errors'
+import { DbLoadStatementById } from '@/data/protocols/db/responsability-statement/db-load-statement-by-id'
 
 export class ResponsabilityStatementRespositoy implements DbCreateResponsabilityStatement,
-   DbLoadStatementItem, DbCheckIfCodeExists, DbLoadResponsabilityStatementList, DbLoadResponsabilityStatementListFiltered {
+   DbLoadStatementItem, DbCheckIfCodeExists, DbLoadResponsabilityStatementList, DbLoadResponsabilityStatementListFiltered,
+   DbLoadStatementById {
   private readonly tableName = 'responsability_statement'
   private readonly patrimonyRepository = new PatrimonyRepository()
   private readonly patrimonyTable = 'patrimony'
@@ -91,5 +93,24 @@ export class ResponsabilityStatementRespositoy implements DbCreateResponsability
       statements.push(payload)
     }
     return statements
+  }
+
+  async loadById (id: string): Promise<ResponsabilityStatement> {
+    const baseData = await knex(this.tableName).select(this.statementTableNameMapper).where({ id })
+    if (baseData.length > 0) {
+      const payload = await this.loadPatrimonies(baseData[0])
+      return payload
+    }
+    return null
+  }
+
+  private async loadPatrimonies (baseStatementInfo: Omit<ResponsabilityStatement, 'patrimonies'>): Promise<ResponsabilityStatement> {
+    const id = baseStatementInfo.id
+    const patrimonies = await this.patrimonyRepository.loadByStatementId(id)
+    const payload: ResponsabilityStatement = {
+      ...baseStatementInfo,
+      patrimonies
+    }
+    return payload
   }
 }
