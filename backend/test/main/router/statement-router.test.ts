@@ -148,4 +148,25 @@ describe('Statement Routes', () => {
       expect(statementList.length).toEqual(0)
     })
   })
+  describe('/statement/:id', () => {
+    test('ensure statement list return 200 with responsability statement data', async () => {
+      const accessToken = await generateUserAndToken()
+      const id = await insertStatement('my_code')
+      await insertNewPatrimony('my_patrimony_code', id)
+      const response = await request(server).get(`/statement/${id}`).set('x-access-token', accessToken).expect(200)
+      const { statement } = response.body
+      expect(statement.code).toEqual('my_code')
+      expect(statement.code).toEqual('my_code')
+      expect(statement.patrimonies[0].code).toEqual('my_patrimony_code')
+    })
+    test('ensure statement list return 404 if responsability statements not exists', async () => {
+      const accessToken = await generateUserAndToken()
+      const fakeUUID = 'cab81c1e-e10c-466f-b17a-49b0dff4f89e'
+      await request(server).get(`/statement/${fakeUUID}`).set('x-access-token', accessToken).expect(404)
+    })
+    test('ensure statement list return 403 if id on invalid format', async () => {
+      const accessToken = await generateUserAndToken()
+      await request(server).get('/statement/myid').set('x-access-token', accessToken).expect(400)
+    })
+  })
 })
