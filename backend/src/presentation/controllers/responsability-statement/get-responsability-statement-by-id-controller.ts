@@ -5,7 +5,7 @@ import { HttpRequest, HttpResponse } from '@/presentation/protocols/http'
 import { HttpController } from '@/presentation/protocols/http-controller'
 import { Validation } from '@/presentation/protocols/validation'
 
-export class GetStatementByCodeController implements HttpController {
+export class GetStatementByIdController implements HttpController {
   constructor (
     private readonly loadStatement: LoadStatementById,
     private readonly validator: Validation
