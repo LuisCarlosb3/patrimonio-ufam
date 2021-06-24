@@ -5,6 +5,7 @@ import { makeAuthMiddleware } from '../factories/middleware/auth-middleware-fact
 import { makeCreateResponsabilityStatementController } from '../factories/controller/responsability-statement/create-responsability-statement-factory'
 import { makeListResponsabilityStatementsController } from '../factories/controller/responsability-statement/list-statements-controller-factory'
 import { makeLoadStatementByIdController } from '../factories/controller/responsability-statement/load-statement-by-id-controller-factory'
+import { makeUpdateResponsabilityStatementController } from '../factories/controller/responsability-statement/update-responsability-statement-controller-factory'
 
 export default (router: Router): void => {
   router.post('/statement/create',
@@ -16,4 +17,7 @@ export default (router: Router): void => {
   router.get('/statement/:id',
     ExpressMiddlewareAdapterFactory(makeAuthMiddleware()),
     ExpressRouteAdapterFactory(makeLoadStatementByIdController()))
+  router.put('/statement',
+    ExpressMiddlewareAdapterFactory(makeAuthMiddleware()),
+    ExpressRouteAdapterFactory(makeUpdateResponsabilityStatementController()))
 }
