@@ -3,12 +3,19 @@ import { ResponsabilityStatementRespositoy } from '@/infra/db/repositories/respo
 import { PatrimonyState } from '@/domain/model/patrimony'
 import MockDate from 'mockdate'
 import knex from '@/infra/db/helper/index'
+import { DbUpdateStatementByIdModel } from '@/data/protocols/db/responsability-statement/db-update-statement-by-id'
 const makeFakeInsertNewStatementModel = (): InsertNewStatementModel => ({
   responsibleName: 'any_name',
   code: 'any_code',
   siapeCode: 'any_code',
   emissionDate: new Date(),
   patrimoniesIds: []
+})
+const makeFakeUpdateStatementModel = (id: string): DbUpdateStatementByIdModel => ({
+  id: id,
+  responsibleName: 'updated_name',
+  siapeCode: 'updated_code',
+  emissionDate: new Date('12/12/2021')
 })
 async function insertPatrimony (code?: String, statementId?: string): Promise<string> {
   const patrimony = {
@@ -26,7 +33,7 @@ async function insertPatrimony (code?: String, statementId?: string): Promise<st
 async function insertSatement (code?: string): Promise<string> {
   const [newId] = await knex('responsability_statement').insert({
     responsible_name: 'any_name',
-    siape: 'any_code' + code,
+    siape: 'any_code' + (code || ''),
     code: code || 'any_code',
     emission_date: new Date()
   }).returning('id')
@@ -184,6 +191,18 @@ describe('ResponsabilityStatementRespositoy', () => {
       const sut = makeSut()
       const statements = await sut.loadById('5dddf67a-5947-4fad-9ec0-8d6569e06aea')
       expect(statements).toBeNull()
+    })
+  })
+  describe('updateById', () => {
+    test('Ensure update method change responsability statement data', async () => {
+      const sut = makeSut()
+      const id = await insertSatement('')
+      const statementToUpdate = makeFakeUpdateStatementModel(id)
+      await sut.updateById(statementToUpdate)
+      const [statement] = await knex('responsability_statement')
+      expect(statement).toBeTruthy()
+      expect(statement.siape).toEqual(statementToUpdate.siapeCode)
+      expect(statement.responsible_name).toEqual(statementToUpdate.responsibleName)
     })
   })
 })
