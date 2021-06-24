@@ -3,7 +3,7 @@ import { DbLoadStatementById } from '@/data/protocols/db/responsability-statemen
 import { LoadStatementByIdData } from '@/data/usecases/responsability-statement/load-statement-by-id'
 import Mockdate from 'mockdate'
 import { LoadStatementById } from '@/domain/usecase/responsability-statement/load-statement-by-id'
-const makePatrimony = (): ResponsabilityStatement => {
+const makeResponsabilityStatement = (): ResponsabilityStatement => {
   return {
     id: 'any_id',
     code: 'any_code',
@@ -17,7 +17,7 @@ const makePatrimony = (): ResponsabilityStatement => {
 const makeDbLoadStatementById = (): DbLoadStatementById => {
   class DbLoadStatementByIdStub implements DbLoadStatementById {
     async loadById (id: string): Promise<ResponsabilityStatement> {
-      return await Promise.resolve(makePatrimony())
+      return await Promise.resolve(makeResponsabilityStatement())
     }
   }
   return new DbLoadStatementByIdStub()
@@ -59,6 +59,6 @@ describe('LoadStatementByCodeOrSiapeData', () => {
   test('Ensure LoadStatements returns an statement', async () => {
     const { sut } = makeSut()
     const list = await sut.loadById('any_id')
-    expect(list).toEqual(makePatrimony())
+    expect(list).toEqual(makeResponsabilityStatement())
   })
 })
