@@ -45,6 +45,7 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
     return null
   }
 
+  // ajustar pq nao ta carregando o codigo do statement
   async loadById (id: string): Promise<Patrimony> {
     const queryRes = await knex(this.patrimonyTable).select(this.columnNameParser).where({ id })
     if (queryRes.length > 0) {
