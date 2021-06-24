@@ -8,7 +8,6 @@ const makeResponsabilityStatement = (): UpdateStatementModel => {
     responsibleName: 'any_name',
     siapeCode: 'any_siape',
     emissionDate: new Date(),
-    patrimonies: [],
     addedPatrimonies: [],
     removedPatrimonies: []
   }

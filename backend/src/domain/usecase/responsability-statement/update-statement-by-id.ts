@@ -1,6 +1,6 @@
 import { ResponsabilityStatement } from '@/domain/model/responsability-statement'
 
-export interface UpdateStatementModel extends Omit<ResponsabilityStatement, 'code'>{
+export interface UpdateStatementModel extends Omit<ResponsabilityStatement, 'code' | 'patrimonies'>{
   removedPatrimonies: string[]
   addedPatrimonies: string[]
 }
