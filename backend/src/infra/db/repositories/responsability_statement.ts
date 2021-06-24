@@ -8,10 +8,11 @@ import { PatrimonyRepository } from './patrimony'
 import knex from '@/infra/db/helper/index'
 import { PatrimonyHasStatement } from '@/presentation/protocols/helpers/errors'
 import { DbLoadStatementById } from '@/data/protocols/db/responsability-statement/db-load-statement-by-id'
+import { DbUpdateStatementById, DbUpdateStatementByIdModel } from '@/data/protocols/db/responsability-statement/db-update-statement-by-id'
 
 export class ResponsabilityStatementRespositoy implements DbCreateResponsabilityStatement,
    DbLoadStatementItem, DbCheckIfCodeExists, DbLoadResponsabilityStatementList, DbLoadResponsabilityStatementListFiltered,
-   DbLoadStatementById {
+   DbLoadStatementById, DbUpdateStatementById {
   private readonly tableName = 'responsability_statement'
   private readonly patrimonyRepository = new PatrimonyRepository()
   private readonly patrimonyTable = 'patrimony'
@@ -102,5 +103,13 @@ export class ResponsabilityStatementRespositoy implements DbCreateResponsability
       patrimonies
     }
     return payload
+  }
+
+  async updateById (statement: DbUpdateStatementByIdModel): Promise<void> {
+    await knex(this.tableName).update({
+      responsible_name: statement.responsibleName,
+      siape: statement.siapeCode,
+      emission_date: statement.emissionDate
+    }).where({ id: statement.id })
   }
 }
