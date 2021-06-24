@@ -173,4 +173,17 @@ describe('ResponsabilityStatementRespositoy', () => {
       expect(statements[1].id).toEqual(id2)
     })
   })
+  describe('loadById', () => {
+    test('ensure DbLoadPatrimonyList load statement by id', async () => {
+      const sut = makeSut()
+      const id = await insertSatement('code_1')
+      const statements = await sut.loadById(id)
+      expect(statements.id).toEqual(id)
+    })
+    test('ensure DbLoadPatrimonyList load statements by id returns null if no exists', async () => {
+      const sut = makeSut()
+      const statements = await sut.loadById('5dddf67a-5947-4fad-9ec0-8d6569e06aea')
+      expect(statements).toBeNull()
+    })
+  })
 })
