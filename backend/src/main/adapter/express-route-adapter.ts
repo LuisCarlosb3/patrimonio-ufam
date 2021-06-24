@@ -6,7 +6,8 @@ export default function ExpressRouteAdapter (controller: HttpController) {
   return async (request: Request, response: Response) => {
     const httpRequest: HttpRequest = {
       body: request.body,
-      params: request.params
+      params: request.params,
+      query: request.query
     }
     const httpResponse = await controller.handle(httpRequest)
     if (httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299) {
