@@ -33,12 +33,7 @@ export class ResponsabilityStatementRespositoy implements DbCreateResponsability
       .limit(quantityPeerPage).offset(page)
     const statements = []
     for await (const item of baseData) {
-      const id = item.id
-      const patrimonies = await this.patrimonyRepository.loadByStatementId(id)
-      const payload: ResponsabilityStatement = {
-        ...item,
-        patrimonies
-      }
+      const payload = await this.loadPatrimonies(item)
       statements.push(payload)
     }
     return statements
@@ -84,12 +79,7 @@ export class ResponsabilityStatementRespositoy implements DbCreateResponsability
       .limit(quantityPeerPage).offset(page)
     const statements = []
     for await (const item of baseData) {
-      const id = item.id
-      const patrimonies = await this.patrimonyRepository.loadByStatementId(id)
-      const payload: ResponsabilityStatement = {
-        ...item,
-        patrimonies
-      }
+      const payload = await this.loadPatrimonies(item)
       statements.push(payload)
     }
     return statements
