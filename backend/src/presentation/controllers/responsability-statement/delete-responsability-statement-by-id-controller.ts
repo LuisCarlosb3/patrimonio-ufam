@@ -18,7 +18,7 @@ export class DeleteResponsabilityStatementeByIdController implements HttpControl
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
       const params = httpRequest.params
-      const validationErr = this.validator.validate({ ...params, ...httpRequest.body })
+      const validationErr = this.validator.validate(params)
       if (validationErr) {
         return badRequest(validationErr)
       }

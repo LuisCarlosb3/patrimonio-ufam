@@ -92,12 +92,12 @@ const makeSut = (): Sut => {
 }
 
 describe('DeleteResponsabilityStatementeByIdController', () => {
-  test('Ensure CreateResponsabilityStatementController calls validation with body request', async () => {
+  test('Ensure CreateResponsabilityStatementController calls validation with params request', async () => {
     const { sut, validator } = makeSut()
     const validateSpy = jest.spyOn(validator, 'validate')
     const request = makeHttpRequest()
     await sut.handle(request)
-    expect(validateSpy).toHaveBeenCalledWith({ ...request.params, ...request.body })
+    expect(validateSpy).toHaveBeenCalledWith(request.params)
   })
   test('Ensure CreateResponsabilityStatementController return badRequest on validator retruns an error', async () => {
     const { sut, validator } = makeSut()
