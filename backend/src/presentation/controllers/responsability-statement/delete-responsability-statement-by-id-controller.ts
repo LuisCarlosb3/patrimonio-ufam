@@ -5,9 +5,11 @@ import { StatementHasPatrimony, StatementNotFound } from '@/presentation/protoco
 import { badRequest, noContent, serverError } from '@/presentation/protocols/helpers/http-helpers'
 import { HttpRequest, HttpResponse } from '@/presentation/protocols/http'
 import { HttpController } from '@/presentation/protocols/http-controller'
+import { Validation } from '@/presentation/protocols/validation'
 
 export class DeleteResponsabilityStatementeByIdController implements HttpController {
   constructor (
+    private readonly validator: Validation,
     private readonly deleteStatementById: DeleteStatementById,
     private readonly loadStatementById: LoadStatementById,
     private readonly loadUserById: LoadUserById
@@ -16,7 +18,12 @@ export class DeleteResponsabilityStatementeByIdController implements HttpControl
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
       const params = httpRequest.params
+      const validationErr = this.validator.validate({ ...params, ...httpRequest.body })
+      if (validationErr) {
+        return badRequest(validationErr)
+      }
       const { accountId } = httpRequest.body
+
       const statement = await this.loadStatementById.loadById(params.id)
       if (!statement) {
         return badRequest(new StatementNotFound())
