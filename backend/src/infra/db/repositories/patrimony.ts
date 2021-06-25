@@ -10,7 +10,7 @@ import { DbLoadPatrimonyIdsByCodes } from '@/data/protocols/db/patrimony/db-load
 import { DbLoadPatrimonyList } from '@/data/protocols/db/patrimony/db-load-patrimony-list'
 import { DbUpdatePatrimonyById } from '@/data/protocols/db/patrimony/db-update-patrimony-by-id'
 import { DbUpdateStatementIdOnPatrimonyById } from '@/data/protocols/db/patrimony/db-update-patrimony-with-statement-id'
-import { Patrimony } from '@/domain/model/patrimony'
+import { Patrimony, PatrimonyItens } from '@/domain/model/patrimony'
 import { NewPatrimonyModel } from '@/domain/usecase/patrimony/create-patrimony'
 import { NewItenToInsert } from '@/domain/usecase/patrimony/update-patrimony-by-id'
 import knex from '@/infra/db/helper/index'
@@ -31,6 +31,16 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
     statementId: 'statement_id'
   }
 
+  private async loadStatementCode (statementeId: string): Promise<string> {
+    const data = await knex('responsability_statement').select('code').where({ id: statementeId })
+    return (data.length > 0 ? data[0].code : null)
+  }
+
+  private async loadItensByPatrimonyId (patrimonyId: string): Promise<PatrimonyItens[]> {
+    const patrimonyItens = await knex(this.itensTable).where({ patrimony_id: patrimonyId })
+    return patrimonyItens
+  }
+
   async checkByCode (code: string): Promise<Patrimony> {
     const queryRes = await knex(this.patrimonyTable).select(this.columnNameParser).where({ code })
     if (queryRes.length > 0) {
@@ -45,14 +55,15 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
     return null
   }
 
-  // ajustar pq nao ta carregando o codigo do statement
   async loadById (id: string): Promise<Patrimony> {
     const queryRes = await knex(this.patrimonyTable).select(this.columnNameParser).where({ id })
     if (queryRes.length > 0) {
       const patrimony = queryRes[0]
-      const patrimonyItens = await knex(this.itensTable).where({ patrimony_id: patrimony.id })
+      const patrimonyItens = await this.loadItensByPatrimonyId(patrimony.id)
+      const statementCode = await this.loadStatementCode(patrimony.statementId)
       const patrimonyInstance = {
         ...patrimony,
+        statementCode,
         patrimonyItens
       }
       return patrimonyInstance
@@ -84,11 +95,12 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
   async load (page: number, quantityPeerPage: number): Promise<Patrimony[]> {
     const baseData = await knex(this.patrimonyTable).select(this.columnNameParser).limit(quantityPeerPage).offset(page)
     const patrimonies = []
-    for await (const item of baseData) {
-      const id = item.id
-      const patrimonyItens = await knex(this.itensTable).where({ patrimony_id: id })
+    for await (const patrimony of baseData) {
+      const patrimonyItens = await this.loadItensByPatrimonyId(patrimony.id)
+      const statementCode = await this.loadStatementCode(patrimony.statementId)
       const patrimonyInstance = {
-        ...item,
+        ...patrimony,
+        statementCode,
         patrimonyItens
       }
       patrimonies.push(patrimonyInstance)
@@ -174,9 +186,11 @@ export class PatrimonyRepository implements DbCheckPatrimonyByCode, DbCreateNewP
     if (queryRes.length > 0) {
       const patrimonies = []
       for await (const patrimony of queryRes) {
-        const patrimonyItens = await knex(this.itensTable).where({ patrimony_id: patrimony.id })
+        const patrimonyItens = await this.loadItensByPatrimonyId(patrimony.id)
+        const statementCode = await this.loadStatementCode(patrimony.statementId)
         const patrimonyInstance = {
           ...patrimony,
+          statementCode,
           patrimonyItens
         }
         patrimonies.push(patrimonyInstance)
