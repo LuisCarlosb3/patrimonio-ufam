@@ -378,7 +378,6 @@ paths:
   /statement:
     put:
       tags:
-        - Admin Functions
         - Responsability Statement
       description: Route used to update Responsability Statement informations, with this functionality admin can update statement info, patrimonies relationed,
        add new itens to statement or delete existent itens
@@ -403,6 +402,31 @@ paths:
           description: User don't have permission to update statement info
         "500":
           description: Server Error
+  /statement/{id}:
+    delete:
+      tags: 
+        - Responsability Statement
+      description: Route used to delete Statements by id
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+        - in: path
+          required: true
+          name: responsability statement id
+          schema:
+            type: string
+            format: uuid
+          description: responsability statement  id register
+      responses:
+          "204":
+            description: Confirmation that statement was deleted
+          "403":
+            description: Bad request, id is invalid, statement has patrimonies or statement not found
+          "500":
+            description: Server Error
 components:
   schemas:
     LoginRequest:
