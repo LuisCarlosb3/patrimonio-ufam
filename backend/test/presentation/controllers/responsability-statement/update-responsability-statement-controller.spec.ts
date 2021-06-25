@@ -1,12 +1,23 @@
 import { UpdateStatementById, UpdateStatementModel } from '@/domain/usecase/responsability-statement/update-statement-by-id'
 import { UpdateStatementController } from '@/presentation/controllers/responsability-statement/update-statement-by-id-controller'
 import { badRequest, noContent, serverError } from '@/presentation/protocols/helpers/http-helpers'
-import { PatrimonyHasStatement, PatrimonyNotFound } from '@/presentation/protocols/helpers/errors'
+import { PatrimonyHasStatement, PatrimonyNotFound, StatementNotFound } from '@/presentation/protocols/helpers/errors'
 import { LoadPatrimonyById } from '@/domain/usecase/patrimony/load-patrimony-by-id'
 import { Patrimony, PatrimonyState } from '@/domain/model/patrimony'
 import { Validation } from '@/presentation/protocols/validation'
 import { HttpRequest } from '@/presentation/protocols/http'
-
+import { ResponsabilityStatement } from '@/domain/model/responsability-statement'
+import { LoadStatementById } from '@/domain/usecase/responsability-statement/load-statement-by-id'
+const makeResponsabilityStatement = (): ResponsabilityStatement => {
+  return {
+    id: 'any_id',
+    code: 'any_code',
+    responsibleName: 'any_name',
+    siapeCode: 'any_siape',
+    emissionDate: new Date(),
+    patrimonies: []
+  }
+}
 function makeFakeValidator (): Validation {
   class ValidationStub implements Validation {
     validate (input: object): Error {
@@ -22,6 +33,14 @@ function makeUpdateStatementById (): UpdateStatementById {
     }
   }
   return new UpdateStatementByIdStub()
+}
+const makeLoadStatementById = (): LoadStatementById => {
+  class LoadStatementByIdStub implements LoadStatementById {
+    async loadById (id: string): Promise<ResponsabilityStatement> {
+      return await Promise.resolve(makeResponsabilityStatement())
+    }
+  }
+  return new LoadStatementByIdStub()
 }
 const makeFakePatrimony = (id?: string): Patrimony => (
   {
@@ -65,15 +84,17 @@ interface Sut {
   validator: Validation
   updateStatementById: UpdateStatementById
   loadPatrimonyById: LoadPatrimonyById
+  loadStatementById: LoadStatementById
 
 }
 const makeSut = (): Sut => {
   const validator = makeFakeValidator()
   const updateStatementById = makeUpdateStatementById()
   const loadPatrimonyById = makeLoadPatrimonyById()
+  const loadStatementById = makeLoadStatementById()
 
-  const sut = new UpdateStatementController(validator, updateStatementById, loadPatrimonyById)
-  return { sut, validator, updateStatementById, loadPatrimonyById }
+  const sut = new UpdateStatementController(validator, updateStatementById, loadPatrimonyById, loadStatementById)
+  return { sut, validator, updateStatementById, loadPatrimonyById, loadStatementById }
 }
 describe('UpdateStatementController', () => {
   test('Ensure UpdateStatementController calls validator with body data', async () => {
@@ -88,6 +109,20 @@ describe('UpdateStatementController', () => {
     jest.spyOn(validator, 'validate').mockReturnValueOnce(new Error())
     const response = await sut.handle(makeFakeHttpRequest())
     expect(response).toEqual(badRequest(new Error()))
+  })
+  test('Ensure UpdateStatementController calls loadStatementById with statement id', async () => {
+    const { sut, loadStatementById } = makeSut()
+    const loadSpy = jest.spyOn(loadStatementById, 'loadById')
+    const request = makeFakeHttpRequest()
+    await sut.handle(request)
+    expect(loadSpy).toHaveBeenCalledWith(request.body.statement.id)
+  })
+  test('Ensure UpdateStatementController returns badRequest if loadStatementById returns null', async () => {
+    const { sut, loadStatementById } = makeSut()
+    jest.spyOn(loadStatementById, 'loadById').mockResolvedValueOnce(null)
+    const request = makeFakeHttpRequest()
+    const response = await sut.handle(request)
+    expect(response).toEqual(badRequest(new StatementNotFound()))
   })
   test('Ensure UpdateStatementController calls loadPatrimonyById with patrimonies from delete and add arrays', async () => {
     const { sut, loadPatrimonyById } = makeSut()
