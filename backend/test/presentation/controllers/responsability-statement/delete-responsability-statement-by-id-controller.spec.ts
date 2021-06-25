@@ -7,6 +7,7 @@ import { LoadStatementById } from '@/domain/usecase/responsability-statement/loa
 import { ResponsabilityStatement } from '@/domain/model/responsability-statement'
 import { User, UserPermission } from '@/domain/model/user'
 import { LoadUserById } from '@/domain/usecase/user/load-user-by-id'
+import { Validation } from '@/presentation/protocols/validation'
 const makeHttpRequest = (): HttpRequest => ({
   params: {
     id: 'id'
@@ -15,6 +16,14 @@ const makeHttpRequest = (): HttpRequest => ({
     userid: 'my_id'
   }
 })
+function makeFakeValidator (): Validation {
+  class ValidationStub implements Validation {
+    validate (input: object): Error {
+      return null
+    }
+  }
+  return new ValidationStub()
+}
 const makeFakeUser = (): User => {
   return {
     id: 'any_id',
@@ -65,21 +74,37 @@ interface Sut {
   deleteStatementById: DeleteStatementById
   loadStatementById: LoadStatementById
   loadUserById: LoadUserById
+  validator: Validation
 }
 const makeSut = (): Sut => {
   const deleteStatementById = makeDeleteStatementById()
   const loadStatementById = makeLoadStatementById()
   const loadUserById = makeLoadUserById()
-  const sut = new DeleteResponsabilityStatementeByIdController(deleteStatementById, loadStatementById, loadUserById)
+  const validator = makeFakeValidator()
+  const sut = new DeleteResponsabilityStatementeByIdController(validator, deleteStatementById, loadStatementById, loadUserById)
   return {
     sut,
     deleteStatementById,
     loadStatementById,
-    loadUserById
+    loadUserById,
+    validator
   }
 }
 
 describe('DeleteResponsabilityStatementeByIdController', () => {
+  test('Ensure CreateResponsabilityStatementController calls validation with body request', async () => {
+    const { sut, validator } = makeSut()
+    const validateSpy = jest.spyOn(validator, 'validate')
+    const request = makeHttpRequest()
+    await sut.handle(request)
+    expect(validateSpy).toHaveBeenCalledWith({ ...request.params, ...request.body })
+  })
+  test('Ensure CreateResponsabilityStatementController return badRequest on validator retruns an error', async () => {
+    const { sut, validator } = makeSut()
+    jest.spyOn(validator, 'validate').mockReturnValueOnce(new Error())
+    const response = await sut.handle(makeHttpRequest())
+    expect(response).toEqual(badRequest(new Error()))
+  })
   test('ensure controller calls deleteByIdData with statement id', async () => {
     const { sut, deleteStatementById } = makeSut()
     const deleteSpy = jest.spyOn(deleteStatementById, 'deleteById')
