@@ -93,4 +93,11 @@ describe('User Postgres Repository', () => {
     const res = await sut.loadById(fakeUUID)
     expect(res).toBeNull()
   })
+  test('Ensure UserRepository delete user by id on success', async () => {
+    const sut = makeSut()
+    const id = await insertPayload()
+    await sut.deleteById(id)
+    const users = await knex('users').where({ id })
+    expect(users.length).toBe(0)
+  })
 })
