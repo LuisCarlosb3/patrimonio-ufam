@@ -5,11 +5,26 @@ import { badRequest, noContent, serverError } from '@/presentation/protocols/hel
 import { StatementHasPatrimony, StatementNotFound } from '@/presentation/protocols/helpers/errors'
 import { LoadStatementById } from '@/domain/usecase/responsability-statement/load-statement-by-id'
 import { ResponsabilityStatement } from '@/domain/model/responsability-statement'
+import { User, UserPermission } from '@/domain/model/user'
+import { LoadUserById } from '@/domain/usecase/user/load-user-by-id'
 const makeHttpRequest = (): HttpRequest => ({
   params: {
     id: 'id'
+  },
+  body: {
+    userid: 'my_id'
   }
 })
+const makeFakeUser = (): User => {
+  return {
+    id: 'any_id',
+    name: 'any_name',
+    registration: 'any_registration',
+    email: 'any@email.com',
+    password: 'hash_password',
+    permission: UserPermission.INVENTORIOUS
+  }
+}
 const makeResponsabilityStatement = (): ResponsabilityStatement => {
   return {
     id: 'any_id',
@@ -36,20 +51,31 @@ const makeLoadStatementById = (): LoadStatementById => {
   }
   return new LoadStatementByIdStub()
 }
+const makeLoadUserById = (): LoadUserById => {
+  class LoadUserByIdStub implements LoadUserById {
+    async load (id: string): Promise<User> {
+      return await Promise.resolve(makeFakeUser())
+    }
+  }
+  return new LoadUserByIdStub()
+}
 
 interface Sut {
   sut: DeleteResponsabilityStatementeByIdController
   deleteStatementById: DeleteStatementById
   loadStatementById: LoadStatementById
+  loadUserById: LoadUserById
 }
 const makeSut = (): Sut => {
   const deleteStatementById = makeDeleteStatementById()
   const loadStatementById = makeLoadStatementById()
-  const sut = new DeleteResponsabilityStatementeByIdController(deleteStatementById, loadStatementById)
+  const loadUserById = makeLoadUserById()
+  const sut = new DeleteResponsabilityStatementeByIdController(deleteStatementById, loadStatementById, loadUserById)
   return {
     sut,
     deleteStatementById,
-    loadStatementById
+    loadStatementById,
+    loadUserById
   }
 }
 
@@ -58,7 +84,7 @@ describe('DeleteResponsabilityStatementeByIdController', () => {
     const { sut, deleteStatementById } = makeSut()
     const deleteSpy = jest.spyOn(deleteStatementById, 'deleteById')
     await sut.handle(makeHttpRequest())
-    expect(deleteSpy).toHaveBeenCalledWith('id')
+    expect(deleteSpy).toHaveBeenCalledWith('id', 1)
   })
   test('ensure controller returns 204 on deleteByIdData succeeds', async () => {
     const { sut } = makeSut()
@@ -84,6 +110,13 @@ describe('DeleteResponsabilityStatementeByIdController', () => {
     const request = makeHttpRequest()
     const response = await sut.handle(request)
     expect(response).toEqual(badRequest(new StatementNotFound()))
+  })
+  test('Ensure UpdatePatrimonyController calls loadUserByid with user id on request body', async () => {
+    const { sut, loadUserById } = makeSut()
+    const loadSpy = jest.spyOn(loadUserById, 'load')
+    const request = makeHttpRequest()
+    await sut.handle(request)
+    expect(loadSpy).toHaveBeenCalledWith(request.body.accountId)
   })
   test('ensure controller returns 500 on deleteByIdData throws', async () => {
     const { sut, deleteStatementById } = makeSut()
