@@ -375,6 +375,34 @@ paths:
             description: User don't have permission to see page
           "500":
             description: Server Error
+  /statement:
+    put:
+      tags:
+        - Admin Functions
+        - Responsability Statement
+      description: Route used to update Responsability Statement informations, with this functionality admin can update statement info, patrimonies relationed,
+       add new itens to statement or delete existent itens
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/UpdateStatementRequest"
+      responses:
+        "204":
+          description: Statement updated with success
+        "400":
+          description: some params from body request have a problem, or statement not fount
+        "403":
+          description: User don't have permission to update statement info
+        "500":
+          description: Server Error
 components:
   schemas:
     LoginRequest:
@@ -645,7 +673,29 @@ components:
                     value:
                       type: number
                       format: double
-            
+    UpdateStatementRequest:
+      type: object
+      properties:
+        statement: 
+          type: object
+          properties:
+            id:
+              type: string
+            responsibleName:
+              type: string
+            siapeCode:
+              type: string
+            emissionDate:
+              type: string
+              format: date
+            removedPatrimonies:
+              type: array
+              items:
+                type: string
+            addedPatrimonies:
+              type: array
+              items:
+                type: string
 
                 
 
