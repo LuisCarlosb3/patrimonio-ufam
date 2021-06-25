@@ -230,8 +230,8 @@ paths:
             description: Patrimony not found with informed code
           "500":
             description: Server Error
-  /patrimony/update:
-    post:
+  /patrimony:
+    put:
       tags:
         - Admin Functions
         - Patrimony
@@ -403,6 +403,36 @@ paths:
         "500":
           description: Server Error
   /statement/{id}:
+    get:
+      tags: 
+        - Responsability Statement
+      description: Route used to get responsability statement by id
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: statement id
+          schema:
+            type: string
+          required: true
+          description: statement id used to get information
+      responses:
+          "200":
+            description: Responsability Statement data
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/StatementModelResponse"
+          "404":
+            description: Responsability Statement not found with informed id
+          "403":
+            description: User don't have permission to see page
+          "500":
+            description: Server Error
+
     delete:
       tags: 
         - Responsability Statement
@@ -720,6 +750,49 @@ components:
               type: array
               items:
                 type: string
+    StatementModelResponse: 
+      type: object
+      properties:
+        statement: 
+          type: object
+          properties:
+            id: 
+              type: string
+              format: uuid
+            code:
+              type: string
+            responsibleName:
+              type: string
+            siapeCode:
+              type: string
+            emissionDate: 
+              type: string
+              format: date
+            patrimonies:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  code:
+                    type: string
+                  description:
+                    type: string
+                  state:
+                    type: string
+                    enum: ['NOVO', 'BOM', 'INSERVIVEl', 'RECUPERAVEL', 'ANTIECONOMICO']
+                  entryDate:
+                    type: string
+                    format: date 
+                  lastConferenceDate:
+                    type: string
+                    format: date 
+                  value:
+                    type: number
+                    format: double
+
 
                 
 
