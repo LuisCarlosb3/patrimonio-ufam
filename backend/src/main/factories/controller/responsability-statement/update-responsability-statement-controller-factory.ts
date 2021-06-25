@@ -1,6 +1,7 @@
 import { ValidatorJsAdapter } from '@/infra/validation/validatorjs-adapter'
 import { UpdateStatementController } from '@/presentation/controllers/responsability-statement/update-statement-by-id-controller'
 import { makeLoadPatrimonyById } from '../../usecases/patrimony/load-patrimony-by-id/load-patrimony-by-id'
+import { makeLoadStatementById } from '../../usecases/responsability-statement/load-statement-by-id/load-statement-by-id'
 import { makeUpdateStatementById } from '../../usecases/responsability-statement/update-statement-by-id/update-statement-by-id'
 
 export function makeUpdateResponsabilityStatementController (): UpdateStatementController {
@@ -17,6 +18,7 @@ export function makeUpdateResponsabilityStatementController (): UpdateStatementC
   const validator = new ValidatorJsAdapter(rules)
   const updateById = makeUpdateStatementById()
   const loadPatrimonyById = makeLoadPatrimonyById()
-  const controller = new UpdateStatementController(validator, updateById, loadPatrimonyById)
+  const loadStatemendById = makeLoadStatementById()
+  const controller = new UpdateStatementController(validator, updateById, loadPatrimonyById, loadStatemendById)
   return controller
 }
