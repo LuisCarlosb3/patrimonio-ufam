@@ -221,7 +221,7 @@ describe('Statement Routes', () => {
         .send({ statement: statementPayload })
         .set('x-access-token', accessToken).expect(400)
     })
-    test.skip('ensure statement list return 400 if patrimony not registered', async () => {
+    test('ensure statement list return 400 if statement not registered', async () => {
       const accessToken = await generateUserAndToken()
       const id = await insertStatement('my_code')
       const id2 = await insertStatement('my_code2')
