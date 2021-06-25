@@ -33,7 +33,7 @@ export class UpdateStatementController implements HttpController {
         if (!patrimony) {
           return badRequest(new PatrimonyNotFound(patrimonyId))
         }
-        if (patrimony.statementCode && patrimony.statementCode !== statement.id) {
+        if (patrimony.statementCode && patrimony.statementCode !== loadedStatement.code) {
           return badRequest(new PatrimonyHasStatement(patrimony.code))
         }
       }
