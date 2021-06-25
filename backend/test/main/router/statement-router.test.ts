@@ -234,4 +234,38 @@ describe('Statement Routes', () => {
         .set('x-access-token', accessToken).expect(400)
     })
   })
+  describe('DELETE /statement/:id', () => {
+    test('ensure statement list return 204 with responsability statement data', async () => {
+      const accessToken = await generateUserAndToken()
+      const id = await insertStatement('my_code')
+      await request(server)
+        .delete(`/statement/${id}`)
+        .set('x-access-token', accessToken).expect(204)
+      const data = await knex('responsability_statement').where({ id })
+      expect(data.length).toBe(0)
+    })
+    test('ensure statement list return 400 on statement not found', async () => {
+      const accessToken = await generateUserAndToken()
+      const id = 'cab81c1e-e10c-466f-b17a-49b0dff4f89e'
+      await request(server)
+        .delete(`/statement/${id}`)
+        .set('x-access-token', accessToken).expect(400, { error: 'Responsability Statement not found' })
+    })
+    test('ensure statement list return 400 on statement has patrimonies associated', async () => {
+      const accessToken = await generateUserAndToken()
+      const id = await insertStatement('my_code')
+      await insertNewPatrimony('my_patrimony_code', id)
+      await request(server)
+        .delete(`/statement/${id}`)
+        .set('x-access-token', accessToken).expect(400, { error: 'Statement has patrimonies associated' })
+    })
+    test('ensure statement list return 400 on statement delete has no id', async () => {
+      const accessToken = await generateUserAndToken()
+      const id = await insertStatement('my_code')
+      await insertNewPatrimony('my_patrimony_code', id)
+      await request(server)
+        .delete('/statement/invalid')
+        .set('x-access-token', accessToken).expect(400, { error: 'Invalid param: id' })
+    })
+  })
 })
