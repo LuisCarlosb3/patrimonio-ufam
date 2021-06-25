@@ -6,6 +6,7 @@ import { makeCreateResponsabilityStatementController } from '../factories/contro
 import { makeListResponsabilityStatementsController } from '../factories/controller/responsability-statement/list-statements-controller-factory'
 import { makeLoadStatementByIdController } from '../factories/controller/responsability-statement/load-statement-by-id-controller-factory'
 import { makeUpdateResponsabilityStatementController } from '../factories/controller/responsability-statement/update-responsability-statement-controller-factory'
+import { makeDeleteStatementByIdController } from '../factories/controller/responsability-statement/delete-statement-by-id-controller-factory'
 
 export default (router: Router): void => {
   router.post('/statement/create',
@@ -20,4 +21,7 @@ export default (router: Router): void => {
   router.put('/statement',
     ExpressMiddlewareAdapterFactory(makeAuthMiddleware()),
     ExpressRouteAdapterFactory(makeUpdateResponsabilityStatementController()))
+  router.delete('/statement/:id',
+    ExpressMiddlewareAdapterFactory(makeAuthMiddleware()),
+    ExpressRouteAdapterFactory(makeDeleteStatementByIdController()))
 }
