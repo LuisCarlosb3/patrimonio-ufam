@@ -243,4 +243,32 @@ describe('Authentication Routes', () => {
         .send().expect(403, { error: 'Access denied' })
     })
   })
+  describe('DELETE /user/:id', () => {
+    test('Should return 203 on delete user on success', async () => {
+      const userId = await insertPayload(true)
+      const userIdTodelete = await insertPayload()
+      const accessToken = await makeAccessToken(userId, UserPermission.ADMINISTRATOR)
+      await request(server).delete(`/user/${userIdTodelete}`)
+        .set('x-access-token', accessToken).expect(204)
+      const user = await knex('users').where({ id: userIdTodelete })
+      expect(user.length).toBe(0)
+    })
+    test('Should return 403 on try delete yourself', async () => {
+      const userId = await insertPayload(true)
+      const accessToken = await makeAccessToken(userId, UserPermission.ADMINISTRATOR)
+      await request(server).delete(`/user/${userId}`)
+        .set('x-access-token', accessToken).expect(400)
+      const user = await knex('users').where({ id: userId })
+      expect(user.length).toBe(1)
+    })
+    test('Should return 403 on try delete not registered user', async () => {
+      const userId = await insertPayload(true)
+      const id = 'cab81c1e-e10c-466f-b17a-49b0dff4f89e'
+      const accessToken = await makeAccessToken(userId, UserPermission.ADMINISTRATOR)
+      await request(server).delete(`/user/${id}`)
+        .set('x-access-token', accessToken).expect(400)
+      const user = await knex('users').where({ id: userId })
+      expect(user.length).toBe(1)
+    })
+  })
 })
