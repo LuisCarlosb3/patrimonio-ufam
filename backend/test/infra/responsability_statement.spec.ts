@@ -4,6 +4,7 @@ import { PatrimonyState } from '@/domain/model/patrimony'
 import MockDate from 'mockdate'
 import knex from '@/infra/db/helper/index'
 import { DbUpdateStatementByIdModel } from '@/data/protocols/db/responsability-statement/db-update-statement-by-id'
+import { PatrimonyHasStatement } from '@/presentation/protocols/helpers/errors'
 const makeFakeInsertNewStatementModel = (): InsertNewStatementModel => ({
   responsibleName: 'any_name',
   code: 'any_code',
@@ -77,11 +78,11 @@ describe('ResponsabilityStatementRespositoy', () => {
       const id = await insertSatement('any_statement')
       const patrimonyId = await insertPatrimony(undefined, id)
       newStatement.patrimoniesIds.push(patrimonyId)
-      await sut.create(newStatement)
-      const [statement] = await knex('responsability_statement')
+      const promise = sut.create(newStatement)
+      await expect(promise).rejects.toThrow(new PatrimonyHasStatement('any_code'))
       const [patrimony] = await knex('patrimony').where({ id: patrimonyId })
       expect(patrimony).toBeTruthy()
-      expect(patrimony.statement_id).not.toEqual(statement.id)
+      expect(patrimony.statement_id).toEqual(id)
     })
   })
   describe('loadByPatrimonyId', () => {
