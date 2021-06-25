@@ -5,7 +5,7 @@ import { StatementNotFound } from '@/presentation/protocols/helpers/errors'
 import { ResponsabilityStatement } from '@/domain/model/responsability-statement'
 import { LoadStatementById } from '@/domain/usecase/responsability-statement/load-statement-by-id'
 import { GetStatementByIdController } from '@/presentation/controllers/responsability-statement/get-responsability-statement-by-id-controller'
-
+import Mockdate from 'mockdate'
 const makeHttpRequest = (): HttpRequest => ({
   params: {
     id: 'any_id'
@@ -57,6 +57,12 @@ const makeSut = (): Sut => {
 }
 
 describe('GetStatementByIdController', () => {
+  beforeAll(() => {
+    Mockdate.set(new Date())
+  })
+  afterAll(() => {
+    Mockdate.reset()
+  })
   test('Ensure GetStatementByIdController calls LoadStatementById', async () => {
     const { sut, loadStatement } = makeSut()
     const loadSpy = jest.spyOn(loadStatement, 'loadById')

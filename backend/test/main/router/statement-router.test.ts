@@ -4,6 +4,7 @@ import knex from '@/infra/db/helper/index'
 
 import { generateUserAndToken } from './util/user-payload'
 import { CreateStatementModel } from '@/domain/usecase/responsability-statement/create-responsability-statement'
+import { UpdateStatementModel } from '@/domain/usecase/responsability-statement/update-statement-by-id'
 
 async function insertNewPatrimony (code?: String, statementId?: string): Promise<string> {
   const patrimony = {
@@ -38,6 +39,14 @@ const makeStatementPayload = (patrimonyCode: string): CreateStatementModel => ({
   siapeCode: 'siape code',
   emissionDate: new Date(),
   patrimoniesCode: [patrimonyCode]
+})
+const makeStatementPayloadToUpdate = (id: string, patrimonyIdToUpdate: string, patrimonyIdToDelete: string): UpdateStatementModel => ({
+  id: id,
+  responsibleName: 'update name',
+  siapeCode: 'siape code',
+  emissionDate: new Date(),
+  removedPatrimonies: [patrimonyIdToDelete],
+  addedPatrimonies: [patrimonyIdToUpdate]
 })
 
 describe('Statement Routes', () => {
@@ -167,6 +176,62 @@ describe('Statement Routes', () => {
     test('ensure statement list return 403 if id on invalid format', async () => {
       const accessToken = await generateUserAndToken()
       await request(server).get('/statement/myid').set('x-access-token', accessToken).expect(400)
+    })
+  })
+  describe('PUT /statement', () => {
+    test('ensure statement list return 204 with responsability statement data', async () => {
+      const accessToken = await generateUserAndToken()
+      const id = await insertStatement('my_code')
+      const myPatrimony = await insertNewPatrimony('my_patrimony_code', id)
+      const otherPatrimony = await insertNewPatrimony('other_patrimony_code')
+      const statementPayload = makeStatementPayloadToUpdate(id, otherPatrimony, myPatrimony)
+      await request(server)
+        .put('/statement')
+        .send({ statement: statementPayload })
+        .set('x-access-token', accessToken).expect(204)
+      const [data] = await knex('responsability_statement')
+      const [patrimonyRemoved] = await knex('patrimony').where({ id: myPatrimony })
+      const [patrimonyAdded] = await knex('patrimony').where({ id: otherPatrimony })
+      expect(data.id).toEqual(statementPayload.id)
+      expect(data.responsible_name).toEqual(statementPayload.responsibleName)
+      expect(patrimonyRemoved.id).toBe(myPatrimony)
+      expect(patrimonyRemoved.statement_id).toBeNull()
+      expect(patrimonyAdded.id).toBe(otherPatrimony)
+      expect(patrimonyAdded.statement_id).toBe(id)
+    })
+    test('ensure statement list return 400 on invalid payload', async () => {
+      const accessToken = await generateUserAndToken()
+      const id = await insertStatement('my_code')
+      const myPatrimony = await insertNewPatrimony('my_patrimony_code', id)
+      const otherPatrimony = await insertNewPatrimony('other_patrimony_code')
+      const { siapeCode, ...statementPayload } = makeStatementPayloadToUpdate(id, otherPatrimony, myPatrimony)
+      await request(server)
+        .put('/statement')
+        .send({ statement: statementPayload })
+        .set('x-access-token', accessToken).expect(400)
+    })
+    test('ensure statement list return 400 if patrimony not registered', async () => {
+      const accessToken = await generateUserAndToken()
+      const id = await insertStatement('my_code')
+      await insertNewPatrimony('my_patrimony_code', id)
+      const otherPatrimony = await insertNewPatrimony('other_patrimony_code')
+      const statementPayload = makeStatementPayloadToUpdate(id, otherPatrimony, id)
+      await request(server)
+        .put('/statement')
+        .send({ statement: statementPayload })
+        .set('x-access-token', accessToken).expect(400)
+    })
+    test('ensure statement list return 400 if statement not registered', async () => {
+      const accessToken = await generateUserAndToken()
+      const id = await insertStatement('my_code')
+      const id2 = await insertStatement('my_code2')
+      const myPatrimony = await insertNewPatrimony('my_patrimony_code', id)
+      const otherPatrimony = await insertNewPatrimony('other_patrimony_code', id2)
+      const statementPayload = makeStatementPayloadToUpdate(id, otherPatrimony, myPatrimony)
+      await request(server)
+        .put('/statement')
+        .send({ statement: statementPayload })
+        .set('x-access-token', accessToken).expect(400)
     })
   })
 })
