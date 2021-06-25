@@ -3,6 +3,7 @@ import { DeleteStatementById } from '@/domain/usecase/responsability-statement/d
 import { DeleteStatementByIdData } from '@/data/usecases/responsability-statement/delete-statement-by-id'
 import { DbLoadPatrimonyByStatementId } from '@/data/protocols/db/patrimony/db-load-patrimony-by-statement-id'
 import { Patrimony, PatrimonyState } from '@/domain/model/patrimony'
+import { UserPermission } from '@/domain/model/user'
 const makePatrimonyList = (): Patrimony[] => {
   const data = [
     {
@@ -54,31 +55,31 @@ describe('DeleteStatementByIdData', () => {
   test('ensure deleteById calls dbDeleteById with statementId', async () => {
     const { sut, deleteById } = makeSut()
     const deleteSpy = jest.spyOn(deleteById, 'deleteById')
-    await sut.deleteById('any_id')
+    await sut.deleteById('any_id', UserPermission.INVENTORIOUS)
     expect(deleteSpy).toHaveBeenCalledWith('any_id')
   })
   test('ensure deleteById calls loadPatrimony with statementId', async () => {
     const { sut, loadPatrimony } = makeSut()
     const loadSpy = jest.spyOn(loadPatrimony, 'loadByStatementId')
-    await sut.deleteById('any_id')
+    await sut.deleteById('any_id', UserPermission.INVENTORIOUS)
     expect(loadSpy).toHaveBeenCalledWith('any_id')
   })
   test('ensure deleteById dont\'t calls dbDeleteById if loadPatrimony returns null', async () => {
     const { sut, deleteById, loadPatrimony } = makeSut()
     jest.spyOn(loadPatrimony, 'loadByStatementId').mockResolvedValueOnce(makePatrimonyList())
     const deleteSpy = jest.spyOn(deleteById, 'deleteById')
-    await sut.deleteById('any_id')
+    await sut.deleteById('any_id', UserPermission.INVENTORIOUS)
     expect(deleteSpy).not.toHaveBeenCalled()
   })
   test('ensure deleteById returns true on success', async () => {
     const { sut } = makeSut()
-    const isDeleted = await sut.deleteById('any_id')
+    const isDeleted = await sut.deleteById('any_id', UserPermission.INVENTORIOUS)
     expect(isDeleted).toBeTruthy()
   })
   test('ensure deleteById returns false on fail', async () => {
     const { sut, loadPatrimony } = makeSut()
     jest.spyOn(loadPatrimony, 'loadByStatementId').mockResolvedValueOnce(makePatrimonyList())
-    const isDeleted = await sut.deleteById('any_id')
+    const isDeleted = await sut.deleteById('any_id', UserPermission.INVENTORIOUS)
     expect(isDeleted).toBeFalsy()
   })
 })
