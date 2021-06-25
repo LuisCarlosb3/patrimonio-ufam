@@ -4,9 +4,11 @@ import { DbLoadUserByEmailAndRegistration } from '@/data/protocols/db/user/db-lo
 import { DbLoadUserById } from '@/data/protocols/db/user/db-load-user-by-id'
 import { DbUpdateUserPasswordById } from '@/data/protocols/db/user/db-update-user-password-by-id'
 import { User } from '@/domain/model/user'
+import { DeleteUserById } from '@/domain/usecase/user/delete-user-by-id'
 import knex from '../helper/index'
 
-export class UserRepository implements DbLoadAccountByRegistration, DbUpdateUserPasswordById, DbLoadUserByEmailAndRegistration, DbCreateNewUser, DbLoadUserById {
+export class UserRepository implements DbLoadAccountByRegistration, DbUpdateUserPasswordById, DbLoadUserByEmailAndRegistration,
+  DbCreateNewUser, DbLoadUserById, DeleteUserById {
   private readonly tableName = 'users'
   async loadByRegistration (registration: string): Promise<User> {
     const data = await knex<User>(this.tableName).where({ registration })
@@ -35,5 +37,9 @@ export class UserRepository implements DbLoadAccountByRegistration, DbUpdateUser
   async loadById (id: string): Promise<User> {
     const data = await knex<User>(this.tableName).where({ id })
     return data[0] ?? null
+  }
+
+  async deleteById (userId: string): Promise<void> {
+    await knex(this.tableName).where({ id: userId }).del()
   }
 }
