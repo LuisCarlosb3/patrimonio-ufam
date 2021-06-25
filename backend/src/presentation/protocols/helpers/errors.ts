@@ -45,6 +45,12 @@ export class StatementNotFound extends Error {
     this.name = 'StatementNotFound'
   }
 }
+export class StatementHasPatrimony extends Error {
+  constructor (code?: string) {
+    super('Statement has patrimonies associated')
+    this.name = 'Statement has patrimonies'
+  }
+}
 export class PatrimonyHasStatement extends Error {
   constructor (code: string) {
     const superMessage = `Patrimony ${code} already has statement`
