@@ -16,14 +16,13 @@ const Sidebar: React.FC<RouteComponentProps> = ({ location }) => {
   };
 
   return (
-    <Container isVisible={!['/login', '/notfound'].includes(location.pathname)}>
+    <Container isVisible={!['/', '/notfound'].includes(location.pathname)}>
       <Logo onClick={handleNavigate}>
         <img src={logo} alt="Oráculo" />
       </Logo>
       <Content>
         {pages.map(
           (page) =>
-            !page.isPrivate &&
             page.nav && (
               <Link
                 key={page.id}

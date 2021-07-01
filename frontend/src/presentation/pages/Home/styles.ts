@@ -1,14 +1,12 @@
-import styled, { css } from 'styled-components';
-
-interface IDropdown {
-  activeDropdown?: boolean;
-}
+import styled from 'styled-components';
 
 export const Container = styled.div`
   display: flex;
+  flex: 1;
   flex-direction: column;
 
   gap: 2.8rem;
+  padding: 3rem 4rem;
 `;
 
 export const Header = styled.div`
@@ -20,6 +18,33 @@ export const Header = styled.div`
   h1 {
     font-weight: 400;
     font-size: 3rem;
+  }
+
+  .user-data {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+
+    div {
+      display: flex;
+      align-items: center;
+
+      h4 {
+        font-size: 2.2rem;
+        margin-left: 0.8rem;
+      }
+    }
+
+    button {
+      background: none;
+      border: 0;
+      color: #946200;
+      font-weight: 600;
+      font-size: 1.8rem;
+
+      cursor: pointer;
+    }
   }
 `;
 
@@ -99,76 +124,117 @@ export const Row = styled.div`
   }
 `;
 
-export const ButtonDrop = styled.button`
-  padding: 1rem 1.8rem;
-  width: 240px;
-  border-radius: 0.8rem;
+export const Main = styled.div`
+  margin-top: 0.4rem;
+`;
 
-  background: #82e9ff;
-  cursor: auto;
+export const TableHead = styled.div`
+  background: #ffff;
+  box-shadow: 0px 4px 10px -1px rgba(186, 186, 186, 0.22);
+  text-align: left;
 
-  text-align: justify;
+  padding: 2rem 0.2rem;
+  border-radius: 1.8rem;
+  margin-bottom: 3.2rem;
+
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: space-around;
 
-  color: #000;
-  position: relative;
-  z-index: 999;
+  p {
+    color: #000;
+    font-weight: 700;
+    width: 100%;
+  }
+`;
 
-  span {
-    font-weight: 400;
-    color: #535353;
-    margin-left: 0;
+export const TableBody = styled.div`
+  background: #ffff;
+  box-shadow: 0px 4px 10px -1px rgba(186, 186, 186, 0.22);
+  text-align: left;
+
+  padding: 2rem 0.2rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+
+  border-bottom: 1px solid #d9dbe9;
+
+  &:nth-of-type(2) {
+    border-top-left-radius: 1.8rem !important;
+    border-top-right-radius: 1.8rem;
   }
 
-  svg {
+  &:last-child {
+    border: none;
+    border-bottom-left-radius: 1.8rem;
+    border-bottom-right-radius: 1.8rem;
+  }
+
+  p {
+    color: #000;
+    font-weight: 400;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  div {
     cursor: pointer;
   }
 `;
 
-const activeDrop = css`
-  visibility: visible;
-  opacity: 1;
-  transform: translateY(0%);
-  z-index: 1;
-  transition-delay: 0s, 0s, 0.3s;
-`;
-
-export const Dropdown = styled.div<IDropdown>`
+export const ModalContent = styled.div`
   background: #fff;
-  border-radius: 0.8rem;
   width: 100%;
+  max-width: 48rem;
+  padding: 3.4rem;
+  border-radius: 2rem;
+  position: relative;
+  overflow-y: auto;
+  max-height: calc(100vh - 2rem);
 
-  margin-top: 1rem;
-  position: absolute;
-  top: 74px;
-  box-shadow: 0px 4px 10px -1px rgba(210, 210, 210, 0.25);
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-  visibility: hidden;
-  z-index: -1;
-  opacity: 0;
-  transform: translateY(-2em);
-  transition: all 0.3s ease-in-out 0s, visibility 0s linear 0.3s,
-    z-index 0s linear 0.01s;
+    h1 {
+      color: #0f0f0f;
 
-  transition: 0.35s;
-  ${({ activeDropdown }) => activeDropdown && activeDrop}
-`;
+      font-weight: bold;
+      font-size: 3.4rem;
+    }
 
-export const ItemDropdown = styled.div`
-  color: #000;
-  border-bottom: 1px solid #eff0f6;
-  padding: 1.2rem 1.8rem;
+    svg {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
 
-  &:last-child {
-    border-bottom: 0px;
+      cursor: pointer;
+    }
   }
 
-  cursor: pointer;
+  .patrimonio {
+    margin-top: 2rem;
 
-  &:hover {
-    transition: 0.25s;
-    color: #5f2eea;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem 3rem;
+    flex-wrap: wrap;
+    color: #151515;
+
+    h4 {
+      font-size: 1.6rem;
+      color: #151515;
+    }
+
+    p {
+      margin-top: 0.8rem;
+      font-size: 1.4rem;
+    }
   }
 `;

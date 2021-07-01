@@ -4,9 +4,6 @@ import { Link as LinkRouter } from 'react-router-dom';
 interface Links {
   active: number;
 }
-interface IsVisible {
-  isVisible: boolean;
-}
 
 interface ShodwSide {
   isVisible: boolean;

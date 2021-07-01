@@ -10,5 +10,6 @@ export const Main = styled.div`
   background: #f7f7fc;
   width: 100%;
   display: flex;
-  padding: 3rem 4rem;
+
+  align-items: baseline;
 `;

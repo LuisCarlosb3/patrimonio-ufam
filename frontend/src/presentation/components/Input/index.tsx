@@ -7,9 +7,10 @@ interface FormData {
 }
 type InputProps = JSX.IntrinsicElements['input'] & FormData;
 
+// eslint-disable-next-line
 const Input = ({ name, type, ...rest }: InputProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { fieldName, defaultValue, registerField, error } = useField(name);
+  const { fieldName, defaultValue, registerField } = useField(name);
 
   useEffect(() => {
     registerField({
