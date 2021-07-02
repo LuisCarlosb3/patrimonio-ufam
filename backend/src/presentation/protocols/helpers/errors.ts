@@ -40,9 +40,15 @@ export class PatrimonyNotFound extends Error {
 }
 export class StatementNotFound extends Error {
   constructor (code?: string) {
-    const superMessage = code ? `Responsability Statement not found: ${code}` : 'Patrimony not found'
+    const superMessage = code ? `Responsability Statement not found: ${code}` : 'Responsability Statement not found'
     super(superMessage)
     this.name = 'StatementNotFound'
+  }
+}
+export class StatementHasPatrimony extends Error {
+  constructor (code?: string) {
+    super('Statement has patrimonies associated')
+    this.name = 'Statement has patrimonies'
   }
 }
 export class PatrimonyHasStatement extends Error {

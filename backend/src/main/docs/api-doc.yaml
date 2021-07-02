@@ -230,8 +230,8 @@ paths:
             description: Patrimony not found with informed code
           "500":
             description: Server Error
-  /patrimony/update:
-    post:
+  /patrimony:
+    put:
       tags:
         - Admin Functions
         - Patrimony
@@ -378,7 +378,6 @@ paths:
   /statement:
     put:
       tags:
-        - Admin Functions
         - Responsability Statement
       description: Route used to update Responsability Statement informations, with this functionality admin can update statement info, patrimonies relationed,
        add new itens to statement or delete existent itens
@@ -403,6 +402,61 @@ paths:
           description: User don't have permission to update statement info
         "500":
           description: Server Error
+  /statement/{id}:
+    get:
+      tags: 
+        - Responsability Statement
+      description: Route used to get responsability statement by id
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: statement id
+          schema:
+            type: string
+          required: true
+          description: statement id used to get information
+      responses:
+          "200":
+            description: Responsability Statement data
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/StatementModelResponse"
+          "404":
+            description: Responsability Statement not found with informed id
+          "403":
+            description: User don't have permission to see page
+          "500":
+            description: Server Error
+
+    delete:
+      tags: 
+        - Responsability Statement
+      description: Route used to delete Statements by id
+      parameters:
+        - in: header
+          name: x-access-token
+          schema:
+            type: string
+          required: true
+        - in: path
+          required: true
+          name: responsability statement id
+          schema:
+            type: string
+            format: uuid
+          description: responsability statement  id register
+      responses:
+          "204":
+            description: Confirmation that statement was deleted
+          "403":
+            description: Bad request, id is invalid, statement has patrimonies or statement not found
+          "500":
+            description: Server Error
 components:
   schemas:
     LoginRequest:
@@ -696,6 +750,49 @@ components:
               type: array
               items:
                 type: string
+    StatementModelResponse: 
+      type: object
+      properties:
+        statement: 
+          type: object
+          properties:
+            id: 
+              type: string
+              format: uuid
+            code:
+              type: string
+            responsibleName:
+              type: string
+            siapeCode:
+              type: string
+            emissionDate: 
+              type: string
+              format: date
+            patrimonies:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  code:
+                    type: string
+                  description:
+                    type: string
+                  state:
+                    type: string
+                    enum: ['NOVO', 'BOM', 'INSERVIVEl', 'RECUPERAVEL', 'ANTIECONOMICO']
+                  entryDate:
+                    type: string
+                    format: date 
+                  lastConferenceDate:
+                    type: string
+                    format: date 
+                  value:
+                    type: number
+                    format: double
+
 
                 
 

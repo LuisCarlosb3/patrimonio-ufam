@@ -206,4 +206,20 @@ describe('ResponsabilityStatementRespositoy', () => {
       expect(statement.responsible_name).toEqual(statementToUpdate.responsibleName)
     })
   })
+  describe('deleteById', () => {
+    test('ensure deleteById deletes statement correclty', async () => {
+      const sut = makeSut()
+      const id = await insertSatement('')
+      await sut.deleteById(id)
+      const [statement] = await knex('responsability_statement').where({ id })
+      expect(statement).toBeFalsy()
+    })
+    test('ensure deleteById throws if deletes statement fails', async () => {
+      const sut = makeSut()
+      const id = await insertSatement('')
+      await insertPatrimony('1', id)
+      const promises = sut.deleteById(id)
+      await expect(promises).rejects.toThrow()
+    })
+  })
 })

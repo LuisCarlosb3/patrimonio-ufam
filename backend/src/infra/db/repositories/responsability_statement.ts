@@ -2,17 +2,18 @@ import { DbCheckIfCodeExists } from '@/data/protocols/db/responsability-statemen
 import { DbCreateResponsabilityStatement, InsertNewStatementModel } from '@/data/protocols/db/responsability-statement/db-create-statement'
 import { DbLoadStatementItem } from '@/data/protocols/db/responsability-statement/db-load-statement-item'
 import { DbLoadResponsabilityStatementList, DbLoadResponsabilityStatementListFiltered } from '@/data/protocols/db/responsability-statement/db-load-statements-list'
+import { PatrimonyHasStatement } from '@/presentation/protocols/helpers/errors'
+import { DbLoadStatementById } from '@/data/protocols/db/responsability-statement/db-load-statement-by-id'
+import { DbUpdateStatementById, DbUpdateStatementByIdModel } from '@/data/protocols/db/responsability-statement/db-update-statement-by-id'
+import { DbDeleteStatementById } from '@/data/protocols/db/responsability-statement/db-delete-statement-by-id'
 import { ResponsabilityStatement } from '@/domain/model/responsability-statement'
 import { PatrimonyStatementItem } from '@/domain/usecase/responsability-statement/check-patrimony-statement-exists'
 import { PatrimonyRepository } from './patrimony'
 import knex from '@/infra/db/helper/index'
-import { PatrimonyHasStatement } from '@/presentation/protocols/helpers/errors'
-import { DbLoadStatementById } from '@/data/protocols/db/responsability-statement/db-load-statement-by-id'
-import { DbUpdateStatementById, DbUpdateStatementByIdModel } from '@/data/protocols/db/responsability-statement/db-update-statement-by-id'
 
 export class ResponsabilityStatementRespositoy implements DbCreateResponsabilityStatement,
    DbLoadStatementItem, DbCheckIfCodeExists, DbLoadResponsabilityStatementList, DbLoadResponsabilityStatementListFiltered,
-   DbLoadStatementById, DbUpdateStatementById {
+   DbLoadStatementById, DbUpdateStatementById, DbDeleteStatementById {
   private readonly tableName = 'responsability_statement'
   private readonly patrimonyRepository = new PatrimonyRepository()
   private readonly patrimonyTable = 'patrimony'
@@ -103,6 +104,10 @@ export class ResponsabilityStatementRespositoy implements DbCreateResponsability
       patrimonies
     }
     return payload
+  }
+
+  async deleteById (statementId: string): Promise<void> {
+    await knex(this.tableName).where({ id: statementId }).del()
   }
 
   async updateById (statement: DbUpdateStatementByIdModel): Promise<void> {
