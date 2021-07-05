@@ -128,64 +128,6 @@ export const Main = styled.div`
   margin-top: 0.4rem;
 `;
 
-export const TableHead = styled.div`
-  background: #ffff;
-  box-shadow: 0px 4px 10px -1px rgba(186, 186, 186, 0.22);
-  text-align: left;
-
-  padding: 2rem 0.2rem;
-  border-radius: 1.8rem;
-  margin-bottom: 3.2rem;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-
-  p {
-    color: #000;
-    font-weight: 700;
-    width: 100%;
-  }
-`;
-
-export const TableBody = styled.div`
-  background: #ffff;
-  box-shadow: 0px 4px 10px -1px rgba(186, 186, 186, 0.22);
-  text-align: left;
-
-  padding: 2rem 0.2rem;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-
-  border-bottom: 1px solid #d9dbe9;
-
-  &:nth-of-type(2) {
-    border-top-left-radius: 1.8rem !important;
-    border-top-right-radius: 1.8rem;
-  }
-
-  &:last-child {
-    border: none;
-    border-bottom-left-radius: 1.8rem;
-    border-bottom-right-radius: 1.8rem;
-  }
-
-  p {
-    color: #000;
-    font-weight: 400;
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  div {
-    cursor: pointer;
-  }
-`;
-
 export const ModalContent = styled.div`
   background: #fff;
   width: 100%;

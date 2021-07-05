@@ -13,7 +13,7 @@ import Users from '../../presentation/pages/Users';
 import Patrimony from '../../presentation/pages/Patrimony';
 
 const NotFoundComponent = () => {
-  return <div>URL Not Found</div>;
+  return <div>Página não encontrada</div>;
 };
 
 const Routes: React.FC = () => (
