@@ -1,5 +1,12 @@
 import styled, { css } from 'styled-components';
 import { Link as LinkRouter } from 'react-router-dom';
+import { animated } from 'react-spring';
+
+interface NavType {
+  // eslint-disable-next-line
+  style?: any;
+  height: string;
+}
 
 interface Links {
   active: number;
@@ -65,6 +72,17 @@ const activeSide = css`
 export const Link = styled(LinkRouter)<Links>`
   color: ${({ active }) => (active ? '#000' : '#A0A3BD')};
   font-weight: ${({ active }) => (active ? 500 : 400)};
+  position: relative;
+  /* ${({ active }) => active && activeSide}; */
+`;
 
-  ${({ active }) => active && activeSide};
+export const NavZin = styled(animated.div)<NavType>`
+  content: '';
+  width: 4px;
+  height: 0px;
+  background: #5f2eea;
+
+  position: absolute;
+  right: -2px;
+  top: -4px;
 `;

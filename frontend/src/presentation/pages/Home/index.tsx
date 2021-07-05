@@ -8,8 +8,6 @@ import {
   FormFilter,
   Row,
   Main,
-  TableHead,
-  TableBody,
   ModalContent,
 } from './styles';
 import { ReactComponent as ProfileIcon } from '../../../assets/Profile.svg';
@@ -17,13 +15,76 @@ import { ReactComponent as Expand } from '../../../assets/expand.svg';
 import { ReactComponent as Close } from '../../../assets/close.svg';
 import { ReactComponent as Separator } from '../../../assets/separator.svg';
 import Modal from '../../components/Modal';
+import Table, { ItemTable } from '../../components/Table';
 
 const dropItems = ['Bom', 'Ruim', 'Médio', 'Todos'];
 
 const Home: React.FC = () => {
   const [selectState, setSelectState] = useState('');
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const [openModalCreate, setOpenModalCreate] = useState(false);
+
+  const tableHead: ItemTable[] = [
+    {
+      id: 0,
+      title: 'Patrimonio',
+    },
+    {
+      id: 1,
+      title: 'Descrição',
+    },
+    {
+      id: 2,
+      title: 'Preço',
+    },
+    {
+      id: 3,
+      title: 'Data Entrada',
+    },
+    {
+      id: 4,
+      title: 'Última Verificação',
+    },
+  ];
+
+  const bodyItems = [
+    {
+      id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      code: '1423',
+      description:
+        'Conjunto Escolar composto de 3 mesas, 10 cadeiras e 2 lousas',
+      state: 'NOVO',
+      entryDate: '2021-07-05',
+      lastConferenceDate: '2021-07-05',
+      value: 40,
+      patrimonyItens: [
+        {
+          id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          name: 'Item 1',
+          localization: 'Bloco D',
+          observation: '',
+        },
+      ],
+    },
+    {
+      id: '3fa85f64-5717-4562-b3fc-2c963f66afa2',
+      code: '16543',
+      description:
+        'Conjunto Escolar composto de 20 mesas, 40 cadeiras e 20 lousas',
+      state: 'NOVO',
+      entryDate: '2021-07-05',
+      lastConferenceDate: '2021-07-05',
+      value: 140,
+      patrimonyItens: [
+        {
+          id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          name: 'Item 1',
+          localization: 'Bloco D',
+          observation: '',
+        },
+      ],
+    },
+  ];
 
   return (
     <Container>
@@ -33,7 +94,7 @@ const Home: React.FC = () => {
         <div className="user-data">
           <div>
             <ProfileIcon />
-            <h4>Junior Albuquerque</h4>
+            <h4>{user.name.toLocaleUpperCase()}</h4>
           </div>
 
           <button type="button" onClick={signOut}>
@@ -79,31 +140,21 @@ const Home: React.FC = () => {
       </CardFilter>
 
       <Main>
-        <TableHead>
-          <p style={{ maxWidth: '40px' }}>Patrimonio</p>
-          <p style={{ maxWidth: '400px' }}>Descrição</p>
-          <p style={{ maxWidth: '140px' }}>Preço</p>
-          <p style={{ maxWidth: '140px' }}>Data Entrada</p>
-          <p style={{ maxWidth: '180px' }}>Última Verificação</p>
-          <div
-            style={{ color: 'transparent', maxWidth: '40px', marginRight: 20 }}
-          >
-            Actions
-          </div>
-        </TableHead>
+        <Table headItems={tableHead} hasActions>
+          {bodyItems.map((item) => (
+            <tr key={item.id}>
+              <td>{item.code}</td>
+              <td className="description">{item.description}</td>
+              <td>{item.value}</td>
+              <td>{item.entryDate}</td>
+              <td>{item.lastConferenceDate}</td>
 
-        <TableBody className="table-body">
-          <p style={{ maxWidth: '40px' }}>12</p>
-          <p style={{ maxWidth: '400px' }}>
-            Conjunto Escolar composto de 2 mesas, 3 cadeiras
-          </p>
-          <p style={{ maxWidth: '140px' }}>R$ 450,00</p>
-          <p style={{ maxWidth: '140px' }}>05/05/2021</p>
-          <p style={{ maxWidth: '180px' }}>05/05/2021</p>
-          <div style={{ maxWidth: '40px', marginRight: 20 }}>
-            <Expand onClick={() => setOpenModalCreate(true)} />
-          </div>
-        </TableBody>
+              <td className="actions">
+                <Expand onClick={() => setOpenModalCreate(true)} />
+              </td>
+            </tr>
+          ))}
+        </Table>
       </Main>
 
       <Modal open={openModalCreate} setOpen={setOpenModalCreate}>
