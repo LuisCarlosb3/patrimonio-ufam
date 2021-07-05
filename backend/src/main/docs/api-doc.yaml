@@ -123,6 +123,36 @@ paths:
           description: User don't have administrator permission to create new user
         "500":
           description: Server Error
+  /user/{id}:
+    delete:
+        tags:
+          - Admin Functions
+        description: Route used by administrator to delete users
+        parameters:
+          - in: header
+            name: x-access-token
+            schema:
+              type: string
+            required: true
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: User id that will be deleted
+        requestBody:
+          required: true
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/CreateNewUserRequest"
+        responses:
+          "204":
+            description: User deleted with success
+          "403":
+            description: User don't have administrator permission to delete user or user not found
+          "500":
+            description: Server Error
   /patrimony/create:
     post:
       tags:
