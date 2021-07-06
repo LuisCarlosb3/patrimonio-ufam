@@ -6,8 +6,8 @@
   "scripts": {
     "prebuild": "cd backend && npm install",
     "start": "node dist/src/main/server.js",
-    "build": "cd backend && npx rimraf dist && npx tsc -p tsconfig-build.json",
-    "knex:migrate:latest": "cd backend && npx knex --knexfile backend/src/main/config/knexfile.ts migrate:latest",
-    "knex:seed:up": "cd backend && npx knex --knexfile backend/src/main/config/knexfile.ts seed:run"
+    "build": "cd backend && npx rimraf dist && tsc -p tsconfig-build.json",
+    "knex:migrate:latest": "cd backend && npx knex --knexfile src/main/config/knexfile.ts migrate:latest",
+    "knex:seed:up": "cd backend && npx knex --knexfile src/main/config/knexfile.ts seed:run"
   }
 }
