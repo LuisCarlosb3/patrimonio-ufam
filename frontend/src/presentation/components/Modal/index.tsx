@@ -10,7 +10,7 @@ export interface IModal {
 const Modal: React.FC<IModal> = ({ children, open, setOpen }) => {
   return (
     <Container open={open}>
-      <Overlay onClick={() => setOpen(!open)} />
+      <Overlay onClick={() => setOpen(false)} />
       <Content>{children}</Content>
     </Container>
   );

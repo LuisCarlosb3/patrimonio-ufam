@@ -1,27 +1,18 @@
 import React, { useState } from 'react';
 import Dropdown from '../../components/Dropdown';
-import { useAuth } from '../../../data/hooks/auth';
-import {
-  Container,
-  Header,
-  CardFilter,
-  FormFilter,
-  Row,
-  Main,
-  ModalContent,
-} from './styles';
-import { ReactComponent as ProfileIcon } from '../../../assets/Profile.svg';
+import { CardFilter, FormFilter, Row, Main, ModalContent } from './styles';
 import { ReactComponent as Expand } from '../../../assets/expand.svg';
 import { ReactComponent as Close } from '../../../assets/close.svg';
 import { ReactComponent as Separator } from '../../../assets/separator.svg';
 import Modal from '../../components/Modal';
 import Table, { ItemTable } from '../../components/Table';
+import Header from '../../components/Header';
+import { Container } from '../../styles/Layout/styles';
 
 const dropItems = ['Bom', 'Ruim', 'Médio', 'Todos'];
 
 const Home: React.FC = () => {
   const [selectState, setSelectState] = useState('');
-  const { signOut, user } = useAuth();
   const [openModalCreate, setOpenModalCreate] = useState(false);
 
   const tableHead: ItemTable[] = [
@@ -88,20 +79,7 @@ const Home: React.FC = () => {
 
   return (
     <Container>
-      <Header>
-        <h1>Inventário 2021</h1>
-
-        <div className="user-data">
-          <div>
-            <ProfileIcon />
-            <h4>{user.name.toLocaleUpperCase()}</h4>
-          </div>
-
-          <button type="button" onClick={signOut}>
-            Desconectar
-          </button>
-        </div>
-      </Header>
+      <Header title="Inventário 2021" />
 
       <CardFilter>
         <h2>Relação de inventário físico do ICET</h2>

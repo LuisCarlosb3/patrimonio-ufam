@@ -13,3 +13,12 @@ export const Main = styled.div`
 
   align-items: baseline;
 `;
+
+export const Container = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  gap: 2.8rem;
+  padding: 3rem 4rem;
+`;
