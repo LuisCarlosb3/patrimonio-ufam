@@ -4,7 +4,7 @@
   "description": "API Rest para o gerenciamento de patrimônio do ICET",
   "main": "dist/main/server.js",
   "scripts": {
-    "start": "node dist/src/main/server.js",
+    "start": "npm run build && node dist/src/main/server.js",
     "build": "rimraf dist && tsc -p tsconfig-build.json",
     "test": "jest --passWithNoTests --silent --noStackTrace --detectOpenHandles --runInBand --no-cache",
     "test:verbose": "jest --passWithNoTests --runInBand",
