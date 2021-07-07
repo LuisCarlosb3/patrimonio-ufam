@@ -26,7 +26,7 @@ export const pages: IPage[] = [
     icon: 'report',
     path: '/report',
     name: 'Relatórios',
-    nav: true,
+    nav: false,
   },
   {
     id: 3,
