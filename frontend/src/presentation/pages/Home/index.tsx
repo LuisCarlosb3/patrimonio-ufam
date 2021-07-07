@@ -14,14 +14,20 @@ import {
   RegisterPatrimony,
 } from '../../../data/hooks/contexts/patrimony/types';
 import { formatCurrency, formatDate } from '../../../data/utils/formats';
+import { filterData } from '../../../data/utils/filter';
+import TableFooter from '../../components/TableFooter';
+import { orderDataByDate } from '../../../data/utils/oderByDate';
 
 const Home: React.FC = () => {
   // const [selectState, setSelectState] = useState('');
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [dataList, setDataList] = useState<RegisterPatrimony[]>([]);
   const [search, setSearch] = useState('');
-
-  const { patrimonyList, getPatrimonyList } = usePatrimony();
+  const {
+    patrimonyList,
+    getPatrimonyList,
+    getPatrimonyListByPage,
+  } = usePatrimony();
 
   const tableHead: ItemTable[] = [
     {
@@ -53,6 +59,11 @@ const Home: React.FC = () => {
   useEffect(() => {
     setDataList(patrimonyList);
   }, [patrimonyList]);
+
+  const orderData = orderDataByDate(
+    filterData(dataList, 'code', search),
+    'lastConferenceDate',
+  );
 
   return (
     <Container>
@@ -100,26 +111,42 @@ const Home: React.FC = () => {
       </CardFilter>
 
       <Main>
-        {dataList && dataList.length > 0 && (
+        {dataList?.length > 0 ? (
           <Table headItems={tableHead} hasActions>
-            {dataList
-              .filter((li) =>
-                li.code.toLowerCase().includes(search.toLowerCase()),
-              )
-              .map((item) => (
-                <tr key={item.id}>
-                  <td>{item.code}</td>
-                  <td className="description">{item.description}</td>
-                  <td>{formatCurrency(item.value)}</td>
-                  <td>{formatDate(item.entryDate)}</td>
-                  <td>{formatDate(item.lastConferenceDate)}</td>
-                  <td className="actions">
-                    <Expand onClick={() => setOpenModalCreate(true)} />
-                  </td>
-                </tr>
-              ))}
+            {orderData.map((item: RegisterPatrimony) => (
+              <tr key={item.id}>
+                <td>{item.code}</td>
+                <td className="description">{item.description}</td>
+                <td>{formatCurrency(item.value)}</td>
+                <td>{formatDate(item.entryDate)}</td>
+                <td>{formatDate(item.lastConferenceDate)}</td>
+                <td className="actions">
+                  <Expand onClick={() => setOpenModalCreate(true)} />
+                </td>
+              </tr>
+            ))}
+            {orderData.length === 0 && (
+              <tr>
+                <td colSpan={6} style={{ textAlign: 'center' }}>
+                  Nenhum item encontrado...
+                </td>
+              </tr>
+            )}
+          </Table>
+        ) : (
+          <Table headItems={tableHead} hasActions>
+            <tr>
+              <td style={{ textAlign: 'center' }} colSpan={6}>
+                Nenhum patrimônio encontrado...
+              </td>
+            </tr>
           </Table>
         )}
+
+        <TableFooter
+          data={{ pageNumber: orderData.length }}
+          onPageChange={({ page }) => getPatrimonyListByPage(page)}
+        />
       </Main>
 
       <Modal open={openModalCreate} setOpen={setOpenModalCreate}>
