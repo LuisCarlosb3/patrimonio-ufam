@@ -22,9 +22,14 @@ export const Container = styled.div`
 
     .actions {
       text-align: center;
+      max-width: 10rem;
 
       svg {
         cursor: pointer;
+
+        & + svg {
+          margin-left: 1.8rem;
+        }
       }
     }
 

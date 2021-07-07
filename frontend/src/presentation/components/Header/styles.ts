@@ -9,6 +9,7 @@ export const Container = styled.div`
   h1 {
     font-weight: 400;
     font-size: 3rem;
+    color: #000;
   }
 
   .info-header {
