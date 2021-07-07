@@ -1,15 +1,6 @@
 import styled from 'styled-components';
 import Input from '../../components/Input';
 
-export const Container = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-
-  gap: 2.8rem;
-  padding: 3rem 4rem;
-`;
-
 export const Header = styled.div`
   display: flex;
   flex: 1;
@@ -186,6 +177,7 @@ export const SearchInput = styled.div`
 
   display: flex;
   align-items: center;
+  position: relative;
 
   .search {
     width: 6.4rem;

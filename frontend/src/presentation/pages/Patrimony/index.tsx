@@ -3,8 +3,8 @@ import { Form } from '@unform/web';
 import { patrimonyStatusEnum } from '../../../data/hooks/contexts/patrimony/types';
 import { usePatrimony } from '../../../data/hooks/contexts/patrimony';
 import Dropdown from '../../components/Dropdown';
+import { Container } from '../../styles/Layout/styles';
 import {
-  Container,
   ModalContent,
   FormGroup,
   ItemInput,
@@ -20,7 +20,12 @@ import { ReactComponent as Search } from '../../../assets/search.svg';
 import Modal from '../../components/Modal';
 import Header from '../../components/Header';
 import Table, { ItemTable } from '../../components/Table';
-import { formatCurrency, formatDate } from '../../../data/utils/formats';
+import {
+  formatCurrency,
+  formatDate,
+  moneyMask,
+} from '../../../data/utils/formats';
+import TableFooter from '../../components/TableFooter';
 
 interface InserDataItem {
   code: string;
@@ -58,13 +63,19 @@ const Patrimony: React.FC = () => {
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [selectState, setSelectState] = useState('');
   const [valueCode, setValueCode] = useState('');
+  const [valueCurrency, setValueCurrency] = useState(moneyMask('0'));
   const [searchInput, setSearchInput] = useState('');
+  const [results, setResults] = useState({
+    pageNumber: 0,
+  });
+
   const {
     registerPatrimony,
     patrimonyList,
     getPatrimonyList,
     getPatrimonyByCode,
     deletePatrimony,
+    getPatrimonyListByPage,
   } = usePatrimony();
 
   const handleOpenModal = () => {
@@ -77,6 +88,13 @@ const Patrimony: React.FC = () => {
 
   const handleCreateItem = useCallback(
     async (data: InserDataItem, { reset }) => {
+      function getMoney(str: string): string {
+        const currency = str.replace('R$', '');
+        const value = parseFloat(currency.replace(',', '.'));
+
+        return value.toString();
+      }
+
       const newData = {
         code: data.code,
         description: data.description,
@@ -86,7 +104,7 @@ const Patrimony: React.FC = () => {
             : selectState.toUpperCase(),
         entryDate: data.entryDate,
         lastConferenceDate: data.lastConferenceData,
-        value: data.value,
+        value: getMoney(data.value),
         patrimonyItens: [
           {
             name: data.name,
@@ -108,9 +126,25 @@ const Patrimony: React.FC = () => {
     deletePatrimony(id);
   };
 
+  const fetchData = useCallback(() => {
+    if (patrimonyList) {
+      setResults({
+        pageNumber: patrimonyList.length,
+      });
+    }
+  }, [patrimonyList]);
+
   useEffect(() => {
     getPatrimonyList();
   }, [getPatrimonyList]);
+
+  useEffect(() => {
+    setResults({ pageNumber: 0 });
+  }, [patrimonyList]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   return (
     <Container>
@@ -159,6 +193,11 @@ const Patrimony: React.FC = () => {
         </Table>
       )}
 
+      <TableFooter
+        data={results}
+        onPageChange={({ page }) => getPatrimonyListByPage(page)}
+      />
+
       <Modal open={openModalCreate} setOpen={setOpenModalCreate}>
         <ModalContent>
           <div className="header">
@@ -179,7 +218,13 @@ const Patrimony: React.FC = () => {
               </ItemInput>
               <ItemInput>
                 <Title>Valor</Title>
-                <InputForm name="value" type="text" alt="Valor" />
+                <InputForm
+                  name="value"
+                  type="text"
+                  alt="Valor"
+                  value={valueCurrency}
+                  onChange={(e) => setValueCurrency(moneyMask(e.target.value))}
+                />
               </ItemInput>
               <ItemInput>
                 <Title>Entrada</Title>

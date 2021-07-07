@@ -28,6 +28,22 @@ const Patrimony: React.FC = ({ children }) => {
     }
   }, []);
 
+  const getPatrimonyListByPage = useCallback(async (page: number) => {
+    const httpClient = new AxiosHttpClient();
+
+    try {
+      const response = await httpClient.request({
+        url: `patrimony-list/${page}`,
+        method: 'get',
+      });
+
+      setPatriomonyList(response.body.patrimonyList);
+      return Promise.resolve(response);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }, []);
+
   const getPatrimonyByCode = useCallback(async (code: string) => {
     const httpClient = new AxiosHttpClient();
 
@@ -55,7 +71,7 @@ const Patrimony: React.FC = ({ children }) => {
       const httpClient = new AxiosHttpClient();
 
       try {
-        const { statusCode } = await httpClient.request({
+        const { statusCode, body } = await httpClient.request({
           url: 'patrimony/create',
           method: 'post',
           body: data,
@@ -69,6 +85,13 @@ const Patrimony: React.FC = ({ children }) => {
           });
 
           getPatrimonyList();
+        }
+        if (statusCode === 400) {
+          addToast({
+            title: 'Erro',
+            type: 'error',
+            message: body.error,
+          });
         }
       } catch (error) {
         addToast({
@@ -135,6 +158,7 @@ const Patrimony: React.FC = ({ children }) => {
         deletePatrimony,
         getStatementList,
         statementList,
+        getPatrimonyListByPage,
       }}
     >
       {children}

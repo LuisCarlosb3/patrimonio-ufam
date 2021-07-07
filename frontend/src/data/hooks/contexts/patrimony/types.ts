@@ -52,6 +52,7 @@ export interface PatrimonyContext {
   deletePatrimony: (id: string) => Promise<void>;
   getStatementList: () => Promise<HttpResponse>;
   statementList: StatementList[];
+  getPatrimonyListByPage: (page: number) => Promise<HttpResponse>;
 }
 
 export const patrimonyStatusEnum = [
