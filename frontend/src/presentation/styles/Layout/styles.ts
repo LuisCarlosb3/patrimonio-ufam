@@ -10,6 +10,7 @@ export const Main = styled.div`
   background: #f7f7fc;
   width: 100%;
   display: flex;
+  overflow: auto;
 
   align-items: baseline;
 `;
