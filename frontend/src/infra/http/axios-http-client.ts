@@ -30,7 +30,7 @@ enum HttpStatusCode {
 const baseUrl = 'http://localhost:3000/';
 
 // eslint-disable-next-line
-type HttpResponse<T = any> = {
+export type HttpResponse<T = any> = {
   statusCode: HttpStatusCode;
   body?: T;
 };
@@ -39,14 +39,29 @@ export class AxiosHttpClient implements HttpClient {
   // eslint-disable-next-line class-methods-use-this
   async request(data: HttpRequest): Promise<HttpResponse> {
     let axiosResponse: AxiosResponse;
+    const user = localStorage.getItem('@Patrimonio:user');
+    let dataUser = { name: '', token: '' };
+
+    if (user) {
+      dataUser = JSON.parse(user);
+    }
 
     try {
-      axiosResponse = await axios.request({
-        url: baseUrl + data.url,
-        method: data.method,
-        data: data.body,
-        headers: data.headers,
-      });
+      if (data.url !== 'login') {
+        axiosResponse = await axios.request({
+          url: baseUrl + data.url,
+          method: data.method,
+          data: data.body,
+          headers: { 'x-access-token': dataUser?.token },
+        });
+      } else {
+        axiosResponse = await axios.request({
+          url: baseUrl + data.url,
+          method: data.method,
+          data: data.body,
+          headers: data.headers,
+        });
+      }
     } catch (error) {
       axiosResponse = error.response;
 
