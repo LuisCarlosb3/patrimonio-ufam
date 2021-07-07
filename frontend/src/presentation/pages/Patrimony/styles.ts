@@ -106,17 +106,18 @@ export const FormGroup = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  max-width: 65rem;
+  gap: 10px;
+  max-width: 70rem;
 `;
 
 export const ItemInput = styled.div`
-  width: 70rem;
+  width: 100%;
 `;
 
 export const InputForm = styled(Input)`
   z-index: 1;
-  width: 90%;
-  height: 4rem;
+  width: 100%;
+  height: 4.6rem;
   background: #eff0f6;
   color: #14142b;
   border-radius: 1rem;
@@ -177,5 +178,48 @@ export const Content = styled.div`
     letter-spacing: 0.75px;
     color: #f7f7fc;
     padding: 1.5rem;
+  }
+`;
+
+export const SearchInput = styled.div`
+  margin: 2rem auto;
+
+  display: flex;
+  align-items: center;
+
+  .search {
+    width: 6.4rem;
+    height: 6.4rem;
+    background: #2a00a2;
+    border-radius: 20px 0px 0px 20px;
+
+    position: absolute;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    transition: filter 0.25s ease-in;
+
+    &:hover {
+      filter: brightness(80%);
+    }
+  }
+
+  input {
+    width: 34rem;
+    height: 6rem;
+
+    background: #fcfcfc;
+    border: 0.125rem solid #ccc;
+    border-radius: 16px;
+
+    padding: 1rem 2rem 1rem 6.8rem;
+
+    :focus-visible {
+      border: 0.15rem solid #2a00a2;
+      background: #fcfcfc;
+    }
   }
 `;

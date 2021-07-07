@@ -1,57 +1,163 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Form } from '@unform/web';
+import { patrimonyStatusEnum } from '../../../data/hooks/contexts/patrimony/types';
+import { usePatrimony } from '../../../data/hooks/contexts/patrimony';
+import Dropdown from '../../components/Dropdown';
 import {
   Container,
   ModalContent,
-  Header,
   FormGroup,
   ItemInput,
   InputForm,
   Title,
   Content,
+  SearchInput,
 } from './styles';
-import { ReactComponent as ProfileIcon } from '../../../assets/Profile.svg';
 import { ReactComponent as Close } from '../../../assets/close.svg';
+import { ReactComponent as Delete } from '../../../assets/delete.svg';
+import { ReactComponent as Edit } from '../../../assets/edit.svg';
+import { ReactComponent as Search } from '../../../assets/search.svg';
 import Modal from '../../components/Modal';
+import Header from '../../components/Header';
+import Table, { ItemTable } from '../../components/Table';
+import { formatCurrency, formatDate } from '../../../data/utils/formats';
 
-interface PatrimonyItens {
-  name: string;
-  localization: string;
-  observation: string;
-}
-
-interface RegisterPatrimony {
+interface InserDataItem {
   code: string;
   description: string;
-  state: string;
   entryDate: string;
   lastConferenceData: string;
+  localization: string;
+  name: string;
+  observation: string;
+  state: string;
+  term: string;
   value: string;
-  patrimonyItens: Array<PatrimonyItens>;
 }
 
+const tableHead: ItemTable[] = [
+  {
+    id: 0,
+    title: 'Código',
+  },
+  {
+    id: 1,
+    title: 'Descrição',
+  },
+  {
+    id: 2,
+    title: 'Preço',
+  },
+  {
+    id: 4,
+    title: 'Última Verificação',
+  },
+];
+
 const Patrimony: React.FC = () => {
-  const [openModalCreate, setOpenModalCreate] = useState(true);
+  const [openModalCreate, setOpenModalCreate] = useState(false);
+  const [selectState, setSelectState] = useState('');
+  const [valueCode, setValueCode] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const {
+    registerPatrimony,
+    patrimonyList,
+    getPatrimonyList,
+    getPatrimonyByCode,
+    deletePatrimony,
+  } = usePatrimony();
+
+  const handleOpenModal = () => {
+    setOpenModalCreate(true);
+  };
+
+  const handleSearch = () => {
+    getPatrimonyByCode(searchInput);
+  };
+
+  const handleCreateItem = useCallback(
+    async (data: InserDataItem, { reset }) => {
+      const newData = {
+        code: data.code,
+        description: data.description,
+        state:
+          selectState.toUpperCase() === 'INSERVIVEL'
+            ? 'INSERVIVEl'
+            : selectState.toUpperCase(),
+        entryDate: data.entryDate,
+        lastConferenceDate: data.lastConferenceData,
+        value: data.value,
+        patrimonyItens: [
+          {
+            name: data.name,
+            localization: data.localization,
+            observation: data.observation,
+          },
+        ],
+      };
+
+      registerPatrimony(newData);
+      setOpenModalCreate(false);
+      setSelectState('');
+      reset();
+    },
+    [selectState, registerPatrimony],
+  );
+
+  const handleDeletPatrimony = (id: string) => {
+    deletePatrimony(id);
+  };
+
+  useEffect(() => {
+    getPatrimonyList();
+  }, [getPatrimonyList]);
+
   return (
     <Container>
-      <Header>
-        <h1>Patrimônio</h1>
-        <div className="user-data">
-          <div>
-            <ProfileIcon />
-            <h4>Junior Albuquerque</h4>
-          </div>
+      <Header title="Patrimônio" action={handleOpenModal} />
 
-          <button
-            type="button"
-            onClick={() => {
-              console.log('hello');
-            }}
-          >
-            Desconectar
-          </button>
+      <SearchInput>
+        {/* eslint-disable-next-line */}
+        <div className="search" onClick={handleSearch}>
+          <Search />
         </div>
-      </Header>
+        <input
+          type="search"
+          value={searchInput}
+          placeholder="Buscar por código"
+          onChange={(e) => {
+            setSearchInput(e.target.value);
+            if (e.target.value === '') {
+              getPatrimonyList();
+            }
+          }}
+        />
+      </SearchInput>
+
+      {patrimonyList && patrimonyList.length > 0 ? (
+        <Table headItems={tableHead} hasActions>
+          {patrimonyList.map((item) => (
+            <tr key={item.id}>
+              <td>{item.code}</td>
+              <td className="description">{item.description}</td>
+              <td>{formatCurrency(item.value)}</td>
+              <td>{formatDate(item.lastConferenceDate)}</td>
+              <td className="actions">
+                <Delete onClick={() => handleDeletPatrimony(item.id || '')} />
+                <Edit onClick={() => setOpenModalCreate(true)} />
+              </td>
+            </tr>
+          ))}
+        </Table>
+      ) : (
+        <Table headItems={tableHead} hasActions>
+          <tr>
+            <td style={{ textAlign: 'center' }} colSpan={6}>
+              Nenhum patrimônio encontrado...
+            </td>
+          </tr>
+        </Table>
+      )}
 
       <Modal open={openModalCreate} setOpen={setOpenModalCreate}>
         <ModalContent>
@@ -60,62 +166,105 @@ const Patrimony: React.FC = () => {
             <Close onClick={() => setOpenModalCreate(!openModalCreate)} />
           </div>
 
-          <Form onSubmit={() => console.log('oia eu aqui!')}>
-            {/* Primeira aparte  */}
+          <Form onSubmit={handleCreateItem}>
             <FormGroup>
               <ItemInput>
                 <Title>Código</Title>
-                <InputForm name="Código" type="text" alt="Código" />
+                <InputForm
+                  name="code"
+                  type="text"
+                  alt="Código"
+                  onChange={(e) => setValueCode(e.target.value)}
+                />
               </ItemInput>
               <ItemInput>
                 <Title>Valor</Title>
-                <InputForm name="Valor" type="text" alt="Valor" />
+                <InputForm name="value" type="text" alt="Valor" />
               </ItemInput>
               <ItemInput>
                 <Title>Entrada</Title>
-                <InputForm name="Entrada" type="date" alt="Entrada" />
+                <InputForm
+                  required
+                  name="entryDate"
+                  type="date"
+                  alt="Entrada"
+                />
               </ItemInput>
             </FormGroup>
 
             <FormGroup>
               <ItemInput>
                 <Title>Conferência</Title>
-                <InputForm name="Conferência" type="date" alt="Conferência" />
+                <InputForm
+                  required
+                  name="lastConferenceData"
+                  type="date"
+                  alt="Conferência"
+                />
               </ItemInput>
               <ItemInput>
                 <Title>Termo</Title>
-                <InputForm name="Termo" type="text" alt="Termo" />
+                <InputForm
+                  disabled
+                  value={valueCode}
+                  name="term"
+                  readOnly
+                  type="text"
+                  alt="Termo"
+                />
               </ItemInput>
               <ItemInput>
                 <Title>Estado</Title>
-                <InputForm name="Estado" type="text" alt="Estado" />
+                <Dropdown
+                  show={false}
+                  value={selectState}
+                  items={patrimonyStatusEnum}
+                  background="#eff0f6"
+                  placeholder="Selecione"
+                  onChange={(value) => setSelectState(value)}
+                />
               </ItemInput>
             </FormGroup>
 
             <ItemInput>
-              <Title>Observação</Title>
-              <InputForm name="observação" type="text" alt="observação" />
+              <Title>Descrição</Title>
+              <InputForm
+                required
+                name="description"
+                type="text"
+                alt="observação"
+              />
             </ItemInput>
 
             <ItemInput>
               <Title>Nome do Item</Title>
-              <InputForm name="Nome_do_Item" type="text" alt="Nome_do_Item" />
+              <InputForm required name="name" type="text" alt="Nome_do_Item" />
             </ItemInput>
 
             <ItemInput>
               <Title>Localização</Title>
-              <InputForm name="localização" type="text" alt="Localização" />
+              <InputForm
+                required
+                name="localization"
+                type="text"
+                alt="Localização"
+              />
             </ItemInput>
             <ItemInput>
               <Title>Observação</Title>
-              <InputForm name="observação2" type="text" alt="observação2" />
+              <InputForm
+                required
+                name="observation"
+                type="text"
+                alt="observação2"
+              />
             </ItemInput>
+            <Content>
+              <button className="button" type="submit">
+                Salvar
+              </button>
+            </Content>
           </Form>
-          <Content>
-            <button className="button" type="button">
-              Salvar
-            </button>
-          </Content>
         </ModalContent>
       </Modal>
     </Container>
