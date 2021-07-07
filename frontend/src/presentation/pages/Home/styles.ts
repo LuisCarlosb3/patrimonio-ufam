@@ -85,6 +85,7 @@ export const FormFilter = styled.form`
 `;
 
 export const Row = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -95,7 +96,7 @@ export const Row = styled.div`
 
   input {
     padding: 1rem 1.8rem;
-    width: 240px;
+    width: 20%;
     border-radius: 0.8rem;
     background: #82e9ff;
 
