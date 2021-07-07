@@ -7,10 +7,19 @@ interface IDropdown {
   show?: boolean;
   items: string[];
   value: string;
+  background?: string;
+  placeholder?: string;
   onChange(state: string): void;
 }
 
-const Dropdown: React.FC<IDropdown> = ({ show, items, value, onChange }) => {
+const Dropdown: React.FC<IDropdown> = ({
+  show,
+  items,
+  value,
+  onChange,
+  placeholder,
+  background,
+}) => {
   const [showDrop, setShowDrop] = useState(show || false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -35,13 +44,19 @@ const Dropdown: React.FC<IDropdown> = ({ show, items, value, onChange }) => {
   }, [ref]);
 
   return (
-    <div ref={ref}>
+    <div ref={ref} style={{ position: 'relative' }}>
       <ButtonDrop
         onClick={() => setShowDrop(!showDrop)}
         type="button"
         value={value}
+        background={background}
       >
-        {value !== '' ? value : <span>Selecione uma opção</span>}
+        {value !== '' ? (
+          value
+        ) : (
+          // eslint-disable-next-line
+          <span>{placeholder ? placeholder : 'Selecione uma opção'}</span>
+        )}
         <Icon icon="arrowDown" color="#000" stroke={2.4} />
       </ButtonDrop>
 

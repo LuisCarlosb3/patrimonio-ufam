@@ -4,6 +4,10 @@ interface IDropdown {
   activeDropdown?: boolean;
 }
 
+interface IButton {
+  background?: string;
+}
+
 const activeDrop = css`
   visibility: visible;
   opacity: 1;
@@ -11,12 +15,11 @@ const activeDrop = css`
   z-index: 1;
 `;
 
-export const ButtonDrop = styled.button`
-  padding: 1rem 1.8rem;
-  width: 24.8rem;
+export const ButtonDrop = styled.button<IButton>`
+  padding: 1.05rem 1.8rem;
+  width: 100%;
   border-radius: 0.8rem;
-
-  background: #82e9ff;
+  background: ${({ background }) => (!background ? '#82e9ff' : background)};
   cursor: auto;
 
   text-align: justify;
@@ -35,6 +38,7 @@ export const ButtonDrop = styled.button`
   }
 
   svg {
+    margin-left: 1rem;
     cursor: pointer;
   }
 `;
@@ -44,10 +48,10 @@ export const Container = styled.div<IDropdown>`
   border-radius: 0.8rem;
   width: 100%;
 
-  margin-top: 1rem;
+  margin-top: -2rem;
   position: absolute;
   top: 74px;
-  box-shadow: 0px 4px 10px -1px rgba(210, 210, 210, 0.25);
+  box-shadow: 0px 4px 10px -1px rgba(210, 210, 210, 0.85);
 
   visibility: hidden;
   z-index: -1;
