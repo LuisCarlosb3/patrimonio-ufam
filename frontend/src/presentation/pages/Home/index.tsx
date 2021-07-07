@@ -61,7 +61,7 @@ const Home: React.FC = () => {
   }, [patrimonyList]);
 
   const orderData = orderDataByDate(
-    filterData(dataList, 'code', search),
+    filterData(dataList && dataList.length ? dataList : [], 'code', search),
     'lastConferenceDate',
   );
 
