@@ -10,15 +10,16 @@ export const Main = styled.div`
   background: #f7f7fc;
   width: 100%;
   display: flex;
-  overflow: auto;
 
   align-items: baseline;
+  margin-left: 26.4rem;
 `;
 
 export const Container = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
+  background: #f7f7fc;
 
   gap: 2.8rem;
   padding: 3rem 4rem;

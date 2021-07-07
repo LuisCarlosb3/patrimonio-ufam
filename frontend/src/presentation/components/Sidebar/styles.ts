@@ -21,6 +21,9 @@ export const Container = styled.div<ShodwSide>`
   height: 100vh;
   padding: 3rem 0rem;
 
+  position: fixed;
+  background: #fff;
+
   display: ${({ isVisible }) => (isVisible ? 'flex' : 'none')};
   flex-direction: column;
 `;
