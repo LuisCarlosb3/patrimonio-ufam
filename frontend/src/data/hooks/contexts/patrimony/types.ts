@@ -8,6 +8,11 @@ export enum PatrimonyStatus {
   Antieconomico = 'Antieconomico',
 }
 
+export enum Permission {
+  administrator = 2,
+  inventariante = 1,
+}
+
 export interface PatrimonyItens {
   name: string;
   localization: string;
@@ -44,15 +49,12 @@ export interface StatementList {
   ];
 }
 
-export interface PatrimonyContext {
-  patrimonyList: RegisterPatrimony[];
-  getPatrimonyList: () => Promise<HttpResponse>;
-  registerPatrimony: (data: RegisterPatrimony) => Promise<void>;
-  getPatrimonyByCode: (code: string) => Promise<HttpResponse>;
-  deletePatrimony: (id: string) => Promise<void>;
-  getStatementList: () => Promise<HttpResponse>;
-  statementList: StatementList[];
-  getPatrimonyListByPage: (page: number) => Promise<HttpResponse>;
+export interface IUser {
+  name: string;
+  permission: Permission;
+  email: string;
+  registration: string;
+  password: string;
 }
 
 export const patrimonyStatusEnum = [
@@ -62,3 +64,16 @@ export const patrimonyStatusEnum = [
   PatrimonyStatus.Antieconomico,
   PatrimonyStatus.Iservivel,
 ];
+
+export interface PatrimonyContext {
+  patrimonyList: RegisterPatrimony[];
+  getPatrimonyList: () => Promise<HttpResponse>;
+  registerPatrimony: (data: RegisterPatrimony) => Promise<void>;
+  getPatrimonyByCode: (code: string, only?: boolean) => Promise<HttpResponse>;
+  deletePatrimony: (id: string) => Promise<void>;
+  getStatementList: () => Promise<HttpResponse>;
+  statementList: StatementList[];
+  getPatrimonyListByPage: (page: number) => Promise<HttpResponse>;
+  createUser: (data: IUser) => Promise<void>;
+  patrimonyItem: RegisterPatrimony;
+}

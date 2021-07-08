@@ -1,6 +1,11 @@
 import React, { createContext, useCallback, useContext, useState } from 'react';
 import { AxiosHttpClient } from '../../../../infra/http/axios-http-client';
-import { PatrimonyContext, RegisterPatrimony, StatementList } from './types';
+import {
+  IUser,
+  PatrimonyContext,
+  RegisterPatrimony,
+  StatementList,
+} from './types';
 import { useToast } from '../../toast';
 
 const PatrimonyContextData = createContext<PatrimonyContext>(
@@ -9,6 +14,9 @@ const PatrimonyContextData = createContext<PatrimonyContext>(
 
 const Patrimony: React.FC = ({ children }) => {
   const [patrimonyList, setPatriomonyList] = useState<RegisterPatrimony[]>([]);
+  const [patrimonyItem, setPatrimonyItem] = useState<RegisterPatrimony>(
+    {} as RegisterPatrimony,
+  );
   const [statementList, setStatementList] = useState<StatementList[]>([]);
   const { addToast } = useToast();
 
@@ -44,27 +52,34 @@ const Patrimony: React.FC = ({ children }) => {
     }
   }, []);
 
-  const getPatrimonyByCode = useCallback(async (code: string) => {
-    const httpClient = new AxiosHttpClient();
+  const getPatrimonyByCode = useCallback(
+    async (code: string, only?: boolean) => {
+      const httpClient = new AxiosHttpClient();
 
-    try {
-      const response = await httpClient.request({
-        url: `patrimony/${code}`,
-        method: 'get',
-      });
+      try {
+        const response = await httpClient.request({
+          url: `patrimony/${code}`,
+          method: 'get',
+        });
 
-      const data = [response.body.patrimony];
+        const data = [response.body.patrimony];
 
-      if (response.statusCode === 200) {
-        setPatriomonyList(data);
-      } else {
-        setPatriomonyList([]);
+        if (response.statusCode === 200) {
+          if (only) {
+            setPatrimonyItem(response.body.patrimony);
+            return Promise.resolve(response);
+          }
+          setPatriomonyList(data);
+        } else {
+          setPatriomonyList([]);
+        }
+        return Promise.resolve(response);
+      } catch (error) {
+        return Promise.reject(error);
       }
-      return Promise.resolve(response);
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  }, []);
+    },
+    [],
+  );
 
   const registerPatrimony = useCallback(
     async (data) => {
@@ -148,6 +163,42 @@ const Patrimony: React.FC = ({ children }) => {
     }
   }, []);
 
+  const createUser = useCallback(
+    async (data: IUser) => {
+      const httpClient = new AxiosHttpClient();
+
+      try {
+        const { statusCode, body } = await httpClient.request({
+          url: 'users/create',
+          method: 'post',
+          body: data,
+        });
+
+        if (statusCode === 204) {
+          addToast({
+            title: 'Sucesso',
+            type: 'success',
+            message: 'Usuário cadastrado!',
+          });
+        }
+        if (statusCode === 400) {
+          addToast({
+            title: 'Erro',
+            type: 'error',
+            message: body.error,
+          });
+        }
+      } catch (error) {
+        addToast({
+          title: 'Erro',
+          type: 'error',
+          message: 'Erro ao cadastrar usuário',
+        });
+      }
+    },
+    [addToast],
+  );
+
   return (
     <PatrimonyContextData.Provider
       value={{
@@ -159,6 +210,8 @@ const Patrimony: React.FC = ({ children }) => {
         getStatementList,
         statementList,
         getPatrimonyListByPage,
+        createUser,
+        patrimonyItem,
       }}
     >
       {children}

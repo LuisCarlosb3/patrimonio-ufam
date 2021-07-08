@@ -2,14 +2,6 @@ import styled from 'styled-components';
 
 import Input from '../../components/Input';
 
-export const ContainerModal = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 2.8rem;
-  padding: 3rem 4rem;
-`;
-
 export const Header = styled.div`
   display: flex;
   flex: 1;
@@ -46,12 +38,16 @@ export const Header = styled.div`
 export const ModalContent = styled.div`
   background: #fff;
   width: auto;
+  align-self: center;
+  justify-self: center;
   max-width: calc(100vh - 2rem);
   max-height: calc(100vh - 2rem);
   padding: 3.4rem;
   border-radius: 2rem;
   position: relative;
   overflow-y: auto;
+  margin-top: 3.8rem;
+
   .header {
     display: flex;
     align-items: center;
@@ -66,23 +62,6 @@ export const ModalContent = styled.div`
       top: 2rem;
       right: 2rem;
       cursor: pointer;
-    }
-  }
-  .patrimonio {
-    margin-top: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2rem 3rem;
-    flex-wrap: wrap;
-    color: #151515;
-    h4 {
-      font-size: 1.6rem;
-      color: #151515;
-    }
-    p {
-      margin-top: 0.8rem;
-      font-size: 1.4rem;
     }
   }
 `;

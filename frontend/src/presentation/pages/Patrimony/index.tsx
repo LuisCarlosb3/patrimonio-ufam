@@ -1,6 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Form } from '@unform/web';
-import { patrimonyStatusEnum } from '../../../data/hooks/contexts/patrimony/types';
+import { useAuth } from '../../../data/hooks/auth';
+import {
+  PatrimonyItens,
+  patrimonyStatusEnum,
+  RegisterPatrimony,
+} from '../../../data/hooks/contexts/patrimony/types';
 import { usePatrimony } from '../../../data/hooks/contexts/patrimony';
 import Dropdown from '../../components/Dropdown';
 import { Container } from '../../styles/Layout/styles';
@@ -21,6 +26,7 @@ import Modal from '../../components/Modal';
 import Header from '../../components/Header';
 import Table, { ItemTable } from '../../components/Table';
 import {
+  FormataStringData,
   formatCurrency,
   formatDate,
   moneyMask,
@@ -62,12 +68,29 @@ const tableHead: ItemTable[] = [
 const Patrimony: React.FC = () => {
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [selectState, setSelectState] = useState('');
-  const [valueCode, setValueCode] = useState('');
   const [valueCurrency, setValueCurrency] = useState(moneyMask('0'));
   const [searchInput, setSearchInput] = useState('');
   const [results, setResults] = useState({
     pageNumber: 0,
   });
+  const [edit, setEdit] = useState(false);
+
+  const [itens, setItens] = useState<PatrimonyItens[]>([]);
+  // eslint-disable-next-line
+  const [patrimonyItemSelect, setPatrimonyItemSelect] = useState<
+    RegisterPatrimony
+  >({
+    code: 'null',
+    description: 'null',
+    entryDate: '2020-10-10',
+    lastConferenceDate: '2020-10-10',
+    patrimonyItens: [],
+    state: 'null',
+    value: 'null',
+    id: 'null',
+  });
+
+  const { user } = useAuth();
 
   const {
     registerPatrimony,
@@ -76,14 +99,19 @@ const Patrimony: React.FC = () => {
     getPatrimonyByCode,
     deletePatrimony,
     getPatrimonyListByPage,
+    patrimonyItem,
   } = usePatrimony();
 
   const handleOpenModal = () => {
+    setItens([]);
+    setEdit(false);
     setOpenModalCreate(true);
   };
 
   const handleSearch = () => {
-    getPatrimonyByCode(searchInput);
+    if (searchInput !== '') {
+      getPatrimonyByCode(searchInput);
+    }
   };
 
   const handleCreateItem = useCallback(
@@ -93,6 +121,16 @@ const Patrimony: React.FC = () => {
         const value = parseFloat(currency.replace(',', '.'));
 
         return value.toString();
+      }
+
+      const patItens = [...itens];
+
+      if (data.name !== undefined) {
+        patItens.splice(0, 0, {
+          name: data.name,
+          localization: data.localization,
+          observation: data.observation,
+        });
       }
 
       const newData = {
@@ -105,21 +143,19 @@ const Patrimony: React.FC = () => {
         entryDate: data.entryDate,
         lastConferenceDate: data.lastConferenceData,
         value: getMoney(data.value),
-        patrimonyItens: [
-          {
-            name: data.name,
-            localization: data.localization,
-            observation: data.observation,
-          },
-        ],
+        patrimonyItens: patItens,
       };
 
-      registerPatrimony(newData);
+      if (edit) {
+        console.log(newData);
+      } else {
+        registerPatrimony(newData);
+      }
       setOpenModalCreate(false);
       setSelectState('');
       reset();
     },
-    [selectState, registerPatrimony],
+    [selectState, registerPatrimony, itens, edit],
   );
 
   const handleDeletPatrimony = (id: string) => {
@@ -146,18 +182,61 @@ const Patrimony: React.FC = () => {
     fetchData();
   }, [fetchData]);
 
+  const handleAddItem = () => {
+    const oldData = [...itens];
+    const newData = {
+      name: '',
+      localization: '',
+      observation: '',
+    };
+    oldData.push(newData);
+    setItens(oldData);
+  };
+
+  const removeItem = (index: number) => {
+    const oldData = [...itens];
+    oldData.splice(index, 1);
+    setItens(oldData);
+  };
+
+  const handleGetPatrimony = useCallback(
+    (item: RegisterPatrimony) => {
+      getPatrimonyByCode(item.code, true);
+      setEdit(true);
+      setOpenModalCreate(true);
+    },
+    [getPatrimonyByCode],
+  );
+
+  useEffect(() => {
+    if (Object.keys(patrimonyItem).length > 0 && edit) {
+      setPatrimonyItemSelect(patrimonyItem);
+      setValueCurrency(formatCurrency(patrimonyItem.value));
+      setSelectState(
+        patrimonyStatusEnum.filter((item) =>
+          item.toLowerCase().includes(patrimonyItem.state.toLowerCase()),
+        )[0],
+      );
+      setItens(patrimonyItem.patrimonyItens);
+    } else {
+      setValueCurrency(moneyMask('0'));
+      setPatrimonyItemSelect({} as RegisterPatrimony);
+      setSelectState('');
+    }
+  }, [patrimonyItem, edit]);
+
   return (
     <Container>
       <Header title="Patrimônio" action={handleOpenModal} />
 
       <SearchInput>
-        {/* eslint-disable-next-line */}
-        <div className="search" onClick={handleSearch}>
+        <button type="button" className="search" onClick={handleSearch}>
           <Search />
-        </div>
+        </button>
         <input
           type="search"
           value={searchInput}
+          required
           placeholder="Buscar por código"
           onChange={(e) => {
             setSearchInput(e.target.value);
@@ -169,22 +248,24 @@ const Patrimony: React.FC = () => {
       </SearchInput>
 
       {patrimonyList && patrimonyList.length > 0 ? (
-        <Table headItems={tableHead} hasActions>
+        <Table headItems={tableHead} hasActions={user?.permission === 2}>
           {patrimonyList.map((item) => (
             <tr key={item.id}>
               <td>{item.code}</td>
               <td className="description">{item.description}</td>
               <td>{formatCurrency(item.value)}</td>
               <td>{formatDate(item.lastConferenceDate)}</td>
-              <td className="actions">
-                <Delete onClick={() => handleDeletPatrimony(item.id || '')} />
-                <Edit onClick={() => setOpenModalCreate(true)} />
-              </td>
+              {user?.permission === 2 && (
+                <td className="actions">
+                  <Delete onClick={() => handleDeletPatrimony(item.id || '')} />
+                  <Edit onClick={() => handleGetPatrimony(item)} />
+                </td>
+              )}
             </tr>
           ))}
         </Table>
       ) : (
-        <Table headItems={tableHead} hasActions>
+        <Table headItems={tableHead} hasActions={user?.permission === 2}>
           <tr>
             <td style={{ textAlign: 'center' }} colSpan={6}>
               Nenhum patrimônio encontrado...
@@ -201,7 +282,9 @@ const Patrimony: React.FC = () => {
       <Modal open={openModalCreate} setOpen={setOpenModalCreate}>
         <ModalContent>
           <div className="header">
-            <h1 style={{ color: '#14142B' }}>Cadastrar Item</h1>
+            <h1 style={{ color: '#14142B' }}>
+              {!edit ? 'Cadastrar Item' : 'Editar'}
+            </h1>
             <Close onClick={() => setOpenModalCreate(!openModalCreate)} />
           </div>
 
@@ -212,8 +295,14 @@ const Patrimony: React.FC = () => {
                 <InputForm
                   name="code"
                   type="text"
+                  value={patrimonyItemSelect.code || ''}
                   alt="Código"
-                  onChange={(e) => setValueCode(e.target.value)}
+                  onChange={(e) =>
+                    setPatrimonyItemSelect((prev) => ({
+                      ...prev,
+                      code: e.target.value,
+                    }))
+                  }
                 />
               </ItemInput>
               <ItemInput>
@@ -232,11 +321,24 @@ const Patrimony: React.FC = () => {
                   required
                   name="entryDate"
                   type="date"
+                  value={
+                    patrimonyItemSelect.entryDate !== undefined
+                      ? FormataStringData(
+                          formatDate(patrimonyItemSelect?.entryDate) || '',
+                        )
+                      : ''
+                  }
+                  // eslint-disable-next-line
+                  onChange={(e) =>
+                    setPatrimonyItemSelect((prev) => ({
+                      ...prev,
+                      entryDate: e.target.value,
+                    }))
+                  }
                   alt="Entrada"
                 />
               </ItemInput>
             </FormGroup>
-
             <FormGroup>
               <ItemInput>
                 <Title>Conferência</Title>
@@ -244,6 +346,21 @@ const Patrimony: React.FC = () => {
                   required
                   name="lastConferenceData"
                   type="date"
+                  value={
+                    patrimonyItemSelect.lastConferenceDate !== undefined
+                      ? FormataStringData(
+                          formatDate(patrimonyItemSelect?.lastConferenceDate) ||
+                            '',
+                        )
+                      : ''
+                  }
+                  // eslint-disable-next-line
+                  onChange={(e) =>
+                    setPatrimonyItemSelect((prev) => ({
+                      ...prev,
+                      lastConferenceDate: e.target.value,
+                    }))
+                  }
                   alt="Conferência"
                 />
               </ItemInput>
@@ -251,7 +368,7 @@ const Patrimony: React.FC = () => {
                 <Title>Termo</Title>
                 <InputForm
                   disabled
-                  value={valueCode}
+                  value={patrimonyItemSelect.code || ''}
                   name="term"
                   readOnly
                   type="text"
@@ -270,43 +387,121 @@ const Patrimony: React.FC = () => {
                 />
               </ItemInput>
             </FormGroup>
-
             <ItemInput>
               <Title>Descrição</Title>
               <InputForm
                 required
                 name="description"
                 type="text"
+                value={patrimonyItemSelect.description || ''}
                 alt="observação"
+                onChange={(e) =>
+                  setPatrimonyItemSelect((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
               />
             </ItemInput>
+            <hr style={{ marginTop: 8, borderTop: '#E8E8E8' }} />
+            <p style={{ marginBottom: 8, marginTop: 4 }}>Itens do Patrimônio</p>
+            {Object.keys(patrimonyItemSelect).length === 0 && edit && (
+              <FormGroup>
+                <ItemInput>
+                  <Title>Nome do Item</Title>
+                  <InputForm
+                    required
+                    name="name"
+                    type="text"
+                    alt="Nome_do_Item"
+                  />
+                </ItemInput>
 
-            <ItemInput>
-              <Title>Nome do Item</Title>
-              <InputForm required name="name" type="text" alt="Nome_do_Item" />
-            </ItemInput>
+                <ItemInput>
+                  <Title>Localização</Title>
+                  <InputForm
+                    required
+                    name="localization"
+                    type="text"
+                    alt="Localização"
+                  />
+                </ItemInput>
+                <ItemInput>
+                  <Title>Observação</Title>
+                  <InputForm
+                    required
+                    name="observation"
+                    type="text"
+                    alt="observação2"
+                  />
+                </ItemInput>
+              </FormGroup>
+            )}
 
-            <ItemInput>
-              <Title>Localização</Title>
-              <InputForm
-                required
-                name="localization"
-                type="text"
-                alt="Localização"
-              />
-            </ItemInput>
-            <ItemInput>
-              <Title>Observação</Title>
-              <InputForm
-                required
-                name="observation"
-                type="text"
-                alt="observação2"
-              />
-            </ItemInput>
+            {itens.map((item, index) => (
+              // eslint-disable-next-line
+              <FormGroup key={index}>
+                <ItemInput>
+                  <Title>Nome do Item</Title>
+                  <InputForm
+                    required
+                    name={`${index} name`}
+                    type="text"
+                    value={item.name}
+                    onChange={(e) => {
+                      const oldData = [...itens];
+                      oldData[index].name = e.target.value;
+                      setItens(oldData);
+                    }}
+                    alt="Nome_do_Item"
+                  />
+                </ItemInput>
+
+                <ItemInput>
+                  <Title>Localização</Title>
+                  <InputForm
+                    required
+                    name={`${index} local`}
+                    value={item.localization}
+                    onChange={(e) => {
+                      const oldData = [...itens];
+                      oldData[index].localization = e.target.value;
+                      setItens(oldData);
+                    }}
+                    type="text"
+                    alt="Localização"
+                  />
+                </ItemInput>
+                <ItemInput>
+                  <Title>Observação</Title>
+                  <InputForm
+                    required
+                    name={`${index} obs`}
+                    type="text"
+                    value={item.observation}
+                    onChange={(e) => {
+                      const oldData = [...itens];
+                      oldData[index].observation = e.target.value;
+                      setItens(oldData);
+                    }}
+                    alt="observação2"
+                  />
+                </ItemInput>
+                <button
+                  type="button"
+                  className="remove"
+                  onClick={() => removeItem(index)}
+                >
+                  X
+                </button>
+              </FormGroup>
+            ))}
+            <button type="button" className="add-item" onClick={handleAddItem}>
+              + Adicionar Item
+            </button>
             <Content>
               <button className="button" type="submit">
-                Salvar
+                {!edit ? 'Cadastrar' : 'Salvar Alterações'}
               </button>
             </Content>
           </Form>

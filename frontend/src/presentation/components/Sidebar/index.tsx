@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { RouteComponentProps } from 'react-router';
 import { withRouter, useHistory } from 'react-router-dom';
 import { config, useSpring } from 'react-spring';
-
-import { pages } from '../../../infra/routes/getRoutes';
+import useSidebar from '../../../infra/routes/getRoutes';
 import Icon from '../Icon';
 import logo from '../../../assets/logo.svg';
 
@@ -16,6 +15,8 @@ const Sidebar: React.FC<RouteComponentProps> = ({ location }) => {
     transform: 'scaleY(0)',
   }));
   const [tab, setTab] = useState('/home');
+
+  const pages = useSidebar();
 
   React.useEffect(() => {
     set({

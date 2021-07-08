@@ -2,6 +2,7 @@ import React from 'react';
 import { Container } from './styles';
 import { useAuth } from '../../../data/hooks/auth';
 import { ReactComponent as ProfileIcon } from '../../../assets/Profile.svg';
+import { autoCapitalize } from '../../../data/utils/formats';
 
 interface IHeader {
   title: string;
@@ -16,7 +17,7 @@ const Header: React.FC<IHeader> = ({ title, action }) => {
       <h1>{title}</h1>
 
       <div className="info-header">
-        {action && (
+        {action && user?.permission === 2 && (
           <button className="btn-action" onClick={action} type="button">
             +
           </button>
@@ -25,7 +26,7 @@ const Header: React.FC<IHeader> = ({ title, action }) => {
         <div className="user-data">
           <div>
             <ProfileIcon />
-            <h4>{user.name.toLocaleUpperCase()}</h4>
+            <h4>{autoCapitalize(user.name)}</h4>
           </div>
 
           <button type="button" onClick={signOut}>

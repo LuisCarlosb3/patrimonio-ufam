@@ -71,6 +71,32 @@ export const ModalContent = styled.div`
     }
   }
 
+  form {
+    display: flex;
+    flex-direction: column;
+
+    .add-item {
+      float: right;
+      background: blue;
+      margin-top: 0.8rem;
+      margin-bottom: 2rem;
+
+      padding: 1.2rem 2rem;
+      border-radius: 1rem;
+
+      background: none;
+      border: 1px dashed #5f2eea;
+
+      color: #5f2eea;
+      transition: 0.2s ease-in;
+
+      &:hover {
+        background: #e4dbff;
+        color: #000;
+      }
+    }
+  }
+
   .patrimonio {
     margin-top: 2rem;
 
@@ -98,7 +124,17 @@ export const FormGroup = styled.div`
   flex-direction: row;
   justify-content: space-between;
   gap: 10px;
-  max-width: 70rem;
+  max-width: 84rem;
+
+  .remove {
+    height: 4.6rem;
+    margin-top: 3rem;
+    padding: 0 2rem;
+    border-radius: 1rem;
+
+    background: #eb0055;
+    color: #fff;
+  }
 `;
 
 export const ItemInput = styled.div`
@@ -157,7 +193,8 @@ export const Content = styled.div`
   justify-content: center;
 
   .button {
-    width: 15rem;
+    min-width: 18rem;
+    width: auto;
     font-family: Poppins;
     font-style: normal;
     font-weight: 600;
