@@ -1,0 +1,13 @@
+{
+  "name": "patrimonio",
+  "version": "1.0.0",
+  "description": "API Rest para o gerenciamento de patrimônio do ICET",
+  "main": "backend/dist/main/server.js",
+  "scripts": {
+    "prebuild": "cd backend && npm install",
+    "start": "node dist/src/main/server.js",
+    "build": "cd backend && npx rimraf dist && tsc -p tsconfig-build.json",
+    "knex:migrate:latest": "cd backend && npx knex --knexfile src/main/config/knexfile.ts migrate:latest",
+    "knex:seed:up": "cd backend && npx knex --knexfile src/main/config/knexfile.ts seed:run"
+  }
+}

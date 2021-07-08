@@ -100,4 +100,15 @@ describe('User Postgres Repository', () => {
     const users = await knex('users').where({ id })
     expect(users.length).toBe(0)
   })
+  test('Ensure UserRepository count returns users quantity', async () => {
+    const sut = makeSut()
+    await insertPayload()
+    const total = await sut.count()
+    expect(total).toEqual(1)
+  })
+  test('Ensure UserRepository count returns zero on users not exists', async () => {
+    const sut = makeSut()
+    const total = await sut.count()
+    expect(total).toEqual(0)
+  })
 })
