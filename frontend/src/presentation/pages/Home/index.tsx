@@ -13,7 +13,11 @@ import {
   // patrimonyStatusEnum,
   RegisterPatrimony,
 } from '../../../data/hooks/contexts/patrimony/types';
-import { formatCurrency, formatDate } from '../../../data/utils/formats';
+import {
+  autoCapitalize,
+  formatCurrency,
+  formatDate,
+} from '../../../data/utils/formats';
 import { filterData } from '../../../data/utils/filter';
 import TableFooter from '../../components/TableFooter';
 import { orderDataByDate } from '../../../data/utils/oderByDate';
@@ -44,10 +48,14 @@ const Home: React.FC = () => {
     },
     {
       id: 3,
-      title: 'Data Entrada',
+      title: 'Estado',
     },
     {
       id: 4,
+      title: 'Data Entrada',
+    },
+    {
+      id: 5,
       title: 'Última Verificação',
     },
   ];
@@ -118,6 +126,7 @@ const Home: React.FC = () => {
                 <td>{item.code}</td>
                 <td className="description">{item.description}</td>
                 <td>{formatCurrency(item.value)}</td>
+                <td>{autoCapitalize(item.state)}</td>
                 <td>{formatDate(item.entryDate)}</td>
                 <td>{formatDate(item.lastConferenceDate)}</td>
                 <td className="actions">

@@ -163,6 +163,43 @@ const Patrimony: React.FC = ({ children }) => {
     }
   }, []);
 
+  const updatePatrimony = useCallback(
+    async (data: RegisterPatrimony) => {
+      const httpClient = new AxiosHttpClient();
+
+      try {
+        const { statusCode } = await httpClient.request({
+          url: 'patrimony',
+          method: 'put',
+          body: { patrimony: data },
+        });
+
+        if (statusCode === 204) {
+          addToast({
+            title: 'Sucesso',
+            type: 'success',
+            message: 'Patrimônio atualizado!',
+          });
+
+          getPatrimonyList();
+        } else {
+          addToast({
+            title: 'Erro',
+            type: 'error',
+            message: 'Erro ao editar patrimônio',
+          });
+        }
+      } catch (error) {
+        addToast({
+          title: 'Erro',
+          type: 'error',
+          message: 'Erro ao excluir patrimônio',
+        });
+      }
+    },
+    [getPatrimonyList, addToast],
+  );
+
   const createUser = useCallback(
     async (data: IUser) => {
       const httpClient = new AxiosHttpClient();
@@ -212,6 +249,7 @@ const Patrimony: React.FC = ({ children }) => {
         getPatrimonyListByPage,
         createUser,
         patrimonyItem,
+        updatePatrimony,
       }}
     >
       {children}

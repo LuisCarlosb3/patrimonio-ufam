@@ -44,6 +44,7 @@ const Sidebar: React.FC<RouteComponentProps> = ({ location }) => {
                 to={page.path}
                 active={location.pathname === page.path ? 1 : 0}
                 onClick={() => setTab(page.path)}
+                disabled={!!page.block}
               >
                 {page.icon && (
                   <Icon

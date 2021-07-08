@@ -10,6 +10,7 @@ interface NavType {
 
 interface Links {
   active: number;
+  disabled?: boolean;
 }
 
 interface ShodwSide {
@@ -72,11 +73,18 @@ const activeSide = css`
   }
 `;
 
+const disabledClass = css`
+  pointer-events: none;
+  color: #ccc;
+`;
+
 export const Link = styled(LinkRouter)<Links>`
   color: ${({ active }) => (active ? '#000' : '#A0A3BD')};
   font-weight: ${({ active }) => (active ? 500 : 400)};
   position: relative;
   /* ${({ active }) => active && activeSide}; */
+
+  ${({ disabled }) => disabled && disabledClass}
 `;
 
 export const NavZin = styled(animated.div)<NavType>`

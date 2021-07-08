@@ -20,18 +20,22 @@ import {
 } from './styles';
 import { ReactComponent as Close } from '../../../assets/close.svg';
 import { ReactComponent as Delete } from '../../../assets/delete.svg';
+import { ReactComponent as DeleteItem } from '../../../assets/deleteItem.svg';
 import { ReactComponent as Edit } from '../../../assets/edit.svg';
 import { ReactComponent as Search } from '../../../assets/search.svg';
 import Modal from '../../components/Modal';
 import Header from '../../components/Header';
 import Table, { ItemTable } from '../../components/Table';
 import {
+  autoCapitalize,
   FormataStringData,
   formatCurrency,
   formatDate,
+  formatDateInput,
   moneyMask,
 } from '../../../data/utils/formats';
 import TableFooter from '../../components/TableFooter';
+import TextArea from '../../components/TextArea';
 
 interface InserDataItem {
   code: string;
@@ -60,6 +64,10 @@ const tableHead: ItemTable[] = [
     title: 'Preço',
   },
   {
+    id: 3,
+    title: 'Estado',
+  },
+  {
     id: 4,
     title: 'Última Verificação',
   },
@@ -68,7 +76,7 @@ const tableHead: ItemTable[] = [
 const Patrimony: React.FC = () => {
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [selectState, setSelectState] = useState('');
-  const [valueCurrency, setValueCurrency] = useState(moneyMask('0'));
+  const [valueCurrency, setValueCurrency] = useState(moneyMask(''));
   const [searchInput, setSearchInput] = useState('');
   const [results, setResults] = useState({
     pageNumber: 0,
@@ -89,6 +97,7 @@ const Patrimony: React.FC = () => {
     value: 'null',
     id: 'null',
   });
+  const [deleteItems, setDeleteItems] = useState<string[]>([]);
 
   const { user } = useAuth();
 
@@ -100,12 +109,14 @@ const Patrimony: React.FC = () => {
     deletePatrimony,
     getPatrimonyListByPage,
     patrimonyItem,
+    updatePatrimony,
   } = usePatrimony();
 
   const handleOpenModal = () => {
     setItens([]);
     setEdit(false);
     setOpenModalCreate(true);
+    setPatrimonyItemSelect({} as RegisterPatrimony);
   };
 
   const handleSearch = () => {
@@ -117,10 +128,15 @@ const Patrimony: React.FC = () => {
   const handleCreateItem = useCallback(
     async (data: InserDataItem, { reset }) => {
       function getMoney(str: string): string {
-        const currency = str.replace('R$', '');
-        const value = parseFloat(currency.replace(',', '.'));
+        const currency = /\D*(\d+|\d.*?\d)(?:\D+(\d{2}))?\D*$/;
+        const parts = currency.exec(str) || [];
 
-        return value.toString();
+        const value = parseFloat(
+          // eslint-disable-next-line
+          parts[1].replace(/\D/, '') + '.' + (parts[2] ? parts[2] : '00'),
+        ).toFixed(2);
+
+        return value;
       }
 
       const patItens = [...itens];
@@ -146,8 +162,23 @@ const Patrimony: React.FC = () => {
         patrimonyItens: patItens,
       };
 
-      if (edit) {
-        console.log(newData);
+      if (edit && patrimonyItemSelect) {
+        const dataUpdate = {
+          id: patrimonyItemSelect.id,
+          code: data.code,
+          description: data.description,
+          state:
+            selectState.toUpperCase() === 'INSERVIVEL'
+              ? 'INSERVIVEl'
+              : selectState.toUpperCase(),
+          entryDate: data.entryDate,
+          lastConferenceDate: data.lastConferenceData,
+          value: getMoney(data.value),
+          patrimonyItens: patItens,
+          deletedItens: deleteItems,
+        };
+
+        updatePatrimony(dataUpdate);
       } else {
         registerPatrimony(newData);
       }
@@ -155,7 +186,15 @@ const Patrimony: React.FC = () => {
       setSelectState('');
       reset();
     },
-    [selectState, registerPatrimony, itens, edit],
+    [
+      selectState,
+      registerPatrimony,
+      itens,
+      edit,
+      deleteItems,
+      patrimonyItemSelect,
+      updatePatrimony,
+    ],
   );
 
   const handleDeletPatrimony = (id: string) => {
@@ -170,18 +209,6 @@ const Patrimony: React.FC = () => {
     }
   }, [patrimonyList]);
 
-  useEffect(() => {
-    getPatrimonyList();
-  }, [getPatrimonyList]);
-
-  useEffect(() => {
-    setResults({ pageNumber: 0 });
-  }, [patrimonyList]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
   const handleAddItem = () => {
     const oldData = [...itens];
     const newData = {
@@ -193,10 +220,16 @@ const Patrimony: React.FC = () => {
     setItens(oldData);
   };
 
-  const removeItem = (index: number) => {
+  const removeItem = (index: number, item: PatrimonyItens) => {
+    const oldDataDelete = [...deleteItems];
+    if (item.id) {
+      oldDataDelete.push(item.id);
+    }
+
     const oldData = [...itens];
     oldData.splice(index, 1);
     setItens(oldData);
+    setDeleteItems(oldDataDelete);
   };
 
   const handleGetPatrimony = useCallback(
@@ -204,6 +237,7 @@ const Patrimony: React.FC = () => {
       getPatrimonyByCode(item.code, true);
       setEdit(true);
       setOpenModalCreate(true);
+      setDeleteItems([]);
     },
     [getPatrimonyByCode],
   );
@@ -224,6 +258,18 @@ const Patrimony: React.FC = () => {
       setSelectState('');
     }
   }, [patrimonyItem, edit]);
+
+  useEffect(() => {
+    getPatrimonyList();
+  }, [getPatrimonyList]);
+
+  useEffect(() => {
+    setResults({ pageNumber: 0 });
+  }, [patrimonyList]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   return (
     <Container>
@@ -254,6 +300,7 @@ const Patrimony: React.FC = () => {
               <td>{item.code}</td>
               <td className="description">{item.description}</td>
               <td>{formatCurrency(item.value)}</td>
+              <td>{autoCapitalize(item.state)}</td>
               <td>{formatDate(item.lastConferenceDate)}</td>
               {user?.permission === 2 && (
                 <td className="actions">
@@ -295,6 +342,7 @@ const Patrimony: React.FC = () => {
                 <InputForm
                   name="code"
                   type="text"
+                  required
                   value={patrimonyItemSelect.code || ''}
                   alt="Código"
                   onChange={(e) =>
@@ -310,6 +358,7 @@ const Patrimony: React.FC = () => {
                 <InputForm
                   name="value"
                   type="text"
+                  required
                   alt="Valor"
                   value={valueCurrency}
                   onChange={(e) => setValueCurrency(moneyMask(e.target.value))}
@@ -332,7 +381,9 @@ const Patrimony: React.FC = () => {
                   onChange={(e) =>
                     setPatrimonyItemSelect((prev) => ({
                       ...prev,
-                      entryDate: e.target.value,
+                      entryDate: FormataStringData(
+                        formatDateInput(e.target.value) || '',
+                      ),
                     }))
                   }
                   alt="Entrada"
@@ -358,7 +409,9 @@ const Patrimony: React.FC = () => {
                   onChange={(e) =>
                     setPatrimonyItemSelect((prev) => ({
                       ...prev,
-                      lastConferenceDate: e.target.value,
+                      lastConferenceDate: FormataStringData(
+                        formatDateInput(e.target.value) || '',
+                      ),
                     }))
                   }
                   alt="Conferência"
@@ -389,12 +442,11 @@ const Patrimony: React.FC = () => {
             </FormGroup>
             <ItemInput>
               <Title>Descrição</Title>
-              <InputForm
-                required
-                name="description"
-                type="text"
+              <TextArea
                 value={patrimonyItemSelect.description || ''}
-                alt="observação"
+                name="description"
+                label="Description"
+                multiline
                 onChange={(e) =>
                   setPatrimonyItemSelect((prev) => ({
                     ...prev,
@@ -405,7 +457,7 @@ const Patrimony: React.FC = () => {
             </ItemInput>
             <hr style={{ marginTop: 8, borderTop: '#E8E8E8' }} />
             <p style={{ marginBottom: 8, marginTop: 4 }}>Itens do Patrimônio</p>
-            {Object.keys(patrimonyItemSelect).length === 0 && edit && (
+            {!edit && (
               <FormGroup>
                 <ItemInput>
                   <Title>Nome do Item</Title>
@@ -490,9 +542,9 @@ const Patrimony: React.FC = () => {
                 <button
                   type="button"
                   className="remove"
-                  onClick={() => removeItem(index)}
+                  onClick={() => removeItem(index, item)}
                 >
-                  X
+                  <DeleteItem />
                 </button>
               </FormGroup>
             ))}

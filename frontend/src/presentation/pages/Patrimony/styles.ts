@@ -127,13 +127,23 @@ export const FormGroup = styled.div`
   max-width: 84rem;
 
   .remove {
-    height: 4.6rem;
+    height: 4.5rem;
     margin-top: 3rem;
-    padding: 0 2rem;
+    padding: 0 1.4rem;
     border-radius: 1rem;
 
     background: #eb0055;
-    color: #fff;
+    font-size: 0;
+    transition: 0.25s ease-in-out;
+
+    svg {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    &:hover {
+      filter: brightness(80%);
+    }
   }
 `;
 

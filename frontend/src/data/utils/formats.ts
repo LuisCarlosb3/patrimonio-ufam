@@ -11,6 +11,10 @@ export const formatDate = (date: string): string => {
   return moment(new Date(date)).format('DD/MM/YYYY');
 };
 
+export const formatDateInput = (date: string): string => {
+  return moment(new Date(date)).add(2, 'days').format('DD/MM/YYYY');
+};
+
 export const moneyMask = (value: string): string => {
   value = value.replace('.', '').replace(',', '').replace(/\D/g, '');
 

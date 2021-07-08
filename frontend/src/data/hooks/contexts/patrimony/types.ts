@@ -14,6 +14,7 @@ export enum Permission {
 }
 
 export interface PatrimonyItens {
+  id?: string;
   name: string;
   localization: string;
   observation: string;
@@ -76,4 +77,5 @@ export interface PatrimonyContext {
   getPatrimonyListByPage: (page: number) => Promise<HttpResponse>;
   createUser: (data: IUser) => Promise<void>;
   patrimonyItem: RegisterPatrimony;
+  updatePatrimony: (data: RegisterPatrimony) => Promise<void>;
 }

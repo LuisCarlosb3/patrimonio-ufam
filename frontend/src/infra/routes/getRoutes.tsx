@@ -1,11 +1,12 @@
 import { useAuth } from '../../data/hooks/auth';
 
-interface IPage {
+export interface IPage {
   id: number;
   icon?: 'home' | 'search' | 'report' | 'user' | 'document';
   path: string; // route
   name: string; // name in sidebar
   nav: boolean; // show in Sidebar
+  block: boolean;
 }
 
 const useSidebarRoutes = (): IPage[] => {
@@ -18,6 +19,7 @@ const useSidebarRoutes = (): IPage[] => {
       path: '/home',
       name: 'Home',
       nav: true,
+      block: false,
     },
     {
       id: 1,
@@ -25,13 +27,15 @@ const useSidebarRoutes = (): IPage[] => {
       path: '/search',
       name: 'Busca Avançada',
       nav: true,
+      block: true,
     },
     {
       id: 2,
       icon: 'report',
       path: '/report',
       name: 'Relatórios',
-      nav: false,
+      nav: true,
+      block: true,
     },
     {
       id: 3,
@@ -39,6 +43,7 @@ const useSidebarRoutes = (): IPage[] => {
       path: '/users',
       name: 'Usuários',
       nav: user?.permission === 2,
+      block: false,
     },
     {
       id: 4,
@@ -46,6 +51,7 @@ const useSidebarRoutes = (): IPage[] => {
       path: '/patrimony',
       name: 'Patrimonio',
       nav: true,
+      block: false,
     },
   ];
 

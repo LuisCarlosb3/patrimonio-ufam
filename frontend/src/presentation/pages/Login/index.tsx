@@ -56,6 +56,7 @@ const Login: React.FC = () => {
               <InputForm
                 name="registration"
                 type="text"
+                autoComplete="current-login"
                 alt="Input Login"
                 placeholder="Matrícula"
               />
@@ -75,6 +76,7 @@ const Login: React.FC = () => {
                 type="password"
                 alt="Input Senha"
                 placeholder="Senha"
+                autoComplete="current-password"
               />
             </ItemInput>
             <Span>Esqueci Minha Senha</Span>

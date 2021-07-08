@@ -72,7 +72,13 @@ const Users: React.FC = () => {
 
           <ItemInput>
             <Title>Senha</Title>
-            <InputForm required name="password" type="password" alt="Senha" />
+            <InputForm
+              required
+              name="password"
+              type="password"
+              alt="Senha"
+              autoComplete="current-password"
+            />
           </ItemInput>
 
           <Row>
