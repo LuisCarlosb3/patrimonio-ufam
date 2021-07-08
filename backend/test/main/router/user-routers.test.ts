@@ -271,4 +271,21 @@ describe('Authentication Routes', () => {
       expect(user.length).toBe(1)
     })
   })
+  describe('GET /user-list', () => {
+    test('Should return user list with success', async () => {
+      const userId = await insertPayload(true)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for await (const _i of Array(15).keys()) {
+        await insertPayload()
+      }
+      const accessToken = await makeAccessToken(userId, UserPermission.ADMINISTRATOR)
+      const { body } = await request(server).get('/user-list')
+        .set('x-access-token', accessToken).expect(200)
+      expect(body.userList.length).toBe(10)
+      expect(body.totalUsers).toBe(16)
+      expect(body.actualPage).toBe(1)
+      expect(body.totalPages).toBe(2)
+      expect(body.userPeerPage).toBe(10)
+    })
+  })
 })
