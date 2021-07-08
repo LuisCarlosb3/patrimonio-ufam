@@ -13,6 +13,7 @@ interface IconProps {
     | 'arrowRight'
     | 'arrowDown'
     | 'user'
+    | 'link'
     | 'document';
   className?: string;
   viewBox?: string;

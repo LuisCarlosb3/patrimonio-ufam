@@ -2,7 +2,7 @@ import { useAuth } from '../../data/hooks/auth';
 
 export interface IPage {
   id: number;
-  icon?: 'home' | 'search' | 'report' | 'user' | 'document';
+  icon?: 'home' | 'search' | 'report' | 'user' | 'document' | 'link';
   path: string; // route
   name: string; // name in sidebar
   nav: boolean; // show in Sidebar
@@ -50,6 +50,14 @@ const useSidebarRoutes = (): IPage[] => {
       icon: 'document',
       path: '/patrimony',
       name: 'Patrimonio',
+      nav: true,
+      block: false,
+    },
+    {
+      id: 5,
+      icon: 'link',
+      path: '/statement',
+      name: 'Retirar Item',
       nav: true,
       block: false,
     },

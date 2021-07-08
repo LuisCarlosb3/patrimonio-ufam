@@ -11,6 +11,7 @@ import Search from '../../presentation/pages/Search';
 import Report from '../../presentation/pages/Report';
 import Users from '../../presentation/pages/Users';
 import Patrimony from '../../presentation/pages/Patrimony';
+import Statement from '../../presentation/pages/Statement';
 
 const NotFoundComponent = () => {
   return <div>Página não encontrada</div>;
@@ -27,6 +28,7 @@ const Routes: React.FC = () => (
         <RouteConfig path="/report" exact component={Report} isPrivate />
         <RouteConfig path="/users" exact component={Users} isPrivate />
         <RouteConfig path="/patrimony" exact component={Patrimony} isPrivate />
+        <RouteConfig path="/Statement" exact component={Statement} isPrivate />
         <Route path="/notfound" exact component={NotFoundComponent} />
         <Route>
           <Redirect to="/notfound" />
