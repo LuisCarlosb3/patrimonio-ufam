@@ -46,7 +46,7 @@ export class UserRepository implements DbLoadAccountByRegistration, DbUpdateUser
   }
 
   async load (page: number, quantityPeerPage: number): Promise<User[]> {
-    const baseData = await knex(this.tableName).limit(quantityPeerPage).offset(page)
+    const baseData = await knex(this.tableName).select('id', 'name', 'registration', 'email', 'permission').limit(quantityPeerPage).offset(page)
     return baseData
   }
 
